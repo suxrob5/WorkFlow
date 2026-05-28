@@ -1,8 +1,10 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 import Header from "@/components/user/header"
 import Image from "next/image"
+import { db } from "@/firebase"
+import { collection, getDocs } from "firebase/firestore"
 
 export default function Home() {
   // Check-in array features
@@ -167,6 +169,16 @@ export default function Home() {
     setToastMessage("Запись удалена!")
     setShowToast(true)
     setTimeout(() => setShowToast(false), 2000)
+  }
+
+  // firebase
+
+  async function getAllDocuments() {
+    const querySnapshot = await getDocs(collection(db, "user-data"));
+    querySnapshot.forEach((doc) => {
+      console.log(doc.id, " => ", doc.data());
+      console.log(checkIns);
+    });
   }
 
   return (

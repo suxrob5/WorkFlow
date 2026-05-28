@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth/cordova";
+import { getFirestore } from "firebase/firestore";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -13,9 +14,10 @@ const firebaseConfig = {
   storageBucket: "workflow-2f3d5.firebasestorage.app",
   messagingSenderId: "578814345330",
   appId: "1:578814345330:web:aefe7078e33ca87787c2eb",
-  measurementId: "G-J613096JQJ"
+  measurementId: "G-J613096JQJ",
 };
 
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+export const db = getFirestore(app);
