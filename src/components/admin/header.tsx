@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const Header = () => {
+const AdHeader = () => {
   const pathname = usePathname() || "/";
   const isActive = (path: string) =>
     pathname === path || pathname.startsWith(path + "/");
@@ -71,4 +71,4 @@ const Header = () => {
   );
 };
 
-export default Header;
+export default AdHeader;

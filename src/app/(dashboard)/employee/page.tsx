@@ -1,5 +1,5 @@
-import Header from "@/components/header";
-import UsersList from "@/components/users";
+import Header from "@/components/admin/header";
+import UsersList from "@/components/admin/users";
 
 const Users = () => {
   return (
