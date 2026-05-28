@@ -171,7 +171,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen text-slate-100 font-nunito relative overflow-hidden pb-16">
-      
+
       {/* Navigation Header */}
       <Header />
 
@@ -192,7 +192,7 @@ export default function Home() {
       </div>
 
       <main className="relative z-10 mx-auto max-w-4xl px-4 py-8 md:px-6">
-        
+
         {/* Welcome Section */}
         <div className="text-center md:text-left mb-8 space-y-2">
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight leading-none bg-linear-to-r from-white via-slate-100 to-sky-200 bg-clip-text text-transparent">
@@ -205,7 +205,7 @@ export default function Home() {
 
         {/* Dynamic Check-in Activator Card */}
         <div className="w-full rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl shadow-[0_25px_50px_rgba(0,0,0,0.3)] p-6 md:p-8 mb-8 text-center relative overflow-hidden">
-          
+
           {/* Subtle glow border when camera active */}
           {isCameraActive && (
             <div className="absolute inset-0 border-2 border-emerald-500/20 rounded-3xl pointer-events-none animate-pulse" />
@@ -346,7 +346,7 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {checkIns.map((item) => (
                 <div key={item.id} className="bg-white/5 border border-white/10 hover:border-white/20 p-4 rounded-3xl backdrop-blur-md flex gap-4 transition duration-300 hover:scale-[1.01] hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)] relative group">
-                  
+
                   {/* Absolute Delete Button on hover */}
                   <button
                     onClick={() => deleteCheckIn(item.id)}
@@ -384,9 +384,12 @@ export default function Home() {
                       <div className="text-[10px] font-mono text-slate-400 leading-tight">
                         🧭 Lat: {item.location.latitude.toFixed(6)}
                         <br />
+
                         🧭 Lng: {item.location.longitude.toFixed(6)}
                       </div>
-                      
+                      <iframe
+                        className=""
+                        src={`https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d2999.7623640488337!2d${item.location.longitude.toFixed(6)}!3d${item.location.latitude.toFixed(6)}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2z${item.location.latitude.toFixed(6)}N,${item.location.longitude.toFixed(6)}E!5e0!3m2!1sru!2s!4v1780006456673!5m2!1sru!2s`} width="600" height="450" style={{ border: 0 }} allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe>
                       <a
                         href={`https://www.google.com/maps/search/?api=1&query=${item.location.latitude},${item.location.longitude}`}
                         target="_blank"
