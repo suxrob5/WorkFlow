@@ -24,6 +24,9 @@ export default function Home() {
   const [locationLoading, setLocationLoading] = useState(false)
   const [cameraError, setCameraError] = useState<string | null>(null)
 
+  console.log(checkIns);
+
+
   // Feedback notifications
   const [showToast, setShowToast] = useState(false)
   const [toastMessage, setToastMessage] = useState("")
@@ -192,7 +195,7 @@ export default function Home() {
         
         {/* Welcome Section */}
         <div className="text-center md:text-left mb-8 space-y-2">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-transparent tracking-tight leading-none bg-linear-to-r from-white via-slate-100 to-sky-200 bg-clip-text text-transparent">
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight leading-none bg-linear-to-r from-white via-slate-100 to-sky-200 bg-clip-text text-transparent">
             Система фиксации смен WorkFlow
           </h1>
           <p className="text-sm md:text-base text-slate-400 font-medium max-w-xl">
@@ -356,7 +359,7 @@ export default function Home() {
                   </button>
 
                   {/* Camera Snapshot base64 preview */}
-                  <div className="w-24 h-24 rounded-2xl overflow-hidden border border-white/10 bg-slate-900 flex-shrink-0 relative">
+                  <div className="w-24 h-24 rounded-2xl overflow-hidden border border-white/10 bg-slate-900 shrink-0 relative">
                     <Image src={item.image} alt="Snaped Checkin shot" fill className="object-cover" />
                   </div>
 

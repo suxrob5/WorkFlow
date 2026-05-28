@@ -39,7 +39,7 @@ export default function ActivitiesPage() {
             <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Рабочие графики</h1>
             <p className="text-sm text-slate-400 mt-1">Аналитика смен, графики и распределение нагрузки</p>
           </div>
-          <button className="self-start sm:self-auto bg-gradient-to-r from-sky-500 to-blue-600 hover:opacity-90 text-white font-bold px-5 py-2.5 rounded-2xl shadow-lg shadow-sky-500/20 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] flex items-center gap-2 text-sm cursor-pointer">
+          <button className="self-start sm:self-auto bg-linear-to-r from-sky-500 to-blue-600 hover:opacity-90 text-white font-bold px-5 py-2.5 rounded-2xl shadow-lg shadow-sky-500/20 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] flex items-center gap-2 text-sm cursor-pointer">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
@@ -52,7 +52,7 @@ export default function ActivitiesPage() {
           {SCHEDULE_SUMMARY.map((card, i) => (
             <div key={i} className="rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl p-5 hover:border-white/20 hover:-translate-y-0.5 transition-all duration-300 shadow-lg">
               <div className="flex items-center gap-3 mb-3">
-                <div className={`w-10 h-10 rounded-2xl bg-gradient-to-br ${card.color} flex items-center justify-center text-lg shadow-md`}>
+                <div className={`w-10 h-10 rounded-2xl bg-linear-to-r ${card.color} flex items-center justify-center text-lg shadow-md`}>
                   {card.icon}
                 </div>
                 <p className="text-xs text-slate-400 font-medium leading-tight">{card.label}</p>
@@ -77,11 +77,10 @@ export default function ActivitiesPage() {
                   <button
                     key={type}
                     onClick={() => setActiveChart(type)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
-                      activeChart === type
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${activeChart === type
                         ? "bg-sky-500 text-white shadow-md shadow-sky-500/30"
                         : "text-slate-400 hover:text-white hover:bg-white/5"
-                    }`}
+                      }`}
                   >
                     {labels[type]}
                   </button>
@@ -90,8 +89,8 @@ export default function ActivitiesPage() {
             </div>
           </div>
           <div key={activeChart}>
-            {activeChart === "bar"      && <BarChart />}
-            {activeChart === "line"     && <LineChart />}
+            {activeChart === "bar" && <BarChart />}
+            {activeChart === "line" && <LineChart />}
             {activeChart === "doughnut" && <DoughnutChart />}
           </div>
         </div>
@@ -101,7 +100,7 @@ export default function ActivitiesPage() {
           <h2 className="text-base font-bold text-white mb-2">Сетка рабочих смен</h2>
           <p className="text-xs text-slate-400 mb-5">Визуальное расписание по дням недели</p>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] text-sm">
+            <table className="w-full min-w-160 text-sm">
               <thead>
                 <tr>
                   <th className="text-left text-xs font-semibold text-slate-400 pb-3 pr-4 whitespace-nowrap">Сотрудник</th>
@@ -166,9 +165,9 @@ export default function ActivitiesPage() {
 
           <div className="space-y-3">
             {filtered.map((shift) => (
-              <div key={shift.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/[0.03] border border-white/5 hover:border-white/15 p-4 rounded-2xl transition duration-200 hover:bg-white/5">
+              <div key={shift.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/3 border border-white/5 hover:border-white/15 p-4 rounded-2xl transition duration-200 hover:bg-white/5">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-500/20 to-blue-600/20 border border-sky-400/20 flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-2xl bg-linear-to-r from-sky-500/20 to-blue-600/20 border border-sky-400/20 flex items-center justify-center shrink-0">
                     <span className="text-sky-400 font-bold text-sm">{shift.employee.charAt(0)}</span>
                   </div>
                   <div>

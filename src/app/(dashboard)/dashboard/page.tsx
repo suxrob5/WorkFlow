@@ -51,7 +51,7 @@ const Dashboard = () => {
           {DASHBOARD_STATS.map((stat, i) => (
             <div key={i} className={`rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl p-5 flex flex-col gap-4 hover:border-white/20 transition-all duration-300 hover:-translate-y-0.5 shadow-lg ${stat.glow}`}>
               <div className="flex items-center justify-between">
-                <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${stat.color} flex items-center justify-center text-white shadow-lg`}>
+                <div className={`w-11 h-11 rounded-2xl bg-linear-to-r ${stat.color} flex items-center justify-center text-white shadow-lg`}>
                   {STAT_ICONS[i]}
                 </div>
                 <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-400/20">

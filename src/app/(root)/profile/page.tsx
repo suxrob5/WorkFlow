@@ -139,7 +139,7 @@ const Profile = () => {
                 <div className="w-full rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl shadow-[0_25px_50px_rgba(0,0,0,0.35)] overflow-hidden mb-8">
                     
                     {/* Glowing Banner Background */}
-                    <div className="h-44 md:h-52 w-full relative bg-gradient-to-r from-sky-600 via-indigo-600 to-blue-800 flex items-center overflow-hidden">
+                    <div className="h-44 md:h-52 w-full relative bg-linear-to-r from-sky-600 via-indigo-600 to-blue-800 flex items-center overflow-hidden">
                         <div className="absolute inset-0 opacity-30">
                             <div className="absolute top-6 left-12 w-24 h-24 rounded-full bg-white/20 blur-xl animate-pulse" />
                             <div className="absolute bottom-4 right-16 w-36 h-36 rounded-full bg-sky-400/20 blur-2xl animate-pulse delay-75" />
@@ -155,7 +155,7 @@ const Profile = () => {
                         <div className="flex flex-col md:flex-row items-center md:items-end gap-5 text-center md:text-left">
                             
                             {/* Avatar container with interactive hover selector trigger */}
-                            <div className="relative group w-32 h-32 md:w-36 md:h-36 rounded-full p-1.5 bg-gradient-to-tr from-sky-400 via-indigo-500 to-blue-600 shadow-[0_10px_35px_rgba(14,165,233,0.3)] transition duration-300 hover:scale-[1.03]">
+                            <div className="relative group w-32 h-32 md:w-36 md:h-36 rounded-full p-1.5 bg-linear-to-tr from-sky-400 via-indigo-500 to-blue-600 shadow-[0_10px_35px_rgba(14,165,233,0.3)] transition duration-300 hover:scale-[1.03]">
                                 <div className="w-full h-full rounded-full overflow-hidden border-4 border-[#021236] relative">
                                     <Image 
                                         src={avatarUrl} 
@@ -302,7 +302,7 @@ const Profile = () => {
                             onClick={() => setActiveTab("overview")}
                             className={`flex items-center justify-center md:justify-start gap-3 px-5 py-3.5 rounded-2xl font-bold text-sm transition-all duration-200 whitespace-nowrap cursor-pointer w-full ${activeTab === "overview" ? "bg-sky-500/10 border border-sky-500/30 text-sky-300 shadow-[0_5px_15px_rgba(14,165,233,0.1)]" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"}`}
                         >
-                            <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
                             Личные данные
@@ -311,7 +311,7 @@ const Profile = () => {
                             onClick={() => setActiveTab("activity")}
                             className={`flex items-center justify-center md:justify-start gap-3 px-5 py-3.5 rounded-2xl font-bold text-sm transition-all duration-200 whitespace-nowrap cursor-pointer w-full ${activeTab === "activity" ? "bg-sky-500/10 border border-sky-500/30 text-sky-300 shadow-[0_5px_15px_rgba(14,165,233,0.1)]" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"}`}
                         >
-                            <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                             </svg>
                             Активность
@@ -333,36 +333,36 @@ const Profile = () => {
                                     /* Display View Mode */
                                     <div className="space-y-6">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div className="space-y-1 bg-white/[0.02] border border-white/5 p-4 rounded-2xl">
+                                            <div className="space-y-1 bg-white/2 border border-white/5 p-4 rounded-2xl">
                                                 <span className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Имя</span>
                                                 <p className="text-lg font-semibold text-white mt-1">{name}</p>
                                             </div>
-                                            <div className="space-y-1 bg-white/[0.02] border border-white/5 p-4 rounded-2xl">
+                                            <div className="space-y-1 bg-white/2 border border-white/5 p-4 rounded-2xl">
                                                 <span className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Фамилия</span>
                                                 <p className="text-lg font-semibold text-white mt-1">{surname}</p>
                                             </div>
-                                            <div className="space-y-1 bg-white/[0.02] border border-white/5 p-4 rounded-2xl">
+                                            <div className="space-y-1 bg-white/2 border border-white/5 p-4 rounded-2xl">
                                                 <span className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Роль в системе</span>
                                                 <div className="flex items-center gap-2 mt-1">
                                                     <p className="text-lg font-semibold text-white capitalize">{role}</p>
                                                     <span className="px-2 py-0.5 text-[10px] font-extrabold bg-blue-500/20 text-blue-300 border border-blue-400/20 rounded-md">Базовый доступ</span>
                                                 </div>
                                             </div>
-                                            <div className="space-y-1 bg-white/[0.02] border border-white/5 p-4 rounded-2xl">
+                                            <div className="space-y-1 bg-white/2 border border-white/5 p-4 rounded-2xl">
                                                 <span className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Электронная почта</span>
                                                 <p className="text-lg font-semibold text-white mt-1 break-all">{email}</p>
                                             </div>
-                                            <div className="space-y-1 bg-white/[0.02] border border-white/5 p-4 rounded-2xl">
+                                            <div className="space-y-1 bg-white/2 border border-white/5 p-4 rounded-2xl">
                                                 <span className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Номер телефона</span>
                                                 <p className="text-lg font-semibold text-white mt-1">{phone}</p>
                                             </div>
-                                            <div className="space-y-1 bg-white/[0.02] border border-white/5 p-4 rounded-2xl">
+                                            <div className="space-y-1 bg-white/2 border border-white/5 p-4 rounded-2xl">
                                                 <span className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Дата регистрации</span>
                                                 <p className="text-lg font-semibold text-white mt-1">28 мая 2026</p>
                                             </div>
                                         </div>
 
-                                        <div className="space-y-1 bg-white/[0.02] border border-white/5 p-4 rounded-2xl">
+                                        <div className="space-y-1 bg-white/2 border border-white/5 p-4 rounded-2xl">
                                             <span className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">О себе</span>
                                             <p className="text-sm font-medium text-slate-300 mt-2 leading-relaxed italic">
                                                 &ldquo;{bio}&rdquo;
@@ -478,8 +478,8 @@ const Profile = () => {
                                     {/* Activity Timeline List */}
                                     <div className="border-l-2 border-white/10 ml-3 space-y-6 py-2">
                                         <div className="relative pl-7">
-                                            <span className="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-emerald-500 ring-4 ring-[#021236] flex items-center justify-center" />
-                                            <div className="bg-white/[0.02] border border-white/5 p-4 rounded-2xl">
+                                            <span className="absolute -left-2.25 top-1.5 w-4 h-4 rounded-full bg-emerald-500 ring-4 ring-[#021236] flex items-center justify-center" />
+                                            <div className="bg-white/2 border border-white/5 p-4 rounded-2xl">
                                                 <div className="flex justify-between items-start">
                                                     <h4 className="text-sm font-bold text-white">Смена завершена успешно</h4>
                                                     <span className="text-[10px] font-semibold text-slate-400 bg-white/5 px-2 py-0.5 rounded">Вчера, 18:30</span>
@@ -488,8 +488,8 @@ const Profile = () => {
                                             </div>
                                         </div>
                                         <div className="relative pl-7">
-                                            <span className="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-sky-500 ring-4 ring-[#021236]" />
-                                            <div className="bg-white/[0.02] border border-white/5 p-4 rounded-2xl">
+                                            <span className="absolute -left-2.25 top-1.5 w-4 h-4 rounded-full bg-sky-500 ring-4 ring-[#021236]" />
+                                            <div className="bg-white/2 border border-white/5 p-4 rounded-2xl">
                                                 <div className="flex justify-between items-start">
                                                     <h4 className="text-sm font-bold text-white">Выполнение задачи: Координация спринта</h4>
                                                     <span className="text-[10px] font-semibold text-slate-400 bg-white/5 px-2 py-0.5 rounded">27 мая, 14:15</span>
@@ -498,8 +498,8 @@ const Profile = () => {
                                             </div>
                                         </div>
                                         <div className="relative pl-7">
-                                            <span className="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-indigo-500 ring-4 ring-[#021236]" />
-                                            <div className="bg-white/[0.02] border border-white/5 p-4 rounded-2xl">
+                                            <span className="absolute -left-2.25 top-1.5 w-4 h-4 rounded-full bg-indigo-500 ring-4 ring-[#021236]" />
+                                            <div className="bg-white/2 border border-white/5 p-4 rounded-2xl">
                                                 <div className="flex justify-between items-start">
                                                     <h4 className="text-sm font-bold text-white">Вход в систему зафиксирован</h4>
                                                     <span className="text-[10px] font-semibold text-slate-400 bg-white/5 px-2 py-0.5 rounded">26 мая, 08:58</span>
