@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Header from "@/components/user/header"
 import Image from "next/image"
 import { db } from "@/firebase"
-import { collection, getDocs } from "firebase/firestore"
+import { addDoc, collection, getDocs } from "firebase/firestore"
 
 export default function Home() {
   // Check-in array features
@@ -172,6 +172,14 @@ export default function Home() {
   }
 
   // firebase
+
+  async function addWithAutoId() {
+  const docRef = await addDoc(collection(db, "YOUR_COLLECTION"), {
+    name: "John Doe",
+    createdAt: new Date()
+  });
+  console.log("Document written with ID: ", docRef.id);
+}
 
   async function getAllDocuments() {
     const querySnapshot = await getDocs(collection(db, "user-data"));
