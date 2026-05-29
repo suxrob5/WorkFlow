@@ -28,7 +28,6 @@ export default function Home() {
     docId?: string;
   }
 
-  const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
@@ -38,8 +37,7 @@ export default function Home() {
   } | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
-
-  console.log(checkIns);
+  const [displayCheckIns, setDisplayCheckIns] = useState<CheckIn[]>([]);
 
   // Feedback notifications
   const [showToast, setShowToast] = useState(false);
@@ -47,7 +45,11 @@ export default function Home() {
 
   // Load check-ins from Firestore on mount
   useEffect(() => {
-    getAllDocuments();
+    const loadData = async () => {
+      const data = await getCheckInsFromFirebase();
+      setDisplayCheckIns(data);
+    };
+    loadData();
   }, []);
 
   useEffect(() => {
@@ -156,12 +158,7 @@ export default function Home() {
     });
   };
 
-  const syncLocalCheckIns = async () => {
-    const unsynced = checkIns.filter((item) => !item.docId);
-    for (const checkIn of unsynced) {
-      await pushData(checkIn);
-    }
-  };
+
 
   const submitCheckIn = async () => {
     if (!capturedPhoto || !currentLocation) return;
@@ -173,11 +170,11 @@ export default function Home() {
       timestamp: new Date().toLocaleString('ru-RU'),
     };
 
-    await syncLocalCheckIns();
-    setCheckIns([newCheckIn, ...checkIns]);
     await pushData(newCheckIn);
 
-    await getAllDocuments();
+    // Fetch fresh data from Firebase
+    const updatedData = await getCheckInsFromFirebase();
+    setDisplayCheckIns(updatedData);
 
     setCapturedPhoto(null);
     setCurrentLocation(null);
@@ -188,15 +185,12 @@ export default function Home() {
     setTimeout(() => setShowToast(false), 3000);
   };
 
-  const deleteCheckIn = async (id: string) => {
-    const target = checkIns.find((item) => item.id === id);
-    if (target?.docId) {
-      await deleteDoc(doc(db, 'user-data', target.docId));
-      await getAllDocuments();
-    } else {
-      const updated = checkIns.filter((item) => item.id !== id);
-      setCheckIns(updated);
-    }
+  const deleteCheckIn = async (docId: string) => {
+    await deleteDoc(doc(db, 'user-data', docId));
+
+    // Fetch fresh data from Firebase
+    const updatedData = await getCheckInsFromFirebase();
+    setDisplayCheckIns(updatedData);
 
     setToastMessage('Запись удалена!');
     setShowToast(true);
@@ -205,7 +199,7 @@ export default function Home() {
 
   // firebase
 
-  async function getAllDocuments() {
+  async function getCheckInsFromFirebase(): Promise<CheckIn[]> {
     const checkInsQuery = query(
       collection(db, 'user-data'),
       orderBy('createdAt', 'desc'),
@@ -238,7 +232,7 @@ export default function Home() {
       });
     });
 
-    setCheckIns(firestoreCheckIns);
+    return firestoreCheckIns;
   }
 
   return (
@@ -458,16 +452,16 @@ export default function Home() {
                   d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
                 />
               </svg>
-              История отметок присутствия ({checkIns.length})
+              История отметок присутствия ({displayCheckIns.length})
             </h2>
-            {checkIns.length > 0 && (
+            {displayCheckIns.length > 0 && (
               <span className="text-[10px] bg-sky-500/10 text-sky-600 dark:text-sky-400 px-2.5 py-1 rounded-full font-bold uppercase border border-sky-400/20 tracking-wider">
                 Массив обновлен
               </span>
             )}
           </div>
 
-          {checkIns.length === 0 ? (
+          {displayCheckIns.length === 0 ? (
             <div className="bg-white/40 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-12 rounded-3xl text-center text-slate-500 dark:text-slate-400 backdrop-blur-md">
               <svg
                 className="w-14 h-14 text-slate-400 dark:text-slate-600 mx-auto mb-4 animate-pulse"
@@ -492,14 +486,14 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {checkIns.map((item) => (
+              {displayCheckIns.map((item) => (
                 <div
                   key={item.id}
                   className="bg-white/60 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 p-4 rounded-3xl backdrop-blur-md flex gap-4 transition duration-300 hover:scale-[1.01] hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)] relative group"
                 >
                   {/* Absolute Delete Button on hover */}
                   <button
-                    onClick={() => deleteCheckIn(item.id)}
+                    onClick={() => deleteCheckIn(item.docId!)}
                     className="absolute top-2 right-2 w-7 h-7 rounded-full bg-slate-200/80 dark:bg-black/40 hover:bg-red-500/20 text-slate-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-200 cursor-pointer"
                     title="Удалить отметку"
                   >
