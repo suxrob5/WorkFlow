@@ -1,5 +1,5 @@
-import React from 'react';
-import Link from 'next/link';
+import React from "react";
+import Link from "next/link";
 
 const Login = () => {
   return (
@@ -46,7 +46,7 @@ const Login = () => {
         </form>
 
         <div className="mt-6 text-center text-sm text-slate-400">
-          Нет аккаунта?{' '}
+          Нет аккаунта?{" "}
           <Link
             href="/register"
             className="text-sky-500 hover:text-sky-400 font-medium transition-colors"

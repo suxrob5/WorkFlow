@@ -1,42 +1,42 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useTheme } from '@/components/theme-provider';
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useTheme } from "@/components/theme-provider";
 
 const Header = () => {
-  const pathname = usePathname() || '/';
+  const pathname = usePathname() || "/";
   const isActive = (path: string) =>
-    pathname === path || pathname.startsWith(path + '/');
+    pathname === path || pathname.startsWith(path + "/");
 
   const [avatarUrl, setAvatarUrl] = useState(
-    'https://randomuser.me/api/portraits/men/1.jpg',
+    "https://randomuser.me/api/portraits/men/1.jpg",
   );
   const { theme, toggleTheme } = useTheme();
 
   // Dynamic header avatar sync!
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedAvatar = localStorage.getItem('profile_avatar');
+    if (typeof window !== "undefined") {
+      const savedAvatar = localStorage.getItem("profile_avatar");
       if (savedAvatar) {
         setAvatarUrl(savedAvatar);
       }
 
       // Listen for storage changes in case of multi-tab sync
       const handleStorageChange = () => {
-        const updatedAvatar = localStorage.getItem('profile_avatar');
+        const updatedAvatar = localStorage.getItem("profile_avatar");
         if (updatedAvatar) setAvatarUrl(updatedAvatar);
       };
-      window.addEventListener('storage', handleStorageChange);
+      window.addEventListener("storage", handleStorageChange);
 
       // Custom event in case update happens in the same tab/window
-      window.addEventListener('profileUpdate', handleStorageChange);
+      window.addEventListener("profileUpdate", handleStorageChange);
 
       return () => {
-        window.removeEventListener('storage', handleStorageChange);
-        window.removeEventListener('profileUpdate', handleStorageChange);
+        window.removeEventListener("storage", handleStorageChange);
+        window.removeEventListener("profileUpdate", handleStorageChange);
       };
     }
   }, []);
@@ -96,7 +96,7 @@ const Header = () => {
 
           <Link
             href="/profile"
-            className={`inline-flex items-center gap-3 rounded-full border border-white/15 px-4 py-1.5 text-sm font-semibold text-white transition duration-200 ${isActive('/profile') ? 'bg-white/10' : 'bg-white/5 hover:border-white/30 hover:bg-white/15 hover:text-slate-100'}`}
+            className={`inline-flex items-center gap-3 rounded-full border border-white/15 px-4 py-1.5 text-sm font-semibold text-white transition duration-200 ${isActive("/profile") ? "bg-white/10" : "bg-white/5 hover:border-white/30 hover:bg-white/15 hover:text-slate-100"}`}
           >
             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-sky-500 to-blue-600 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition duration-200 hover:-translate-y-0.5 hover:shadow-sky-500/40 overflow-hidden relative">
               <Image

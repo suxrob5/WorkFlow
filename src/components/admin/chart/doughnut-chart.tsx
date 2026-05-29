@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import {
   Chart as ChartJS,
   ArcElement,
   Tooltip,
   Legend,
   ChartOptions,
-} from 'chart.js';
-import { Doughnut } from 'react-chartjs-2';
-import { DOUGHNUT_CHART_DATA, CHART_TOOLTIP_STYLE } from '@/data/admin';
+} from "chart.js";
+import { Doughnut } from "react-chartjs-2";
+import { DOUGHNUT_CHART_DATA, CHART_TOOLTIP_STYLE } from "@/data/admin";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -18,7 +18,7 @@ export default function DoughnutChart() {
 
   useEffect(() => {
     const checkTheme = () => {
-      setIsDarkMode(document.documentElement.classList.contains('dark'));
+      setIsDarkMode(document.documentElement.classList.contains("dark"));
     };
 
     checkTheme();
@@ -26,29 +26,29 @@ export default function DoughnutChart() {
     const observer = new MutationObserver(checkTheme);
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['class'],
+      attributeFilter: ["class"],
     });
 
     return () => observer.disconnect();
   }, []);
 
   const textColor = isDarkMode
-    ? 'rgba(255, 255, 255, 0.75)'
-    : 'rgba(71, 85, 105, 1)';
+    ? "rgba(255, 255, 255, 0.75)"
+    : "rgba(71, 85, 105, 1)";
 
-  const options: ChartOptions<'doughnut'> = {
+  const options: ChartOptions<"doughnut"> = {
     responsive: true,
     maintainAspectRatio: false,
     animation: {
       animateRotate: true,
       animateScale: true,
       duration: 1400,
-      easing: 'easeInOutCirc',
+      easing: "easeInOutCirc",
     },
-    cutout: '68%',
+    cutout: "68%",
     plugins: {
       legend: {
-        position: 'right',
+        position: "right",
         labels: {
           color: textColor,
           font: { size: 12 },
@@ -61,7 +61,7 @@ export default function DoughnutChart() {
   };
 
   return (
-    <div style={{ width: '100%', height: '260px', position: 'relative' }}>
+    <div style={{ width: "100%", height: "260px", position: "relative" }}>
       <Doughnut data={DOUGHNUT_CHART_DATA} options={options} />
     </div>
   );

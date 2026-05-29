@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { users as allUsers } from '@/data/user';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { users as allUsers } from "@/data/user";
 
 type User = {
   id: number;
@@ -16,8 +16,8 @@ type User = {
 const PAGE_SIZE = 4;
 
 const Users = () => {
-  const [filter, setFilter] = useState('');
-  const [dept, setDept] = useState('');
+  const [filter, setFilter] = useState("");
+  const [dept, setDept] = useState("");
   const [page, setPage] = useState(1);
   const [items, setItems] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
@@ -31,7 +31,7 @@ const Users = () => {
         name: u.name,
         lastName: u.lastName,
         email: u.email,
-        position: (u as any).position || (u as any).time || '',
+        position: (u as any).position || (u as any).time || "",
         avatar: u.avatar,
       })),
     [],
@@ -47,7 +47,7 @@ const Users = () => {
         ? `${u.name} ${u.lastName}`.toLowerCase().includes(q)
         : true;
       const inDept = dept
-        ? (u.position || '').toLowerCase() === dept.toLowerCase()
+        ? (u.position || "").toLowerCase() === dept.toLowerCase()
         : true;
       return inName && inDept;
     });
@@ -88,7 +88,7 @@ const Users = () => {
           setPage((p) => p + 1);
         }
       },
-      { root: null, rootMargin: '200px', threshold: 0.1 },
+      { root: null, rootMargin: "200px", threshold: 0.1 },
     );
     observerRef.current.observe(sentinelRef.current);
     return () => observerRef.current?.disconnect();
@@ -97,7 +97,7 @@ const Users = () => {
   // derive departments for filter
   const departments = useMemo(() => {
     const set = new Set<string>();
-    source.forEach((u) => set.add((u.position || '').trim()));
+    source.forEach((u) => set.add((u.position || "").trim()));
     return Array.from(set).filter(Boolean);
   }, [source]);
 
@@ -158,13 +158,13 @@ const Users = () => {
                     {user.name} {user.lastName}
                   </div>
                   <div className="text-sm text-slate-600 dark:text-slate-300">
-                    {user.position || 'Сотрудник'}
+                    {user.position || "Сотрудник"}
                   </div>
                 </div>
               </div>
 
               <div className="text-sm text-slate-600 dark:text-slate-300">
-                {user.email || '—'}
+                {user.email || "—"}
               </div>
             </div>
           ))

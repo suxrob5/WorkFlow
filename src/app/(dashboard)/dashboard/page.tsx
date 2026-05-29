@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import AdHeader from '@/components/admin/header';
-import PieChart from '@/components/admin/chart/pie-chart';
-import BarChart from '@/components/admin/chart/bar-chart';
-import LineChart from '@/components/admin/chart/line-chart';
-import Users from '@/components/admin/users';
-import { DASHBOARD_STATS } from '@/data/admin';
+import AdHeader from "@/components/admin/header";
+import PieChart from "@/components/admin/chart/pie-chart";
+import BarChart from "@/components/admin/chart/bar-chart";
+import LineChart from "@/components/admin/chart/line-chart";
+import Users from "@/components/admin/users";
+import { DASHBOARD_STATS } from "@/data/admin";
 
 // SVG icons for each stat card (order matches DASHBOARD_STATS)
 const STAT_ICONS = [

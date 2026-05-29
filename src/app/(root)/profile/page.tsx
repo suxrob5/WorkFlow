@@ -1,31 +1,31 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import AdHeader from '@/components/admin/header';
-import Header from '@/components/user/header';
-import Image from 'next/image';
+import React, { useState, useEffect } from "react";
+import AdHeader from "@/components/admin/header";
+import Header from "@/components/user/header";
+import Image from "next/image";
 
 const Profile = () => {
-  const role = 'user';
+  const role = "user";
 
   // Core Profile States (Default values in Russian to match login/register)
-  const [name, setName] = useState('Иван');
-  const [surname, setSurname] = useState('Иванов');
-  const [email, setEmail] = useState('ivan@example.com');
+  const [name, setName] = useState("Иван");
+  const [surname, setSurname] = useState("Иванов");
+  const [email, setEmail] = useState("ivan@example.com");
   const [avatarUrl, setAvatarUrl] = useState(
-    'https://randomuser.me/api/portraits/men/1.jpg',
+    "https://randomuser.me/api/portraits/men/1.jpg",
   );
-  const [phone, setPhone] = useState('+998 (90) 123-45-67');
+  const [phone, setPhone] = useState("+998 (90) 123-45-67");
   const [bio, setBio] = useState(
-    'Специалист по внедрению рабочих графиков и координации команд в WorkFlow.',
+    "Специалист по внедрению рабочих графиков и координации команд в WorkFlow.",
   );
 
   // Interactive UI States
   const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview'); // "overview" | "activity"
+  const [activeTab, setActiveTab] = useState("overview"); // "overview" | "activity"
   const [isSaving, setIsSaving] = useState(false);
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
+  const [toastMessage, setToastMessage] = useState("");
   const [showAvatarSelector, setShowAvatarSelector] = useState(false);
 
   // Form inputs for editing state
@@ -37,13 +37,13 @@ const Profile = () => {
 
   // Load from localStorage on client render to persist user edits!
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedName = localStorage.getItem('profile_name');
-      const savedSurname = localStorage.getItem('profile_surname');
-      const savedEmail = localStorage.getItem('profile_email');
-      const savedAvatar = localStorage.getItem('profile_avatar');
-      const savedPhone = localStorage.getItem('profile_phone');
-      const savedBio = localStorage.getItem('profile_bio');
+    if (typeof window !== "undefined") {
+      const savedName = localStorage.getItem("profile_name");
+      const savedSurname = localStorage.getItem("profile_surname");
+      const savedEmail = localStorage.getItem("profile_email");
+      const savedAvatar = localStorage.getItem("profile_avatar");
+      const savedPhone = localStorage.getItem("profile_phone");
+      const savedBio = localStorage.getItem("profile_bio");
 
       if (savedName) {
         setName(savedName);
@@ -81,17 +81,17 @@ const Profile = () => {
       setPhone(editPhone);
       setBio(editBio);
 
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('profile_name', editName);
-        localStorage.setItem('profile_surname', editSurname);
-        localStorage.setItem('profile_email', editEmail);
-        localStorage.setItem('profile_phone', editPhone);
-        localStorage.setItem('profile_bio', editBio);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("profile_name", editName);
+        localStorage.setItem("profile_surname", editSurname);
+        localStorage.setItem("profile_email", editEmail);
+        localStorage.setItem("profile_phone", editPhone);
+        localStorage.setItem("profile_bio", editBio);
       }
 
       setIsSaving(false);
       setIsEditing(false);
-      setToastMessage('Профиль успешно обновлен!');
+      setToastMessage("Профиль успешно обновлен!");
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);
     }, 1200);
@@ -108,33 +108,33 @@ const Profile = () => {
 
   const selectAvatar = (url: string) => {
     setAvatarUrl(url);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('profile_avatar', url);
-      window.dispatchEvent(new Event('profileUpdate'));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("profile_avatar", url);
+      window.dispatchEvent(new Event("profileUpdate"));
     }
     setShowAvatarSelector(false);
-    setToastMessage('Аватар успешно обновлен!');
+    setToastMessage("Аватар успешно обновлен!");
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
   };
 
   const avatarPresets = [
-    'https://randomuser.me/api/portraits/men/1.jpg',
-    'https://randomuser.me/api/portraits/women/1.jpg',
-    'https://randomuser.me/api/portraits/men/10.jpg',
-    'https://randomuser.me/api/portraits/women/10.jpg',
-    'https://randomuser.me/api/portraits/men/32.jpg',
-    'https://randomuser.me/api/portraits/women/32.jpg',
-    'https://randomuser.me/api/portraits/men/44.jpg',
-    'https://randomuser.me/api/portraits/women/44.jpg',
-    'https://randomuser.me/api/portraits/men/85.jpg',
-    'https://randomuser.me/api/portraits/women/85.jpg',
+    "https://randomuser.me/api/portraits/men/1.jpg",
+    "https://randomuser.me/api/portraits/women/1.jpg",
+    "https://randomuser.me/api/portraits/men/10.jpg",
+    "https://randomuser.me/api/portraits/women/10.jpg",
+    "https://randomuser.me/api/portraits/men/32.jpg",
+    "https://randomuser.me/api/portraits/women/32.jpg",
+    "https://randomuser.me/api/portraits/men/44.jpg",
+    "https://randomuser.me/api/portraits/women/44.jpg",
+    "https://randomuser.me/api/portraits/men/85.jpg",
+    "https://randomuser.me/api/portraits/women/85.jpg",
   ];
 
   return (
     <div className="min-h-screen text-slate-800 dark:text-slate-100 font-nunito relative overflow-hidden pb-12 transition-colors duration-300">
       {/* Nav Header */}
-      {role === 'user' ? <Header /> : <AdHeader />}
+      {role === "user" ? <Header /> : <AdHeader />}
 
       {/* Glowing Ambient Background Elements */}
       <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-sky-500/10 blur-[120px] pointer-events-none z-0" />
@@ -142,7 +142,7 @@ const Profile = () => {
 
       {/* Notification Toast */}
       <div
-        className={`fixed top-6 right-6 z-50 transition-all duration-300 transform ${showToast ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0 pointer-events-none'}`}
+        className={`fixed top-6 right-6 z-50 transition-all duration-300 transform ${showToast ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0 pointer-events-none"}`}
       >
         <div className="bg-white dark:bg-[#021E5D] border border-slate-200/60 dark:border-emerald-500/30 text-emerald-600 dark:text-emerald-400 px-6 py-4 rounded-2xl shadow-[0_15px_30px_rgba(0,0,0,0.1)] dark:shadow-[0_15px_30px_rgba(0,0,0,0.4)] backdrop-blur-xl flex items-center gap-3">
           <span className="flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300">
@@ -366,7 +366,7 @@ const Profile = () => {
                 <button
                   key={idx}
                   onClick={() => selectAvatar(preset)}
-                  className={`relative w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden border-2 cursor-pointer transition duration-200 hover:scale-110 ${avatarUrl === preset ? 'border-sky-500 scale-105 shadow-[0_0_15px_rgba(14,165,233,0.5)]' : 'border-slate-200 dark:border-white/10 hover:border-sky-400/50'}`}
+                  className={`relative w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden border-2 cursor-pointer transition duration-200 hover:scale-110 ${avatarUrl === preset ? "border-sky-500 scale-105 shadow-[0_0_15px_rgba(14,165,233,0.5)]" : "border-slate-200 dark:border-white/10 hover:border-sky-400/50"}`}
                 >
                   <Image
                     src={preset}
@@ -413,8 +413,8 @@ const Profile = () => {
           {/* Navigation Sidebar Tabs */}
           <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-2 md:pb-0 scrollbar-none z-10">
             <button
-              onClick={() => setActiveTab('overview')}
-              className={`flex items-center justify-center md:justify-start gap-3 px-5 py-3.5 rounded-2xl font-bold text-sm transition-all duration-200 whitespace-nowrap cursor-pointer w-full ${activeTab === 'overview' ? 'bg-sky-500/10 border border-sky-500/20 dark:border-sky-500/30 text-sky-650 dark:text-sky-300 shadow-[0_5px_15px_rgba(14,165,233,0.05)] dark:shadow-[0_5px_15px_rgba(14,165,233,0.1)]' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5'}`}
+              onClick={() => setActiveTab("overview")}
+              className={`flex items-center justify-center md:justify-start gap-3 px-5 py-3.5 rounded-2xl font-bold text-sm transition-all duration-200 whitespace-nowrap cursor-pointer w-full ${activeTab === "overview" ? "bg-sky-500/10 border border-sky-500/20 dark:border-sky-500/30 text-sky-650 dark:text-sky-300 shadow-[0_5px_15px_rgba(14,165,233,0.05)] dark:shadow-[0_5px_15px_rgba(14,165,233,0.1)]" : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5"}`}
             >
               <svg
                 className="w-5 h-5 shrink-0"
@@ -432,8 +432,8 @@ const Profile = () => {
               Личные данные
             </button>
             <button
-              onClick={() => setActiveTab('activity')}
-              className={`flex items-center justify-center md:justify-start gap-3 px-5 py-3.5 rounded-2xl font-bold text-sm transition-all duration-200 whitespace-nowrap cursor-pointer w-full ${activeTab === 'activity' ? 'bg-sky-500/10 border border-sky-500/20 dark:border-sky-500/30 text-sky-650 dark:text-sky-300 shadow-[0_5px_15px_rgba(14,165,233,0.05)] dark:shadow-[0_5px_15px_rgba(14,165,233,0.1)]' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5'}`}
+              onClick={() => setActiveTab("activity")}
+              className={`flex items-center justify-center md:justify-start gap-3 px-5 py-3.5 rounded-2xl font-bold text-sm transition-all duration-200 whitespace-nowrap cursor-pointer w-full ${activeTab === "activity" ? "bg-sky-500/10 border border-sky-500/20 dark:border-sky-500/30 text-sky-650 dark:text-sky-300 shadow-[0_5px_15px_rgba(14,165,233,0.05)] dark:shadow-[0_5px_15px_rgba(14,165,233,0.1)]" : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5"}`}
             >
               <svg
                 className="w-5 h-5 shrink-0"
@@ -455,7 +455,7 @@ const Profile = () => {
           {/* Main Card with Details based on the Active Tab */}
           <div className="md:col-span-3 w-full rounded-3xl bg-white/60 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 backdrop-blur-xl shadow-[0_20px_40px_rgba(0,0,0,0.04)] dark:shadow-xl p-6 md:p-8 transition-all duration-300">
             {/* TAB 1: OVERVIEW & PERSONAL INFO */}
-            {activeTab === 'overview' && (
+            {activeTab === "overview" && (
               <div>
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 pb-3 border-b border-slate-200 dark:border-white/10 flex items-center gap-2">
                   <span className="w-1.5 h-6 rounded-full bg-sky-500" />
@@ -628,7 +628,7 @@ const Profile = () => {
                         disabled={isSaving}
                         className="bg-linear-to-br from-sky-500 to-blue-600 hover:opacity-90 disabled:opacity-50 text-white font-bold px-8 py-3 rounded-2xl shadow-lg shadow-sky-500/20 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] flex items-center gap-2 cursor-pointer"
                       >
-                        {isSaving ? 'Сохранение...' : 'Сохранить изменения'}
+                        {isSaving ? "Сохранение..." : "Сохранить изменения"}
                       </button>
                     </div>
                   </form>
@@ -637,7 +637,7 @@ const Profile = () => {
             )}
 
             {/* TAB 2: SYSTEM ACTIVITY */}
-            {activeTab === 'activity' && (
+            {activeTab === "activity" && (
               <div>
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4 pb-3 border-b border-slate-200 dark:border-white/10 flex items-center gap-2">
                   <span className="w-1.5 h-6 rounded-full bg-indigo-500 dark:bg-indigo-500" />

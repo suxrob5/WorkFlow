@@ -1,23 +1,23 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import AdHeader from '@/components/admin/header';
-import BarChart from '@/components/admin/chart/bar-chart';
-import LineChart from '@/components/admin/chart/line-chart';
-import DoughnutChart from '@/components/admin/chart/doughnut-chart';
+import { useState } from "react";
+import AdHeader from "@/components/admin/header";
+import BarChart from "@/components/admin/chart/bar-chart";
+import LineChart from "@/components/admin/chart/line-chart";
+import DoughnutChart from "@/components/admin/chart/doughnut-chart";
 import {
   SHIFTS,
   STATUS_CONFIG,
   WEEKDAYS,
   SCHEDULE_SUMMARY,
   type ShiftStatus,
-} from '@/data/admin';
+} from "@/data/admin";
 
 export default function ActivitiesPage() {
-  const [activeChart, setActiveChart] = useState<'bar' | 'line' | 'doughnut'>(
-    'bar',
+  const [activeChart, setActiveChart] = useState<"bar" | "line" | "doughnut">(
+    "bar",
   );
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   const filtered = SHIFTS.filter(
     (s) =>
@@ -101,11 +101,11 @@ export default function ActivitiesPage() {
               </p>
             </div>
             <div className="flex gap-1.5 p-1 bg-white/40 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl self-start sm:self-auto">
-              {(['bar', 'line', 'doughnut'] as const).map((type) => {
+              {(["bar", "line", "doughnut"] as const).map((type) => {
                 const labels = {
-                  bar: 'Посещаемость',
-                  line: 'Часы работы',
-                  doughnut: 'Отделы',
+                  bar: "Посещаемость",
+                  line: "Часы работы",
+                  doughnut: "Отделы",
                 };
                 return (
                   <button
@@ -113,8 +113,8 @@ export default function ActivitiesPage() {
                     onClick={() => setActiveChart(type)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
                       activeChart === type
-                        ? 'bg-sky-500 text-white shadow-md shadow-sky-500/30'
-                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5'
+                        ? "bg-sky-500 text-white shadow-md shadow-sky-500/30"
+                        : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"
                     }`}
                   >
                     {labels[type]}
@@ -124,9 +124,9 @@ export default function ActivitiesPage() {
             </div>
           </div>
           <div key={activeChart} className="">
-            {activeChart === 'bar' && <BarChart />}
-            {activeChart === 'line' && <LineChart />}
-            {activeChart === 'doughnut' && <DoughnutChart />}
+            {activeChart === "bar" && <BarChart />}
+            {activeChart === "line" && <LineChart />}
+            {activeChart === "doughnut" && <DoughnutChart />}
           </div>
         </div>
 
@@ -259,7 +259,7 @@ export default function ActivitiesPage() {
                   {WEEKDAYS.map((day) => (
                     <span
                       key={day}
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-lg border ${shift.days.includes(day) ? 'bg-sky-500/15 text-sky-600 dark:text-sky-300 border-sky-400/20' : 'bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-500 border-slate-200 dark:border-white/5'}`}
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-lg border ${shift.days.includes(day) ? "bg-sky-500/15 text-sky-600 dark:text-sky-300 border-sky-400/20" : "bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-500 border-slate-200 dark:border-white/5"}`}
                     >
                       {day}
                     </span>

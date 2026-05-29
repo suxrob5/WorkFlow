@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,9 +12,9 @@ import {
   Legend,
   Filler,
   ChartOptions,
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
-import { LINE_CHART_DATA, CHART_TOOLTIP_STYLE } from '@/data/admin';
+} from "chart.js";
+import { Line } from "react-chartjs-2";
+import { LINE_CHART_DATA, CHART_TOOLTIP_STYLE } from "@/data/admin";
 
 ChartJS.register(
   CategoryScale,
@@ -33,7 +33,7 @@ export default function LineChart() {
   // Sync state with Tailwind dark mode class on the HTML tag
   useEffect(() => {
     const checkTheme = () => {
-      setIsDarkMode(document.documentElement.classList.contains('dark'));
+      setIsDarkMode(document.documentElement.classList.contains("dark"));
     };
 
     // Run once on mount
@@ -43,7 +43,7 @@ export default function LineChart() {
     const observer = new MutationObserver(checkTheme);
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['class'],
+      attributeFilter: ["class"],
     });
 
     return () => observer.disconnect();
@@ -51,22 +51,22 @@ export default function LineChart() {
 
   // Determine colors dynamically based on theme state
   const textColor = isDarkMode
-    ? 'rgba(255, 255, 255, 0.7)'
-    : 'rgba(71, 85, 105, 1)';
+    ? "rgba(255, 255, 255, 0.7)"
+    : "rgba(71, 85, 105, 1)";
   const gridColor = isDarkMode
-    ? 'rgba(255, 255, 255, 0.1)'
-    : 'rgba(0, 0, 0, 0.05)';
+    ? "rgba(255, 255, 255, 0.1)"
+    : "rgba(0, 0, 0, 0.05)";
 
-  const options: ChartOptions<'line'> = {
+  const options: ChartOptions<"line"> = {
     responsive: true,
     maintainAspectRatio: false,
-    animation: { duration: 1500, easing: 'easeInOutCubic' }, // Default animation intact
+    animation: { duration: 1500, easing: "easeInOutCubic" }, // Default animation intact
     plugins: {
       legend: {
-        position: 'top', // Default position intact
+        position: "top", // Default position intact
         labels: {
           color: textColor,
-          font: { weight: 'bold', size: 12 },
+          font: { weight: "bold", size: 12 },
         },
       },
       tooltip: { ...CHART_TOOLTIP_STYLE }, // Default tooltips intact
@@ -85,7 +85,7 @@ export default function LineChart() {
   };
 
   return (
-    <div style={{ width: '100%', height: '280px', position: 'relative' }}>
+    <div style={{ width: "100%", height: "280px", position: "relative" }}>
       <Line data={LINE_CHART_DATA} options={options} />
     </div>
   );

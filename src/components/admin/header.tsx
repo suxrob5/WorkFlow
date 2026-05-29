@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useTheme } from '@/components/theme-provider';
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useTheme } from "@/components/theme-provider";
 
 const AdHeader = () => {
-  const pathname = usePathname() || '/';
+  const pathname = usePathname() || "/";
   const isActive = (path: string) =>
-    pathname === path || pathname.startsWith(path + '/');
+    pathname === path || pathname.startsWith(path + "/");
   const { theme, toggleTheme } = useTheme();
 
   return (
@@ -37,7 +37,7 @@ const AdHeader = () => {
             <li>
               <Link
                 href="/dashboard"
-                className={`rounded-full px-4 py-2 transition duration-200 ${isActive('/dashboard') ? 'bg-white/10 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white'}`}
+                className={`rounded-full px-4 py-2 transition duration-200 ${isActive("/dashboard") ? "bg-white/10 text-white" : "text-white/80 hover:bg-white/10 hover:text-white"}`}
               >
                 Главная
               </Link>
@@ -45,7 +45,7 @@ const AdHeader = () => {
             <li>
               <Link
                 href="/employee"
-                className={`rounded-full px-4 py-2 transition duration-200 ${isActive('/employee') ? 'bg-white/10 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white'}`}
+                className={`rounded-full px-4 py-2 transition duration-200 ${isActive("/employee") ? "bg-white/10 text-white" : "text-white/80 hover:bg-white/10 hover:text-white"}`}
               >
                 Сотрудники
               </Link>
@@ -53,7 +53,7 @@ const AdHeader = () => {
             <li>
               <Link
                 href="/activities"
-                className={`rounded-full px-4 py-2 transition duration-200 ${isActive('/activities') ? 'bg-white/10 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white'}`}
+                className={`rounded-full px-4 py-2 transition duration-200 ${isActive("/activities") ? "bg-white/10 text-white" : "text-white/80 hover:bg-white/10 hover:text-white"}`}
               >
                 Рабочие графики
               </Link>
@@ -101,7 +101,7 @@ const AdHeader = () => {
 
           <Link
             href="/profile"
-            className={`inline-flex items-center gap-3 rounded-full border border-white/15 px-4 py-1.5 text-sm font-semibold text-white transition duration-200 ${isActive('/profile') ? 'bg-white/10' : 'bg-white/5 hover:border-white/30 hover:bg-white/15 hover:text-slate-100'}`}
+            className={`inline-flex items-center gap-3 rounded-full border border-white/15 px-4 py-1.5 text-sm font-semibold text-white transition duration-200 ${isActive("/profile") ? "bg-white/10" : "bg-white/5 hover:border-white/30 hover:bg-white/15 hover:text-slate-100"}`}
           >
             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-sky-500 to-blue-600 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition duration-200 hover:-translate-y-0.5 hover:shadow-sky-500/40">
               Is

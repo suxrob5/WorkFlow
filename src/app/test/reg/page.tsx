@@ -1,24 +1,24 @@
-'use client';
+"use client";
 
-import { auth } from '@/firebase';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { auth } from "@/firebase";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import {
   useCreateUserWithEmailAndPassword,
   useSendEmailVerification,
-} from 'react-firebase-hooks/auth';
+} from "react-firebase-hooks/auth";
 
 export default function Page() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [createUser] = useCreateUserWithEmailAndPassword(auth);
   const [sendEmailVerification] = useSendEmailVerification(auth);
 
   const onsubmit = async () => {
     await createUser(email, password);
     await sendEmailVerification();
-    router.push('/');
+    router.push("/");
   };
 
   return (

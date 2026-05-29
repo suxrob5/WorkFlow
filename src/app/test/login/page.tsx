@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { auth } from '@/firebase';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
+import { auth } from "@/firebase";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
 
 export default function Page() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [signInWithEmailAndPassword] = useSignInWithEmailAndPassword(auth);
 
   const onsubmit = async () => {
     await signInWithEmailAndPassword(email, password);
-    router.push('/');
+    router.push("/");
   };
 
   return (

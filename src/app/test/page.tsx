@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { auth } from '@/firebase';
-import Link from 'next/link';
-import { SignedIn } from './signed-in';
-import { useAuthState, useSignOut } from 'react-firebase-hooks/auth';
-import { SignedOut } from './signed-out';
+import { auth } from "@/firebase";
+import Link from "next/link";
+import { SignedIn } from "./signed-in";
+import { useAuthState, useSignOut } from "react-firebase-hooks/auth";
+import { SignedOut } from "./signed-out";
 
 const Test = () => {
   const [user, loading] = useAuthState(auth);
@@ -40,11 +40,11 @@ const Test = () => {
                       Email Verified:
                     </label>
                     <p
-                      className={`text-lg font-bold ${user?.emailVerified ? 'text-green-600' : 'text-red-600'}`}
+                      className={`text-lg font-bold ${user?.emailVerified ? "text-green-600" : "text-red-600"}`}
                     >
                       {user?.emailVerified
-                        ? '✓ Yes (Verified)'
-                        : '✗ No (Not Verified)'}
+                        ? "✓ Yes (Verified)"
+                        : "✗ No (Not Verified)"}
                     </p>
                   </div>
                 </div>
