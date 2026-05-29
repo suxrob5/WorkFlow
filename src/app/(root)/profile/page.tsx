@@ -4,9 +4,21 @@ import React, { useState, useEffect } from "react";
 import AdHeader from "@/components/admin/header";
 import Header from "@/components/user/header";
 import Image from "next/image";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/firebase";
+import { useRouter } from "next/navigation";
 
 const Profile = () => {
   const role = "user";
+
+  const [user, loading] = useAuthState(auth);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/login");
+    }
+  }, [user, loading, router]);
 
   // Core Profile States (Default values in Russian to match login/register)
   const [name, setName] = useState("Иван");

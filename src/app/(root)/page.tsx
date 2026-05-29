@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Header from "@/components/user/header";
-import { db } from "@/firebase";
+import { auth, db } from "@/firebase";
 import {
   collection,
   deleteDoc,
@@ -14,6 +14,8 @@ import {
 import WelcomeSec from "@/components/user/welcome-sec";
 import DynamicAva from "@/components/user/dynamic-check-in-ava/dynamic-ava";
 import DisplayCheckIns from "@/components/user/display-check-ins";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { useRouter } from "next/navigation";
 
 export interface CheckIn {
   id: string;
@@ -27,6 +29,15 @@ export interface CheckIn {
 }
 
 export default function Home() {
+  const [user, loading] = useAuthState(auth);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/login");
+    }
+  }, [user, loading, router]);
+
   // Check-in array features
 
   const [isCameraActive, setIsCameraActive] = useState(false);
@@ -109,6 +120,10 @@ export default function Home() {
     });
 
     return firestoreCheckIns;
+  }
+
+  if (loading || !user) {
+    return null;
   }
 
   return (

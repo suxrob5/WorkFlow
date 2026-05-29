@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/components/theme-provider";
+import { auth } from "@/firebase";
+import { useSignOut } from "react-firebase-hooks/auth";
 
 const Header = () => {
   const pathname = usePathname() || "/";
@@ -15,6 +17,7 @@ const Header = () => {
     "https://randomuser.me/api/portraits/men/1.jpg",
   );
   const { theme, toggleTheme } = useTheme();
+  const [signOut] = useSignOut(auth);
 
   // Dynamic header avatar sync!
   useEffect(() => {
@@ -94,20 +97,45 @@ const Header = () => {
             </svg>
           </button>
 
-          <Link
-            href="/profile"
-            className={`inline-flex items-center gap-3 rounded-full border border-white/15 px-4 py-1.5 text-sm font-semibold text-white transition duration-200 ${isActive("/profile") ? "bg-white/10" : "bg-white/5 hover:border-white/30 hover:bg-white/15 hover:text-slate-100"}`}
-          >
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-sky-500 to-blue-600 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition duration-200 hover:-translate-y-0.5 hover:shadow-sky-500/40 overflow-hidden relative">
-              <Image
-                src={avatarUrl}
-                alt="User Avatar"
-                fill
-                className="rounded-full object-cover"
-              />
-            </span>
-            <span className="hidden sm:inline">Profile</span>
-          </Link>
+          <div className="relative group">
+            <Link
+              href="/profile"
+              className={`inline-flex items-center gap-3 rounded-full border border-white/15 px-4 py-1.5 text-sm font-semibold text-white transition duration-200 ${isActive("/profile") ? "bg-white/10" : "bg-white/5 group-hover:border-white/30 group-hover:bg-white/15"}`}
+            >
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-sky-500 to-blue-600 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition duration-200 group-hover:-translate-y-0.5 overflow-hidden relative">
+                <Image
+                  src={avatarUrl}
+                  alt="User Avatar"
+                  fill
+                  className="rounded-full object-cover"
+                />
+              </span>
+              <span className="hidden sm:inline">Profile</span>
+            </Link>
+
+            {/* Sign Out Button on Hover */}
+            <div className="absolute top-full right-0 pt-2 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 z-50">
+              <button
+                className="bg-white cursor-pointer text-red-500 font-bold text-xs px-4 py-2 rounded-xl shadow-xl border border-slate-200 flex items-center gap-2 hover:bg-red-50 transition-colors whitespace-nowrap"
+                onClick={() => signOut()}
+              >
+                <svg
+                  className="w-3.5 h-3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2.5}
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  />
+                </svg>
+                Выйти
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
