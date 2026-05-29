@@ -53,7 +53,7 @@ const Header = () => {
             className="rounded-2xl border border-white/10 bg-white/5 p-1 transition duration-300 hover:scale-[1.03]"
           />
           <h1 className="text-2xl font-bold tracking-tight text-white">
-            WorkFlow
+            Mission Foods
           </h1>
         </div>
         <div className="flex items-center gap-3.5">

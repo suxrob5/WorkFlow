@@ -24,7 +24,7 @@ const AdHeader = () => {
           />
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-white">
-              WorkFlow
+              Mission Foods
             </h1>
             <p className="text-xs text-slate-300">
               Управление сотрудниками и графиками
