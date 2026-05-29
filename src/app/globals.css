@@ -1,21 +1,48 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg-color: #f1f5f9;
+  --bg-gradient: linear-gradient(
+    135deg,
+    #f8fafc 0%,
+    #f1f5f9 45%,
+    #e2e8f0 100%
+  );
+  --text-color: #0f172a;
+  
+  /* Transition durations */
+  --theme-transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                      color 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                      border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                      box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark {
+  --bg-color: #021236;
+  --bg-gradient: linear-gradient(
+    135deg,
+    rgba(2, 18, 54, 1) 0%,
+    rgba(1, 30, 93, 1) 45%,
+    rgba(3, 56, 122, 1) 100%
+  );
+  --text-color: #e6f0ff;
+}
+
 @layer base {
   body {
     font-family: var(--font-nunito);
     margin: 0;
     min-height: 100vh;
-    color: #e6f0ff;
-    background-color: #021236;
-    background-image: linear-gradient(
-      135deg,
-      rgba(2, 18, 54, 1) 0%,
-      rgba(1, 30, 93, 1) 45%,
-      rgba(3, 56, 122, 1) 100%
-    );
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    background-image: var(--bg-gradient);
     background-attachment: fixed;
     background-size: cover;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: var(--theme-transition);
   }
 }
+

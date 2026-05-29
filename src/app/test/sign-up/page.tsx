@@ -1,44 +1,44 @@
-"use client";
+'use client';
 
-import { auth } from "@/firebase";
-import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import { auth } from '@/firebase';
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
 import {
   useCreateUserWithEmailAndPassword,
   useSendEmailVerification,
-} from "react-firebase-hooks/auth";
+} from 'react-firebase-hooks/auth';
 
 const SignUp = () => {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [createUser] = useCreateUserWithEmailAndPassword(auth);
   const [sendEmailVerification] = useSendEmailVerification(auth);
 
   const onSubmit = async () => {
     if (!email || !password) {
-      setError("Please fill in all fields");
+      setError('Please fill in all fields');
       return;
     }
 
     setLoading(true);
-    setError("");
-    setSuccess("");
+    setError('');
+    setSuccess('');
 
     try {
       const result = await createUser(email, password);
       if (result?.user) {
         await sendEmailVerification();
-        setSuccess("Account created successfully! Redirecting...");
+        setSuccess('Account created successfully! Redirecting...');
         setTimeout(() => {
-          router.push("/test");
+          router.push('/test');
         }, 2000);
       }
     } catch (err: any) {
-      setError(err?.message || "Failed to create account");
+      setError(err?.message || 'Failed to create account');
     } finally {
       setLoading(false);
     }
@@ -81,11 +81,11 @@ const SignUp = () => {
           disabled={loading}
           className={`w-full px-6 py-3 font-bold text-white rounded-md transition-colors ${
             loading
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-500 hover:bg-blue-600"
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-blue-500 hover:bg-blue-600'
           }`}
         >
-          {loading ? "Creating Account..." : "Sign Up"}
+          {loading ? 'Creating Account...' : 'Sign Up'}
         </button>
       </div>
     </div>

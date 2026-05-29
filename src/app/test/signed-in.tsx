@@ -1,6 +1,6 @@
-import { auth } from "@/firebase";
-import { ReactNode } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from '@/firebase';
+import { ReactNode } from 'react';
+import { useAuthState } from 'react-firebase-hooks/auth';
 
 type Props = {
   children: ReactNode;

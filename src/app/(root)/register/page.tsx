@@ -1,5 +1,5 @@
-import React from "react";
-import Link from "next/link";
+import React from 'react';
+import Link from 'next/link';
 
 const Register = () => {
   return (
@@ -68,7 +68,7 @@ const Register = () => {
         </form>
 
         <div className="mt-6 text-center text-sm text-slate-400">
-          У вас уже есть аккаунт?{" "}
+          У вас уже есть аккаунт?{' '}
           <Link
             href="/login"
             className="text-sky-500 hover:text-sky-400 font-medium transition-colors"

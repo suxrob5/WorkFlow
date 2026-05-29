@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { users as allUsers } from "@/data/user";
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { users as allUsers } from '@/data/user';
 
 type User = {
   id: number;
@@ -16,8 +16,8 @@ type User = {
 const PAGE_SIZE = 4;
 
 const Users = () => {
-  const [filter, setFilter] = useState("");
-  const [dept, setDept] = useState("");
+  const [filter, setFilter] = useState('');
+  const [dept, setDept] = useState('');
   const [page, setPage] = useState(1);
   const [items, setItems] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
@@ -31,7 +31,7 @@ const Users = () => {
         name: u.name,
         lastName: u.lastName,
         email: u.email,
-        position: (u as any).position || (u as any).time || "",
+        position: (u as any).position || (u as any).time || '',
         avatar: u.avatar,
       })),
     [],
@@ -47,7 +47,7 @@ const Users = () => {
         ? `${u.name} ${u.lastName}`.toLowerCase().includes(q)
         : true;
       const inDept = dept
-        ? (u.position || "").toLowerCase() === dept.toLowerCase()
+        ? (u.position || '').toLowerCase() === dept.toLowerCase()
         : true;
       return inName && inDept;
     });
@@ -88,7 +88,7 @@ const Users = () => {
           setPage((p) => p + 1);
         }
       },
-      { root: null, rootMargin: "200px", threshold: 0.1 },
+      { root: null, rootMargin: '200px', threshold: 0.1 },
     );
     observerRef.current.observe(sentinelRef.current);
     return () => observerRef.current?.disconnect();
@@ -97,31 +97,42 @@ const Users = () => {
   // derive departments for filter
   const departments = useMemo(() => {
     const set = new Set<string>();
-    source.forEach((u) => set.add((u.position || "").trim()));
+    source.forEach((u) => set.add((u.position || '').trim()));
     return Array.from(set).filter(Boolean);
   }, [source]);
 
   return (
     <div>
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-semibold text-white">Список сотрудников</h2>
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+          Список сотрудников
+        </h2>
 
         <div className="flex items-center gap-2">
           <input
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder="Поиск по имени..."
-            className="rounded-md bg-white/5 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-slate-300 outline-none focus:ring-2 focus:ring-sky-400"
+            className="rounded-md bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-300 outline-none focus:ring-2 focus:ring-sky-400"
           />
 
           <select
             value={dept}
             onChange={(e) => setDept(e.target.value)}
-            className="rounded-md bg-white/5 border border-white/10 px-3 py-2 text-sm text-white outline-none"
+            className="rounded-md bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-3 py-2 text-sm text-slate-900 dark:text-white outline-none"
           >
-            <option value="">All departments</option>
+            <option
+              value=""
+              className="text-slate-900 bg-white dark:bg-[#021236] dark:text-white"
+            >
+              All departments
+            </option>
             {departments.map((d) => (
-              <option key={d} value={d} className="text-black">
+              <option
+                key={d}
+                value={d}
+                className="text-slate-900 bg-white dark:bg-[#021236] dark:text-white"
+              >
                 {d}
               </option>
             ))}
@@ -134,41 +145,45 @@ const Users = () => {
           items.map((user) => (
             <div
               key={user.id}
-              className="flex items-center justify-between gap-4 rounded-lg bg-white/3 p-3 shadow-sm transition hover:shadow-md hover:bg-white/5"
+              className="flex items-center justify-between gap-4 rounded-lg bg-white/40 dark:bg-white/3 border border-slate-100 dark:border-transparent p-3 shadow-sm transition hover:shadow-md hover:bg-white/60 dark:hover:bg-white/5"
             >
               <div className="flex items-center gap-4">
                 <img
                   src={user.avatar || `/main-logo.png`}
                   alt={user.name}
-                  className="w-12 h-12 rounded-full border-2 border-white/10 object-cover"
+                  className="w-12 h-12 rounded-full border-2 border-slate-200 dark:border-white/10 object-cover"
                 />
                 <div>
-                  <div className="text-sm font-medium text-white">
+                  <div className="text-sm font-semibold text-slate-900 dark:text-white">
                     {user.name} {user.lastName}
                   </div>
-                  <div className="text-sm text-slate-300">
-                    {user.position || "Сотрудник"}
+                  <div className="text-sm text-slate-600 dark:text-slate-300">
+                    {user.position || 'Сотрудник'}
                   </div>
                 </div>
               </div>
 
-              <div className="text-sm text-slate-300">{user.email || "—"}</div>
+              <div className="text-sm text-slate-600 dark:text-slate-300">
+                {user.email || '—'}
+              </div>
             </div>
           ))
         ) : (
-          <p className="text-sm text-slate-300">No users found.</p>
+          <p className="text-sm text-slate-500 dark:text-slate-300">
+            No users found.
+          </p>
         )}
 
         <div ref={sentinelRef} />
 
         {loading && (
-          <div className="py-4 text-center text-sm text-slate-300">
+          <div className="py-4 text-center text-sm text-slate-500 dark:text-slate-300">
             Loading…
           </div>
         )}
 
         {!hasMore && !loading && items.length > 0 && (
-          <div className="py-4 text-center text-sm text-slate-300">
+          <div className="py-4 text-center text-sm text-slate-500 dark:text-slate-300">
             No more users
           </div>
         )}
