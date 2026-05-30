@@ -1,17 +1,18 @@
 "use client";
 
-import { CheckIn } from "@/app/(root)/page";
+import { AttendanceType } from "@/types";
 import Image from "next/image";
 
-interface DisplayCheckInsNoProps {
-  displayCheckIns: CheckIn[];
+interface Props {
+  displayCheckIns: AttendanceType[];
   deleteCheckIn: (id: string) => void;
 }
 
-const DisplayCheckIns: React.FC<DisplayCheckInsNoProps> = ({
+const DisplayCheckIns: React.FC<Props> = ({
   displayCheckIns,
   deleteCheckIn,
 }) => {
+
   return (
     <>
       {displayCheckIns.length === 0 ? (
@@ -46,7 +47,7 @@ const DisplayCheckIns: React.FC<DisplayCheckInsNoProps> = ({
             >
               {/* Absolute Delete Button on hover */}
               <button
-                onClick={() => deleteCheckIn(item.docId!)}
+                onClick={() => deleteCheckIn(item.id)}
                 className="absolute top-2 right-2 w-7 h-7 rounded-full bg-slate-200/80 dark:bg-black/40 hover:bg-red-500/20 text-slate-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-200 cursor-pointer"
                 title="Удалить отметку"
               >
@@ -67,12 +68,14 @@ const DisplayCheckIns: React.FC<DisplayCheckInsNoProps> = ({
 
               {/* Camera Snapshot base64 preview */}
               <div className="w-24 h-24 rounded-2xl overflow-hidden border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-slate-900 shrink-0 relative">
-                <Image
-                  src={item.image}
-                  alt="Snaped Checkin shot"
-                  fill
-                  className="object-cover"
-                />
+                {item.imageUrl ? (
+                  <Image
+                    src={item.imageUrl}
+                    alt="Snapped Check-in shot"
+                    fill
+                    className="object-cover"
+                  />
+                ) : null}
               </div>
 
               {/* Metadata display */}
@@ -100,7 +103,7 @@ const DisplayCheckIns: React.FC<DisplayCheckInsNoProps> = ({
                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
-                    {item.timestamp}
+                    {item.date} {item.checkIn}
                   </p>
                 </div>
 

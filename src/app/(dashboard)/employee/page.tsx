@@ -27,7 +27,9 @@ const Users = () => {
 
   const filtered = shifts.filter(
     (s) =>
-      (s.employee || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (s.userName || s.employee || "")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
       (s.dept || "").toLowerCase().includes(searchTerm.toLowerCase()),
   );
   return (
@@ -77,12 +79,12 @@ const Users = () => {
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-2xl bg-linear-to-r from-sky-500/20 to-blue-600/20 border border-sky-400/20 flex items-center justify-center shrink-0">
                     <span className="text-sky-600 dark:text-sky-400 font-bold text-sm">
-                      {(shift.employee || "").charAt(0)}
+                      {(shift.userName || shift.employee || "").charAt(0)}
                     </span>
                   </div>
                   <div>
                     <p className="text-sm font-bold text-slate-900 dark:text-white">
-                      {shift.employee}
+                      {shift.userName || shift.employee}
                     </p>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
                       {shift.dept} · {shift.shift}

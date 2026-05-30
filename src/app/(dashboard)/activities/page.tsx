@@ -228,7 +228,7 @@ export default function ActivitiesPage() {
                   >
                     <td className="py-3 pr-4">
                       <p className="text-sm font-bold text-slate-900 dark:text-white whitespace-nowrap">
-                        {row.employee}
+                        {row.userName || row.employee}
                       </p>
                       <p className="text-[10px] text-slate-500 dark:text-slate-400">
                         {row.dept}

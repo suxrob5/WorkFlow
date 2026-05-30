@@ -21,3 +21,7 @@ const firebaseConfig = {
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+
+export const WORK_START_HOUR = 8;
+export const WORK_START_MINUTE = 0;

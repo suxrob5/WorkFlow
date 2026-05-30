@@ -10,7 +10,6 @@ import {
   doc,
   getDoc,
   getDocs,
-  orderBy,
   query,
   serverTimestamp,
   where,
@@ -20,61 +19,31 @@ import DynamicAva from "@/components/user/dynamic-check-in-ava/dynamic-ava";
 import DisplayCheckIns from "@/components/user/display-check-ins";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useRouter } from "next/navigation";
+import { AttendanceType } from "@/types";
 // import { createUserWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 
-export interface CheckIn {
-  id: string;
-  image: string;
-  location: {
-    latitude: number;
-    longitude: number;
-  };
-  timestamp: string;
-  docId?: string;
-}
+
 
 export default function Home() {
-  const handleSub = async () => {
-    const user = auth.currentUser;
-
-    await addDoc(collection(db, "attendance"), {
-      userId: user?.uid,
-      image: "", // Placeholder for manual test
-      location: {
-        latitude: 41.311081,
-        longitude: 69.240562,
-      },
-      timestamp: new Date().toLocaleString("ru-RU"),
-      checkInTime: serverTimestamp(), // Keep for ordering
-    });
-
-    const userDoc = await getDoc(doc(db, "users", user!.uid));
-    console.log(userDoc);
-
-    // console.log(userDoc.data());
-  };
-
-  // fetchUserData()
-  // onAuthStateChanged(auth, async (user) => {
-  //   if (!user) {
-  //     console.log("Login qilinmagan");
-  //     return;
-  //   }
-
-  //   console.log(user.uid);
-
-  //   const userDoc = await getDoc(doc(db, "users", user.uid));
-
-  //   if (userDoc.exists()) {
-  //     console.log(userDoc.data());
-  //   } else {
-  //     console.log("User ma'lumotlari topilmadi");
-  //   }
-  // });
-
   const [user, loading] = useAuthState(auth);
   const router = useRouter();
   const [checkingRole, setCheckingRole] = useState(true);
+  const [currentLocation, setCurrentLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [displayCheckIns, setDisplayCheckIns] = useState<AttendanceType[]>([]);
+
+  // Feedback notifications
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+
 
   useEffect(() => {
     const checkUserRole = async () => {
@@ -106,29 +75,18 @@ export default function Home() {
 
   // Check-in array features
 
-  const [isCameraActive, setIsCameraActive] = useState(false);
-  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
-  const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
-  const [currentLocation, setCurrentLocation] = useState<{
-    latitude: number;
-    longitude: number;
-  } | null>(null);
-  const [locationLoading, setLocationLoading] = useState(false);
-  const [cameraError, setCameraError] = useState<string | null>(null);
-  const [displayCheckIns, setDisplayCheckIns] = useState<CheckIn[]>([]);
-
-  // Feedback notifications
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
 
   // Load check-ins from Firestore on mount
   useEffect(() => {
+    if (!user) return;
+
     const loadData = async () => {
       const data = await getCheckInsFromFirebase();
       setDisplayCheckIns(data);
     };
+
     loadData();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     return () => {
@@ -152,7 +110,7 @@ export default function Home() {
 
   // firebase
 
-  async function getCheckInsFromFirebase(): Promise<CheckIn[]> {
+  async function getCheckInsFromFirebase(): Promise<AttendanceType[]> {
     if (!auth.currentUser) return [];
 
     const q = query(
@@ -161,29 +119,28 @@ export default function Home() {
     );
 
     const snapshot = await getDocs(q);
-    const firestoreCheckIns: CheckIn[] = [];
+    const firestoreCheckIns: AttendanceType[] = [];
 
     snapshot.forEach((doc) => {
       const data = doc.data();
       firestoreCheckIns.push({
         id: doc.id,
-        image: data.image || "",
-        location: data.location || {
-          latitude: data.lat || 0,
-          longitude: data.lng || 0,
-        },
-        timestamp:
-          data.timestamp ||
-          (data.checkInTime?.toDate
-            ? data.checkInTime.toDate().toLocaleString("ru-RU")
-            : "N/A"),
-        docId: doc.id,
+        userId: data.userId,
+        userName: data.userName || "Unknown",
+        date: data.date || data.timestamp || "",
+        checkIn: data.checkIn || "",
+        checkOut: data.checkOut,
+        status: data.status || "present",
+        lateMinutes: data.lateMinutes || 0,
+        imageUrl: data.imageUrl || data.image || "",
+        location: data.location,
+        createdAt: data.createdAt,
       });
     });
 
+
     return firestoreCheckIns;
   }
-
   if (loading || checkingRole || !user) {
     return null;
   }
