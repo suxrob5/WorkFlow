@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import AdHeader from "@/components/admin/header";
 import Header from "@/components/user/header";
 import Image from "next/image";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -21,14 +20,23 @@ const Profile = () => {
   const [avatarUrl, setAvatarUrl] = useState("/user-logo.png");
   const [phone, setPhone] = useState("");
   const [bio, setBio] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [address, setAddress] = useState("");
+  const [position, setPosition] = useState("");
+  const [positionRu, setPositionRu] = useState("");
+  const [passport, setPassport] = useState("");
   const [employeeId, setEmployeeId] = useState("...");
   const [registrationDate, setRegistrationDate] = useState("...");
 
+  // Redirect logic: Keep this page for 'user' role only.
   useEffect(() => {
     if (!loading && !user) {
       router.push("/login");
+    } else if (!loading && user && role === "admin") {
+      // Redirect admins to their dedicated profile page
+      router.push("/dashboard/profile");
     }
-  }, [user, loading, router]);
+  }, [user, loading, role, router]);
 
   // Interactive UI States
   const [isEditing, setIsEditing] = useState(false);
@@ -45,6 +53,11 @@ const Profile = () => {
   const [editEmail, setEditEmail] = useState(email);
   const [editPhone, setEditPhone] = useState(phone);
   const [editBio, setEditBio] = useState(bio);
+  const [editBirthDate, setEditBirthDate] = useState(birthDate);
+  const [editAddress, setEditAddress] = useState(address);
+  const [editPosition, setEditPosition] = useState(position);
+  const [editPositionRu, setEditPositionRu] = useState(positionRu);
+  const [editPassport, setEditPassport] = useState(passport);
 
   // Fetch profile data from Firestore on mount
   useEffect(() => {
@@ -54,9 +67,10 @@ const Profile = () => {
           const userDoc = await getDoc(doc(db, "users", user.uid));
           if (userDoc.exists()) {
             const data = userDoc.data();
-            if (data.name) {
-              setName(data.name);
-              setEditName(data.name);
+            const profileName = data.fullName || data.name;
+            if (profileName) {
+              setName(profileName);
+              setEditName(profileName);
             }
             if (data.surname) {
               setSurname(data.surname);
@@ -74,6 +88,26 @@ const Profile = () => {
             if (data.bio) {
               setBio(data.bio);
               setEditBio(data.bio);
+            }
+            if (data.birthDate) {
+              setBirthDate(data.birthDate);
+              setEditBirthDate(data.birthDate);
+            }
+            if (data.address) {
+              setAddress(data.address);
+              setEditAddress(data.address);
+            }
+            if (data.position) {
+              setPosition(data.position);
+              setEditPosition(data.position);
+            }
+            if (data.positionRu) {
+              setPositionRu(data.positionRu);
+              setEditPositionRu(data.positionRu);
+            }
+            if (data.passport) {
+              setPassport(data.passport);
+              setEditPassport(data.passport);
             }
             if (data.role) setRole(data.role);
             if (data.employeeId) setEmployeeId(data.employeeId);
@@ -113,6 +147,11 @@ const Profile = () => {
           email: editEmail,
           phone: editPhone,
           bio: editBio,
+          birthDate: editBirthDate,
+          address: editAddress,
+          position: editPosition,
+          positionRu: editPositionRu,
+          passport: editPassport,
         });
       }
 
@@ -121,6 +160,11 @@ const Profile = () => {
       setEmail(editEmail);
       setPhone(editPhone);
       setBio(editBio);
+      setBirthDate(editBirthDate);
+      setAddress(editAddress);
+      setPosition(editPosition);
+      setPositionRu(editPositionRu);
+      setPassport(editPassport);
       setIsSaving(false);
       setIsEditing(false);
       setToastMessage("Профиль успешно обновлен!");
@@ -140,6 +184,11 @@ const Profile = () => {
     setEditEmail(email);
     setEditPhone(phone);
     setEditBio(bio);
+    setEditBirthDate(birthDate);
+    setEditAddress(address);
+    setEditPosition(position);
+    setEditPositionRu(positionRu);
+    setEditPassport(passport);
     setIsEditing(false);
   };
 
@@ -181,7 +230,7 @@ const Profile = () => {
   return (
     <div className="min-h-screen text-slate-800 dark:text-slate-100 font-nunito relative overflow-hidden pb-12 transition-colors duration-300">
       {/* Nav Header */}
-      {role === "user" ? <Header /> : <AdHeader />}
+      <Header />
 
       {/* Glowing Ambient Background Elements */}
       <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-sky-500/10 blur-[120px] pointer-events-none z-0" />
@@ -525,6 +574,46 @@ const Profile = () => {
                   </div>
                 </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
+                    <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                      Должность
+                    </span>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">
+                      {positionRu || position || "—"}
+                    </p>
+                    {positionRu && position && (
+                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">
+                        {position}
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
+                    <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                      Дата рождения
+                    </span>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">
+                      {birthDate || "—"}
+                    </p>
+                  </div>
+                  <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
+                    <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                      Паспорт
+                    </span>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">
+                      {passport || "—"}
+                    </p>
+                  </div>
+                  <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
+                    <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                      Адрес
+                    </span>
+                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-2 leading-relaxed">
+                      {address || "—"}
+                    </p>
+                  </div>
+                </div>
+
                 <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
                   <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
                     О себе
@@ -592,6 +681,69 @@ const Profile = () => {
                       placeholder="+998"
                     />
                   </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold tracking-wider text-slate-600 dark:text-slate-300 ml-1">
+                      ДАТА РОЖДЕНИЯ
+                    </label>
+                    <input
+                      type="date"
+                      value={editBirthDate}
+                      onChange={(e) => setEditBirthDate(e.target.value)}
+                      className="w-full rounded-2xl bg-white/85 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-3.5 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-500/30 dark:focus:ring-sky-500/50 focus:border-sky-500/50 dark:focus:border-sky-500/50 transition-all duration-200"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold tracking-wider text-slate-600 dark:text-slate-300 ml-1">
+                      ПАСПОРТ
+                    </label>
+                    <input
+                      type="text"
+                      value={editPassport}
+                      onChange={(e) => setEditPassport(e.target.value)}
+                      className="w-full rounded-2xl bg-white/85 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-3.5 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-500/30 dark:focus:ring-sky-500/50 focus:border-sky-500/50 dark:focus:border-sky-500/50 transition-all duration-200"
+                      placeholder="AD 1234567"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold tracking-wider text-slate-600 dark:text-slate-300 ml-1">
+                      ДОЛЖНОСТЬ
+                    </label>
+                    <input
+                      type="text"
+                      value={editPositionRu}
+                      onChange={(e) => setEditPositionRu(e.target.value)}
+                      className="w-full rounded-2xl bg-white/85 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-3.5 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-500/30 dark:focus:ring-sky-500/50 focus:border-sky-500/50 dark:focus:border-sky-500/50 transition-all duration-200"
+                      placeholder="Грузчик"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold tracking-wider text-slate-600 dark:text-slate-300 ml-1">
+                      LAVOZIM
+                    </label>
+                    <input
+                      type="text"
+                      value={editPosition}
+                      onChange={(e) => setEditPosition(e.target.value)}
+                      className="w-full rounded-2xl bg-white/85 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-3.5 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-500/30 dark:focus:ring-sky-500/50 focus:border-sky-500/50 dark:focus:border-sky-500/50 transition-all duration-200"
+                      placeholder="Yuk tashuvchi"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold tracking-wider text-slate-600 dark:text-slate-300 ml-1">
+                    АДРЕС
+                  </label>
+                  <input
+                    type="text"
+                    value={editAddress}
+                    onChange={(e) => setEditAddress(e.target.value)}
+                    className="w-full rounded-2xl bg-white/85 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-3.5 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-500/30 dark:focus:ring-sky-500/50 focus:border-sky-500/50 dark:focus:border-sky-500/50 transition-all duration-200"
+                    placeholder="г. Ташкент, Чиланзарский район"
+                  />
                 </div>
 
                 <div className="space-y-2">

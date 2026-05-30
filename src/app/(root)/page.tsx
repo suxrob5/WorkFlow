@@ -58,21 +58,6 @@ export default function Home() {
 
     // console.log(userDoc.data());
   }
-  const handleGet = async () => {
-    const q = query(
-      collection(db, "attendance"),
-      where("userId", "==", auth.currentUser?.uid)
-    );
-
-    const snapshot = await getDocs(q);
-
-    snapshot.forEach((doc) => {
-      console.log(doc.data());
-    });
-  }
-
-
-
 
 
   // fetchUserData()
@@ -98,11 +83,34 @@ export default function Home() {
 
   const [user, loading] = useAuthState(auth);
   const router = useRouter();
+  const [checkingRole, setCheckingRole] = useState(true);
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push("/login");
-    }
+    const checkUserRole = async () => {
+      if (loading) return;
+
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+
+      try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        const role = userDoc.exists() ? userDoc.data().role : null;
+
+        if (role === "admin") {
+          router.push("/dashboard");
+          return;
+        }
+
+        setCheckingRole(false);
+      } catch (error) {
+        console.error("Error checking user role:", error);
+        setCheckingRole(false);
+      }
+    };
+
+    checkUserRole();
   }, [user, loading, router]);
 
   // Check-in array features
@@ -181,7 +189,7 @@ export default function Home() {
     return firestoreCheckIns;
   }
 
-  if (loading || !user) {
+  if (loading || checkingRole || !user) {
     return null;
   }
 
@@ -274,18 +282,6 @@ export default function Home() {
         </div>
       </main>
 
-      <div className="flex">
-        <button
-          onClick={handleSub}
-          className=" *:bg-linear-to-br from-sky-500 to-blue-600 hover:opacity-90 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-sky-500/20 transition-all duration-200 active:scale-[0.98] fixed bottom-6 right-6 z-50">
-          Button pot user data
-        </button> <br />
-        <button
-          onClick={handleGet}
-          className=" *:bg-linear-to-br from-sky-500 to-blue-600 hover:opacity-90 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-sky-500/20 transition-all duration-200 active:scale-[0.98] ">
-          handleGet
-        </button>
-      </div>
     </div>
   );
 }

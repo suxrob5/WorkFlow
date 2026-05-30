@@ -49,7 +49,7 @@ const Header = () => {
   return (
     <div className="bg-[#011E5D]/95 text-white backdrop-blur-sm border-b border-white/10 shadow-[0_15px_40px_-25px_rgba(0,0,0,0.5)] transition-all duration-300">
       <div className="mx-auto flex max-w-400 items-center justify-between gap-6 px-4 py-4 text-[17px] md:px-6">
-        <div className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3">
           <Image
             src="/main-logo.png"
             alt="Logo"
@@ -60,7 +60,7 @@ const Header = () => {
           <h1 className="text-2xl font-bold tracking-tight text-white">
             Mission Foods
           </h1>
-        </div>
+        </Link>
         <div className="flex items-center gap-3.5">
           {/* Theme Toggle Button */}
           <button
