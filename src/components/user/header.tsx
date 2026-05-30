@@ -5,44 +5,46 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/components/theme-provider";
-import { auth } from "@/firebase";
-import { useSignOut } from "react-firebase-hooks/auth";
+import { auth, db } from "@/firebase";
+import { useAuthState, useSignOut } from "react-firebase-hooks/auth";
+import { doc, onSnapshot } from "firebase/firestore";
 
 const Header = () => {
   const pathname = usePathname() || "/";
   const isActive = (path: string) =>
     pathname === path || pathname.startsWith(path + "/");
 
-  const [avatarUrl, setAvatarUrl] = useState(
-    "https://randomuser.me/api/portraits/men/1.jpg",
-  );
+  const [avatarUrl, setAvatarUrl] = useState("/user-logo.png");
+  const [displayName, setDisplayName] = useState("Profile");
+
   const { theme, toggleTheme } = useTheme();
+  const [user] = useAuthState(auth);
   const [signOut] = useSignOut(auth);
 
-  // Dynamic header avatar sync!
+  // Real-time user data synchronization
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedAvatar = localStorage.getItem("profile_avatar");
-      if (savedAvatar) {
-        setAvatarUrl(savedAvatar);
-      }
-
-      // Listen for storage changes in case of multi-tab sync
-      const handleStorageChange = () => {
-        const updatedAvatar = localStorage.getItem("profile_avatar");
-        if (updatedAvatar) setAvatarUrl(updatedAvatar);
-      };
-      window.addEventListener("storage", handleStorageChange);
-
-      // Custom event in case update happens in the same tab/window
-      window.addEventListener("profileUpdate", handleStorageChange);
-
-      return () => {
-        window.removeEventListener("storage", handleStorageChange);
-        window.removeEventListener("profileUpdate", handleStorageChange);
-      };
+    if (!user) {
+      // Reset to default placeholders when no Firebase user is authenticated
+      setAvatarUrl("/user-logo.png");
+      setDisplayName("Profile");
+      return;
     }
-  }, []);
+
+    // Immediately pull basic profile info from Firebase Auth if available
+    if (user.photoURL) setAvatarUrl(user.photoURL);
+    if (user.displayName) setDisplayName(user.displayName);
+
+    // Subscribe to Firestore for the most up-to-date custom profile data
+    const unsub = onSnapshot(doc(db, "users", user.uid), (doc) => {
+      if (doc.exists()) {
+        const data = doc.data();
+        if (data.avatarUrl) setAvatarUrl(String(data.avatarUrl).trim());
+        if (data.name) setDisplayName(data.name);
+      }
+    });
+
+    return () => unsub();
+  }, [user]);
 
   return (
     <div className="bg-[#011E5D]/95 text-white backdrop-blur-sm border-b border-white/10 shadow-[0_15px_40px_-25px_rgba(0,0,0,0.5)] transition-all duration-300">
@@ -102,15 +104,15 @@ const Header = () => {
               href="/profile"
               className={`inline-flex items-center gap-3 rounded-full border border-white/15 px-4 py-1.5 text-sm font-semibold text-white transition duration-200 ${isActive("/profile") ? "bg-white/10" : "bg-white/5 group-hover:border-white/30 group-hover:bg-white/15"}`}
             >
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-sky-500 to-blue-600 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition duration-200 group-hover:-translate-y-0.5 overflow-hidden relative">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-sky-100 to-blue-300 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition duration-200 group-hover:-translate-y-0.5 overflow-hidden relative">
                 <Image
-                  src={avatarUrl}
+                  src={typeof avatarUrl === "string" ? avatarUrl.trim() : avatarUrl}
                   alt="User Avatar"
                   fill
                   className="rounded-full object-cover"
                 />
               </span>
-              <span className="hidden sm:inline">Profile</span>
+              <span className="hidden sm:inline">{displayName}</span>
             </Link>
 
             {/* Sign Out Button on Hover */}

@@ -1,11 +1,17 @@
 "use client";
 
-import { auth } from "@/firebase";
+import { auth, db } from "@/firebase";
+import { doc, setDoc } from "firebase/firestore";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
 
 const Register = () => {
+
+
+
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -14,15 +20,40 @@ const Register = () => {
 
   const handSubmit = async () => {
     try {
-      const res = await createUserWithEmailAndPassword(email, password);
-      console.log({ res });
+      const userCredential = await createUserWithEmailAndPassword(
+        email,
+        password
+      );
+
+      const user = userCredential.user;
+
+      await setDoc(doc(db, "users", user.uid), {
+        name: "Ali",
+        email: user.email,
+        role: "user",
+        createdAt: new Date(),
+      });
+
+      console.log("User yaratildi va Firestorega saqlandi");
+
       setEmail("");
       setPassword("");
+
+      router.push("/");
     } catch (error) {
       console.error(error);
-      alert(error);
     }
   };
+
+
+
+
+
+
+
+
+
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">

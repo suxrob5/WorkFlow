@@ -106,22 +106,22 @@ const DisplayCheckIns: React.FC<DisplayCheckInsNoProps> = ({
 
                 <div className="space-y-1.5">
                   <div className="text-[10px] font-mono text-slate-600 dark:text-slate-400 leading-tight">
-                    🧭 Lat: {item.location.latitude.toFixed(6)}
+                    🧭 Lat: {item.location?.latitude?.toFixed(6)}
                     <br />
-                    🧭 Lng: {item.location.longitude.toFixed(6)}
+                    🧭 Lng: {item.location?.longitude?.toFixed(6)}
                   </div>
 
                   <div className="overflow-hidden rounded-3xl border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-slate-900 mt-3">
                     <iframe
                       title={`map-${item.id}`}
-                      src={`https://maps.google.com/maps?q=${item.location.latitude},${item.location.longitude}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                      src={`https://maps.google.com/maps?q=${item.location?.latitude || 0},${item.location?.longitude || 0}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
                       className="w-full h-32"
                       loading="lazy"
                     />
                   </div>
 
                   <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${item.location.latitude},${item.location.longitude}`}
+                    href={`https://www.google.com/maps/search/?api=1&query=${item.location?.latitude || 0},${item.location?.longitude || 0}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-[10px] font-bold text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 transition"

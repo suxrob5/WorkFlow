@@ -4,18 +4,23 @@ import { useState, useEffect } from "react";
 import Header from "@/components/user/header";
 import { auth, db } from "@/firebase";
 import {
+  addDoc,
   collection,
   deleteDoc,
   doc,
+  getDoc,
   getDocs,
   orderBy,
   query,
+  serverTimestamp,
+  where,
 } from "firebase/firestore";
 import WelcomeSec from "@/components/user/welcome-sec";
 import DynamicAva from "@/components/user/dynamic-check-in-ava/dynamic-ava";
 import DisplayCheckIns from "@/components/user/display-check-ins";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useRouter } from "next/navigation";
+// import { createUserWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 
 export interface CheckIn {
   id: string;
@@ -29,6 +34,68 @@ export interface CheckIn {
 }
 
 export default function Home() {
+
+
+
+  const handleSub = async () => {
+    const user = auth.currentUser;
+
+    await addDoc(collection(db, "attendance"), {
+      userId: user?.uid,
+      image: "", // Placeholder for manual test
+      location: {
+        latitude: 41.311081,
+        longitude: 69.240562,
+      },
+      timestamp: new Date().toLocaleString("ru-RU"),
+      checkInTime: serverTimestamp(), // Keep for ordering
+    });
+
+    const userDoc = await getDoc(doc(db, "users", user!.uid));
+    console.log(userDoc);
+
+
+
+    // console.log(userDoc.data());
+  }
+  const handleGet = async () => {
+    const q = query(
+      collection(db, "attendance"),
+      where("userId", "==", auth.currentUser?.uid)
+    );
+
+    const snapshot = await getDocs(q);
+
+    snapshot.forEach((doc) => {
+      console.log(doc.data());
+    });
+  }
+
+
+
+
+
+  // fetchUserData()
+  // onAuthStateChanged(auth, async (user) => {
+  //   if (!user) {
+  //     console.log("Login qilinmagan");
+  //     return;
+  //   }
+
+  //   console.log(user.uid);
+
+  //   const userDoc = await getDoc(doc(db, "users", user.uid));
+
+  //   if (userDoc.exists()) {
+  //     console.log(userDoc.data());
+  //   } else {
+  //     console.log("User ma'lumotlari topilmadi");
+  //   }
+  // });
+
+
+
+
   const [user, loading] = useAuthState(auth);
   const router = useRouter();
 
@@ -73,7 +140,7 @@ export default function Home() {
   }, [cameraStream]);
 
   const deleteCheckIn = async (docId: string) => {
-    await deleteDoc(doc(db, "user-data", docId));
+    await deleteDoc(doc(db, "attendance", docId));
 
     // Fetch fresh data from Firebase
     const updatedData = await getCheckInsFromFirebase();
@@ -87,35 +154,27 @@ export default function Home() {
   // firebase
 
   async function getCheckInsFromFirebase(): Promise<CheckIn[]> {
-    const checkInsQuery = query(
-      collection(db, "user-data"),
-      orderBy("createdAt", "desc"),
+    if (!auth.currentUser) return [];
+
+    const q = query(
+      collection(db, "attendance"),
+      where("userId", "==", auth.currentUser.uid)
     );
-    const querySnapshot = await getDocs(checkInsQuery);
+
+    const snapshot = await getDocs(q);
     const firestoreCheckIns: CheckIn[] = [];
 
-    querySnapshot.forEach((doc) => {
+    snapshot.forEach((doc) => {
       const data = doc.data();
-      const rawCheckIn = data.checkIn ?? data.checkIns;
-      let parsed: any = rawCheckIn;
-
-      if (typeof rawCheckIn === "string") {
-        try {
-          parsed = JSON.parse(rawCheckIn);
-        } catch (error) {
-          parsed = rawCheckIn;
-        }
-      }
-
-      const items = Array.isArray(parsed) ? parsed : parsed ? [parsed] : [];
-
-      items.forEach((item: any) => {
-        if (!item || typeof item !== "object") return;
-
-        firestoreCheckIns.push({
-          ...item,
-          docId: doc.id,
-        });
+      firestoreCheckIns.push({
+        id: doc.id,
+        image: data.image || "",
+        location: data.location || {
+          latitude: data.lat || 0,
+          longitude: data.lng || 0
+        },
+        timestamp: data.timestamp || (data.checkInTime?.toDate ? data.checkInTime.toDate().toLocaleString("ru-RU") : "N/A"),
+        docId: doc.id,
       });
     });
 
@@ -214,6 +273,19 @@ export default function Home() {
           />
         </div>
       </main>
+
+      <div className="flex">
+        <button
+          onClick={handleSub}
+          className=" *:bg-linear-to-br from-sky-500 to-blue-600 hover:opacity-90 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-sky-500/20 transition-all duration-200 active:scale-[0.98] fixed bottom-6 right-6 z-50">
+          Button pot user data
+        </button> <br />
+        <button
+          onClick={handleGet}
+          className=" *:bg-linear-to-br from-sky-500 to-blue-600 hover:opacity-90 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-sky-500/20 transition-all duration-200 active:scale-[0.98] ">
+          handleGet
+        </button>
+      </div>
     </div>
   );
 }

@@ -3,8 +3,8 @@ import Image from "next/image";
 import LastSec from "./last-sec";
 import AcCamCaptureScreen from "./ac-cam-capture-screen";
 import StableState from "./stanble-state";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { db } from "@/firebase";
+import { addDoc, collection, doc, getDoc, serverTimestamp } from "firebase/firestore";
+import { auth, db } from "@/firebase";
 
 interface DynamicAvaProps {
   isCameraActive: boolean;
@@ -45,23 +45,35 @@ const DynamicAva: React.FC<DynamicAvaProps> = ({
   cameraStream,
   setLocationLoading,
 }) => {
-  const pushData = async (checkIn: CheckIn) => {
-    return await addDoc(collection(db, "user-data"), {
-      checkIn,
-      createdAt: serverTimestamp(),
-    });
-  };
+  // const pushData = async (checkIn: CheckIn) => {
+  //   return await addDoc(collection(db, "user-data"), {
+  //     checkIn,
+  //     createdAt: serverTimestamp(),
+  //   });
+  // };
   const submitCheckIn = async () => {
     if (!capturedPhoto || !currentLocation) return;
 
-    const newCheckIn: CheckIn = {
-      id: "CI-" + Math.floor(Math.random() * 90000 + 10000),
+    // const newCheckIn: CheckIn = {
+    //   id: "CI-" + Math.floor(Math.random() * 90000 + 10000),
+    //   image: capturedPhoto,
+    //   location: currentLocation,
+    //   timestamp: new Date().toLocaleString("ru-RU"),
+    // };
+    const user = auth.currentUser;
+
+    await addDoc(collection(db, "attendance"), {
+      userId: user?.uid,
       image: capturedPhoto,
       location: currentLocation,
       timestamp: new Date().toLocaleString("ru-RU"),
-    };
+    });
 
-    await pushData(newCheckIn);
+    const userDoc = await getDoc(doc(db, "users", user!.uid));
+    console.log(userDoc);
+
+
+    // await pushData(newCheckIn);
 
     // Fetch fresh data from Firebase
     const updatedData = await getCheckInsFromFirebase();

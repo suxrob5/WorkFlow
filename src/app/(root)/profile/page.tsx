@@ -1,18 +1,28 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import AdHeader from "@/components/admin/header";
 import Header from "@/components/user/header";
 import Image from "next/image";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "@/firebase";
+import { auth, db } from "@/firebase";
 import { useRouter } from "next/navigation";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 const Profile = () => {
-  const role = "user";
-
   const [user, loading] = useAuthState(auth);
   const router = useRouter();
+
+  // Core Profile States
+  const [name, setName] = useState("");
+  const [surname, setSurname] = useState("");
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState("user");
+  const [avatarUrl, setAvatarUrl] = useState("/user-logo.png");
+  const [phone, setPhone] = useState("");
+  const [bio, setBio] = useState("");
+  const [employeeId, setEmployeeId] = useState("...");
+  const [registrationDate, setRegistrationDate] = useState("...");
 
   useEffect(() => {
     if (!loading && !user) {
@@ -20,25 +30,14 @@ const Profile = () => {
     }
   }, [user, loading, router]);
 
-  // Core Profile States (Default values in Russian to match login/register)
-  const [name, setName] = useState("Иван");
-  const [surname, setSurname] = useState("Иванов");
-  const [email, setEmail] = useState("ivan@example.com");
-  const [avatarUrl, setAvatarUrl] = useState(
-    "https://randomuser.me/api/portraits/men/1.jpg",
-  );
-  const [phone, setPhone] = useState("+998 (90) 123-45-67");
-  const [bio, setBio] = useState(
-    "Специалист по внедрению рабочих графиков и координации команд в WorkFlow.",
-  );
-
   // Interactive UI States
   const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview"); // "overview" | "activity"
   const [isSaving, setIsSaving] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [showAvatarSelector, setShowAvatarSelector] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form inputs for editing state
   const [editName, setEditName] = useState(name);
@@ -47,66 +46,92 @@ const Profile = () => {
   const [editPhone, setEditPhone] = useState(phone);
   const [editBio, setEditBio] = useState(bio);
 
-  // Load from localStorage on client render to persist user edits!
+  // Fetch profile data from Firestore on mount
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedName = localStorage.getItem("profile_name");
-      const savedSurname = localStorage.getItem("profile_surname");
-      const savedEmail = localStorage.getItem("profile_email");
-      const savedAvatar = localStorage.getItem("profile_avatar");
-      const savedPhone = localStorage.getItem("profile_phone");
-      const savedBio = localStorage.getItem("profile_bio");
+    const fetchProfileData = async () => {
+      if (user?.uid) {
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            if (data.name) {
+              setName(data.name);
+              setEditName(data.name);
+            }
+            if (data.surname) {
+              setSurname(data.surname);
+              setEditSurname(data.surname);
+            }
+            if (data.email) {
+              setEmail(data.email);
+              setEditEmail(data.email);
+            }
+            if (data.avatarUrl) setAvatarUrl(String(data.avatarUrl).trim());
+            if (data.phone) {
+              setPhone(data.phone);
+              setEditPhone(data.phone);
+            }
+            if (data.bio) {
+              setBio(data.bio);
+              setEditBio(data.bio);
+            }
+            if (data.role) setRole(data.role);
+            if (data.employeeId) setEmployeeId(data.employeeId);
+            if (data.createdAt) {
+              const date = data.createdAt.toDate
+                ? data.createdAt.toDate()
+                : new Date(data.createdAt);
+              setRegistrationDate(
+                date.toLocaleDateString("ru-RU", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                }),
+              );
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching profile:", error);
+        }
+      }
+    };
 
-      if (savedName) {
-        setName(savedName);
-        setEditName(savedName);
-      }
-      if (savedSurname) {
-        setSurname(savedSurname);
-        setEditSurname(savedSurname);
-      }
-      if (savedEmail) {
-        setEmail(savedEmail);
-        setEditEmail(savedEmail);
-      }
-      if (savedAvatar) setAvatarUrl(savedAvatar);
-      if (savedPhone) {
-        setPhone(savedPhone);
-        setEditPhone(savedPhone);
-      }
-      if (savedBio) {
-        setBio(savedBio);
-        setEditBio(savedBio);
-      }
+    if (!loading && user) {
+      fetchProfileData();
     }
-  }, []);
+  }, [user, loading]);
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
 
-    // Simulate modern premium saving with subtle micro-delay for realistic feedback
-    setTimeout(() => {
+    try {
+      if (user?.uid) {
+        await updateDoc(doc(db, "users", user.uid), {
+          name: editName,
+          surname: editSurname,
+          email: editEmail,
+          phone: editPhone,
+          bio: editBio,
+        });
+      }
+
       setName(editName);
       setSurname(editSurname);
       setEmail(editEmail);
       setPhone(editPhone);
       setBio(editBio);
-
-      if (typeof window !== "undefined") {
-        localStorage.setItem("profile_name", editName);
-        localStorage.setItem("profile_surname", editSurname);
-        localStorage.setItem("profile_email", editEmail);
-        localStorage.setItem("profile_phone", editPhone);
-        localStorage.setItem("profile_bio", editBio);
-      }
-
       setIsSaving(false);
       setIsEditing(false);
       setToastMessage("Профиль успешно обновлен!");
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);
-    }, 1200);
+    } catch (error) {
+      console.error("Error saving profile:", error);
+      setIsSaving(false);
+      setToastMessage("Ошибка при сохранении");
+      setShowToast(true);
+    }
   };
 
   const cancelEdit = () => {
@@ -118,30 +143,40 @@ const Profile = () => {
     setIsEditing(false);
   };
 
-  const selectAvatar = (url: string) => {
-    setAvatarUrl(url);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("profile_avatar", url);
-      window.dispatchEvent(new Event("profileUpdate"));
-    }
-    setShowAvatarSelector(false);
-    setToastMessage("Аватар успешно обновлен!");
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
-  };
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  const avatarPresets = [
-    "https://randomuser.me/api/portraits/men/1.jpg",
-    "https://randomuser.me/api/portraits/women/1.jpg",
-    "https://randomuser.me/api/portraits/men/10.jpg",
-    "https://randomuser.me/api/portraits/women/10.jpg",
-    "https://randomuser.me/api/portraits/men/32.jpg",
-    "https://randomuser.me/api/portraits/women/32.jpg",
-    "https://randomuser.me/api/portraits/men/44.jpg",
-    "https://randomuser.me/api/portraits/women/44.jpg",
-    "https://randomuser.me/api/portraits/men/85.jpg",
-    "https://randomuser.me/api/portraits/women/85.jpg",
-  ];
+    // 2MB size limit check
+    if (file.size > 2 * 1024 * 1024) {
+      setToastMessage("Файл слишком большой. Максимальный размер 2МБ.");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64String = reader.result as string;
+      if (user?.uid) {
+        try {
+          await updateDoc(doc(db, "users", user.uid), {
+            avatarUrl: base64String,
+          });
+          setAvatarUrl(base64String.trim());
+          setToastMessage("Аватар успешно загружен!");
+          setShowToast(true);
+          setTimeout(() => setShowToast(false), 3000);
+        } catch (error) {
+          console.error("Firestore Upload error:", error);
+          setToastMessage("Ошибка: файл слишком велик для базы данных.");
+          setShowToast(true);
+          setTimeout(() => setShowToast(false), 3000);
+        }
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   return (
     <div className="min-h-screen text-slate-800 dark:text-slate-100 font-nunito relative overflow-hidden pb-12 transition-colors duration-300">
@@ -187,7 +222,7 @@ const Profile = () => {
             </div>
             <div className="absolute inset-0 bg-black/10" />
             <div className="absolute bottom-4 right-6 text-xs text-white/50 bg-black/30 backdrop-blur-md px-3 py-1 rounded-full border border-white/5">
-              ID: WF-94820
+              ID: {employeeId}
             </div>
           </div>
 
@@ -198,7 +233,7 @@ const Profile = () => {
               <div className="relative group w-32 h-32 md:w-36 md:h-36 rounded-full p-1.5 bg-linear-to-tr from-sky-400 via-indigo-500 to-blue-600 shadow-[0_10px_35px_rgba(14,165,233,0.2)] dark:shadow-[0_10px_35px_rgba(14,165,233,0.3)] transition duration-300 hover:scale-[1.03]">
                 <div className="w-full h-full rounded-full overflow-hidden border-4 border-slate-50 dark:border-[#021236] relative transition-colors duration-300">
                   <Image
-                    src={avatarUrl}
+                    src={typeof avatarUrl === "string" ? avatarUrl.trim() : avatarUrl}
                     alt="Profile Avatar"
                     width={150}
                     height={150}
@@ -373,21 +408,23 @@ const Profile = () => {
                 </svg>
               </button>
             </div>
-            <div className="grid grid-cols-5 md:grid-cols-10 gap-3">
-              {avatarPresets.map((preset, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => selectAvatar(preset)}
-                  className={`relative w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden border-2 cursor-pointer transition duration-200 hover:scale-110 ${avatarUrl === preset ? "border-sky-500 scale-105 shadow-[0_0_15px_rgba(14,165,233,0.5)]" : "border-slate-200 dark:border-white/10 hover:border-sky-400/50"}`}
-                >
-                  <Image
-                    src={preset}
-                    alt={`Preset ${idx + 1}`}
-                    fill
-                    className="object-cover"
-                  />
-                </button>
-              ))}
+            <div className="flex flex-wrap gap-4">
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="relative w-24 h-24 rounded-2xl border-2 border-dashed border-slate-300 dark:border-white/20 flex flex-col items-center justify-center hover:border-sky-500 hover:bg-sky-50 dark:hover:bg-sky-500/10 transition duration-200 cursor-pointer group/upload"
+              >
+                <svg className="w-8 h-8 text-slate-400 group-hover/upload:text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                <span className="text-[10px] font-bold text-slate-400 group-hover/upload:text-sky-500 uppercase mt-1">Загрузить</span>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept="image/*"
+                  className="hidden"
+                />
+              </button>
             </div>
           </div>
         )}
@@ -420,302 +457,185 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Main Content Layout with Sidebar Tabs and Main details Card */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-start">
-          {/* Navigation Sidebar Tabs */}
-          <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-2 md:pb-0 scrollbar-none z-10">
-            <button
-              onClick={() => setActiveTab("overview")}
-              className={`flex items-center justify-center md:justify-start gap-3 px-5 py-3.5 rounded-2xl font-bold text-sm transition-all duration-200 whitespace-nowrap cursor-pointer w-full ${activeTab === "overview" ? "bg-sky-500/10 border border-sky-500/20 dark:border-sky-500/30 text-sky-650 dark:text-sky-300 shadow-[0_5px_15px_rgba(14,165,233,0.05)] dark:shadow-[0_5px_15px_rgba(14,165,233,0.1)]" : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5"}`}
-            >
-              <svg
-                className="w-5 h-5 shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
-              Личные данные
-            </button>
-            <button
-              onClick={() => setActiveTab("activity")}
-              className={`flex items-center justify-center md:justify-start gap-3 px-5 py-3.5 rounded-2xl font-bold text-sm transition-all duration-200 whitespace-nowrap cursor-pointer w-full ${activeTab === "activity" ? "bg-sky-500/10 border border-sky-500/20 dark:border-sky-500/30 text-sky-650 dark:text-sky-300 shadow-[0_5px_15px_rgba(14,165,233,0.05)] dark:shadow-[0_5px_15px_rgba(14,165,233,0.1)]" : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5"}`}
-            >
-              <svg
-                className="w-5 h-5 shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-                />
-              </svg>
-              Активность
-            </button>
-          </div>
+        {/* Main Content Card */}
+        <div className="w-full rounded-3xl bg-white/60 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 backdrop-blur-xl shadow-[0_20px_40px_rgba(0,0,0,0.04)] dark:shadow-xl p-6 md:p-8 transition-all duration-300">
+          {/* PERSONAL INFO */}
+          <div>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 pb-3 border-b border-slate-200 dark:border-white/10 flex items-center gap-2">
+              <span className="w-1.5 h-6 rounded-full bg-sky-500" />
+              Сведения о сотруднике
+            </h3>
 
-          {/* Main Card with Details based on the Active Tab */}
-          <div className="md:col-span-3 w-full rounded-3xl bg-white/60 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 backdrop-blur-xl shadow-[0_20px_40px_rgba(0,0,0,0.04)] dark:shadow-xl p-6 md:p-8 transition-all duration-300">
-            {/* TAB 1: OVERVIEW & PERSONAL INFO */}
-            {activeTab === "overview" && (
-              <div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 pb-3 border-b border-slate-200 dark:border-white/10 flex items-center gap-2">
-                  <span className="w-1.5 h-6 rounded-full bg-sky-500" />
-                  Сведения о сотруднике
-                </h3>
-
-                {!isEditing ? (
-                  /* Display View Mode */
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
-                        <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
-                          Имя
-                        </span>
-                        <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">
-                          {name}
-                        </p>
-                      </div>
-                      <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
-                        <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
-                          Фамилия
-                        </span>
-                        <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">
-                          {surname}
-                        </p>
-                      </div>
-                      <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
-                        <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
-                          Роль в системе
-                        </span>
-                        <div className="flex items-center gap-2 mt-1">
-                          <p className="text-lg font-bold text-slate-900 dark:text-white capitalize">
-                            {role}
-                          </p>
-                          <span className="px-2 py-0.5 text-[10px] font-extrabold bg-blue-500/20 text-blue-600 dark:text-blue-300 border border-blue-400/20 rounded-md">
-                            Базовый доступ
-                          </span>
-                        </div>
-                      </div>
-                      <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
-                        <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
-                          Электронная почта
-                        </span>
-                        <p className="text-lg font-bold text-slate-900 dark:text-white mt-1 break-all">
-                          {email}
-                        </p>
-                      </div>
-                      <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
-                        <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
-                          Номер телефона
-                        </span>
-                        <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">
-                          {phone}
-                        </p>
-                      </div>
-                      <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
-                        <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
-                          Дата регистрации
-                        </span>
-                        <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">
-                          28 мая 2026
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
-                      <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
-                        О себе
-                      </span>
-                      <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-2 leading-relaxed italic">
-                        &ldquo;{bio}&rdquo;
+            {!isEditing ? (
+              /* Display View Mode */
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
+                    <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                      Имя
+                    </span>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">
+                      {name}
+                    </p>
+                  </div>
+                  <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
+                    <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                      Фамилия
+                    </span>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">
+                      {surname}
+                    </p>
+                  </div>
+                  <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
+                    <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                      Роль в системе
+                    </span>
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-lg font-bold text-slate-900 dark:text-white capitalize">
+                        {role}
                       </p>
+                      <span className="px-2 py-0.5 text-[10px] font-extrabold bg-blue-500/20 text-blue-600 dark:text-blue-300 border border-blue-400/20 rounded-md">
+                        Базовый доступ
+                      </span>
                     </div>
                   </div>
-                ) : (
-                  /* Interactive Edit Form Mode */
-                  <form onSubmit={handleSave} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      <div className="space-y-2">
-                        <label className="text-xs font-semibold tracking-wider text-slate-600 dark:text-slate-300 ml-1">
-                          ИМЯ
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={editName}
-                          onChange={(e) => setEditName(e.target.value)}
-                          className="w-full rounded-2xl bg-white/85 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-3.5 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-500/30 dark:focus:ring-sky-500/50 focus:border-sky-500/50 dark:focus:border-sky-500/50 transition-all duration-200"
-                          placeholder="Введите имя"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-xs font-semibold tracking-wider text-slate-600 dark:text-slate-300 ml-1">
-                          ФАМИЛИЯ
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={editSurname}
-                          onChange={(e) => setEditSurname(e.target.value)}
-                          className="w-full rounded-2xl bg-white/85 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-3.5 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-500/30 dark:focus:ring-sky-500/50 focus:border-sky-500/50 dark:focus:border-sky-500/50 transition-all duration-200"
-                          placeholder="Введите фамилию"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-xs font-semibold tracking-wider text-slate-600 dark:text-slate-300 ml-1">
-                          ЭЛЕКТРОННАЯ ПОЧТА
-                        </label>
-                        <input
-                          type="email"
-                          required
-                          value={editEmail}
-                          onChange={(e) => setEditEmail(e.target.value)}
-                          className="w-full rounded-2xl bg-white/85 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-3.5 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-500/30 dark:focus:ring-sky-500/50 focus:border-sky-500/50 dark:focus:border-sky-500/50 transition-all duration-200"
-                          placeholder="example@mail.com"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-xs font-semibold tracking-wider text-slate-600 dark:text-slate-300 ml-1">
-                          НОМЕР ТЕЛЕФОНА
-                        </label>
-                        <input
-                          type="tel"
-                          value={editPhone}
-                          onChange={(e) => setEditPhone(e.target.value)}
-                          className="w-full rounded-2xl bg-white/85 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-3.5 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-500/30 dark:focus:ring-sky-500/50 focus:border-sky-500/50 dark:focus:border-sky-500/50 transition-all duration-200"
-                          placeholder="+998"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-xs font-semibold tracking-wider text-slate-600 dark:text-slate-300 ml-1">
-                        РОЛЬ В СИСТЕМЕ (ФИКСИРОВАННАЯ)
-                      </label>
-                      <div className="w-full rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/5 px-4 py-3.5 text-slate-600 dark:text-slate-400 select-none flex items-center justify-between">
-                        <span className="capitalize font-semibold">{role}</span>
-                        <span className="text-[10px] font-bold text-sky-600 dark:text-sky-400/80 bg-sky-500/10 px-3 py-1 rounded-full border border-sky-400/20 uppercase tracking-widest">
-                          Изменение заблокировано администратором
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-xs font-semibold tracking-wider text-slate-600 dark:text-slate-300 ml-1">
-                        О СЕБЕ
-                      </label>
-                      <textarea
-                        value={editBio}
-                        onChange={(e) => setEditBio(e.target.value)}
-                        rows={3}
-                        className="w-full rounded-2xl bg-white/85 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-500/30 dark:focus:ring-sky-500/50 focus:border-sky-500/50 dark:focus:border-sky-500/50 transition-all duration-200 resize-none leading-relaxed"
-                        placeholder="Расскажите немного о своей роли..."
-                      />
-                    </div>
-
-                    <div className="flex justify-end gap-2 pt-2">
-                      <button
-                        type="button"
-                        onClick={cancelEdit}
-                        className="bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 font-semibold px-5 py-3 rounded-2xl transition duration-150 active:scale-[0.98] cursor-pointer"
-                      >
-                        Отменить
-                      </button>
-                      <button
-                        type="submit"
-                        disabled={isSaving}
-                        className="bg-linear-to-br from-sky-500 to-blue-600 hover:opacity-90 disabled:opacity-50 text-white font-bold px-8 py-3 rounded-2xl shadow-lg shadow-sky-500/20 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] flex items-center gap-2 cursor-pointer"
-                      >
-                        {isSaving ? "Сохранение..." : "Сохранить изменения"}
-                      </button>
-                    </div>
-                  </form>
-                )}
-              </div>
-            )}
-
-            {/* TAB 2: SYSTEM ACTIVITY */}
-            {activeTab === "activity" && (
-              <div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4 pb-3 border-b border-slate-200 dark:border-white/10 flex items-center gap-2">
-                  <span className="w-1.5 h-6 rounded-full bg-indigo-500 dark:bg-indigo-500" />
-                  Журнал рабочей активности
-                </h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
-                  История последних выходов на смену, выполненных задач и
-                  зафиксированных рабочих часов.
-                </p>
-
-                <div className="space-y-4">
-                  {/* Activity Timeline List */}
-                  <div className="border-l-2 border-slate-200 dark:border-white/10 ml-3 space-y-6 py-2">
-                    <div className="relative pl-7">
-                      <span className="absolute -left-2.25 top-1.5 w-4 h-4 rounded-full bg-emerald-500 ring-4 ring-slate-50 dark:ring-[#021236] flex items-center justify-center" />
-                      <div className="bg-white/30 dark:bg-white/2 border border-slate-200/50 dark:border-white/5 p-4 rounded-2xl shadow-sm">
-                        <div className="flex justify-between items-start">
-                          <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-                            Смена завершена успешно
-                          </h4>
-                          <span className="text-[10px] font-semibold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded">
-                            Вчера, 18:30
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                          Отработано часов: 8.0. Отмечен уход из офиса
-                          (Технопарк А3).
-                        </p>
-                      </div>
-                    </div>
-                    <div className="relative pl-7">
-                      <span className="absolute -left-2.25 top-1.5 w-4 h-4 rounded-full bg-sky-500 ring-4 ring-slate-50 dark:ring-[#021236]" />
-                      <div className="bg-white/30 dark:bg-white/2 border border-slate-200/50 dark:border-white/5 p-4 rounded-2xl shadow-sm">
-                        <div className="flex justify-between items-start">
-                          <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-                            Выполнение задачи: Координация спринта
-                          </h4>
-                          <span className="text-[10px] font-semibold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded">
-                            27 мая, 14:15
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                          Задача №449 переведена в статус &quot;Выполнено&quot;.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="relative pl-7">
-                      <span className="absolute -left-2.25 top-1.5 w-4 h-4 rounded-full bg-indigo-500 ring-4 ring-slate-50 dark:ring-[#021236]" />
-                      <div className="bg-white/30 dark:bg-white/2 border border-slate-200/50 dark:border-white/5 p-4 rounded-2xl shadow-sm">
-                        <div className="flex justify-between items-start">
-                          <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-                            Вход в систему зафиксирован
-                          </h4>
-                          <span className="text-[10px] font-semibold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded">
-                            26 мая, 08:58
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                          Авторизация через веб-интерфейс, IP-адрес:
-                          192.168.1.14.
-                        </p>
-                      </div>
-                    </div>
+                  <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
+                    <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                      Электронная почта
+                    </span>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white mt-1 break-all">
+                      {email}
+                    </p>
+                  </div>
+                  <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
+                    <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                      Номер телефона
+                    </span>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">
+                      {phone}
+                    </p>
+                  </div>
+                  <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
+                    <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                      Дата регистрации
+                    </span>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">
+                      {registrationDate}
+                    </p>
                   </div>
                 </div>
+
+                <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
+                  <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                    О себе
+                  </span>
+                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-2 leading-relaxed italic">
+                    &ldquo;{bio}&rdquo;
+                  </p>
+                </div>
               </div>
+            ) : (
+              /* Interactive Edit Form Mode */
+              <form onSubmit={handleSave} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold tracking-wider text-slate-600 dark:text-slate-300 ml-1">
+                      ИМЯ
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      className="w-full rounded-2xl bg-white/85 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-3.5 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-500/30 dark:focus:ring-sky-500/50 focus:border-sky-500/50 dark:focus:border-sky-500/50 transition-all duration-200"
+                      placeholder="Введите имя"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold tracking-wider text-slate-600 dark:text-slate-300 ml-1">
+                      ФАМИЛИЯ
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={editSurname}
+                      onChange={(e) => setEditSurname(e.target.value)}
+                      className="w-full rounded-2xl bg-white/85 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-3.5 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-500/30 dark:focus:ring-sky-500/50 focus:border-sky-500/50 dark:focus:border-sky-500/50 transition-all duration-200"
+                      placeholder="Введите фамилию"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold tracking-wider text-slate-600 dark:text-slate-300 ml-1">
+                      ЭЛЕКТРОННАЯ ПОЧТА
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={editEmail}
+                      onChange={(e) => setEditEmail(e.target.value)}
+                      className="w-full rounded-2xl bg-white/85 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-3.5 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-500/30 dark:focus:ring-sky-500/50 focus:border-sky-500/50 dark:focus:border-sky-500/50 transition-all duration-200"
+                      placeholder="example@mail.com"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold tracking-wider text-slate-600 dark:text-slate-300 ml-1">
+                      НОМЕР ТЕЛЕФОНА
+                    </label>
+                    <input
+                      type="tel"
+                      value={editPhone}
+                      onChange={(e) => setEditPhone(e.target.value)}
+                      className="w-full rounded-2xl bg-white/85 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-3.5 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-500/30 dark:focus:ring-sky-500/50 focus:border-sky-500/50 dark:focus:border-sky-500/50 transition-all duration-200"
+                      placeholder="+998"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold tracking-wider text-slate-600 dark:text-slate-300 ml-1">
+                    РОЛЬ В СИСТЕМЕ (ФИКСИРОВАННАЯ)
+                  </label>
+                  <div className="w-full rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/5 px-4 py-3.5 text-slate-600 dark:text-slate-400 select-none flex items-center justify-between">
+                    <span className="capitalize font-semibold">{role}</span>
+                    <span className="text-[10px] font-bold text-sky-600 dark:text-sky-400/80 bg-sky-500/10 px-3 py-1 rounded-full border border-sky-400/20 uppercase tracking-widest">
+                      Изменение заблокировано администратором
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold tracking-wider text-slate-600 dark:text-slate-300 ml-1">
+                    О СЕБЕ
+                  </label>
+                  <textarea
+                    value={editBio}
+                    onChange={(e) => setEditBio(e.target.value)}
+                    rows={3}
+                    className="w-full rounded-2xl bg-white/85 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-500/30 dark:focus:ring-sky-500/50 focus:border-sky-500/50 dark:focus:border-sky-500/50 transition-all duration-200 resize-none leading-relaxed"
+                    placeholder="Расскажите немного о своей роли..."
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={cancelEdit}
+                    className="bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 font-semibold px-5 py-3 rounded-2xl transition duration-150 active:scale-[0.98] cursor-pointer"
+                  >
+                    Отменить
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSaving}
+                    className="bg-linear-to-br from-sky-500 to-blue-600 hover:opacity-90 disabled:opacity-50 text-white font-bold px-8 py-3 rounded-2xl shadow-lg shadow-sky-500/20 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] flex items-center gap-2 cursor-pointer"
+                  >
+                    {isSaving ? "Сохранение..." : "Сохранить изменения"}
+                  </button>
+                </div>
+              </form>
             )}
           </div>
         </div>
