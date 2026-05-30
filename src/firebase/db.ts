@@ -10,7 +10,6 @@ import {
   limit,
 } from "firebase/firestore";
 import {
-  DASHBOARD_STATS,
   SCHEDULE_SUMMARY,
   SHIFTS,
   BAR_CHART_DATA,
@@ -18,8 +17,9 @@ import {
   DOUGHNUT_CHART_DATA,
   PIE_CHART_DATA,
   type Shift,
+  SEEDED_USERS,
 } from "@/data/admin";
-import { users as mockUsers } from "@/data/user";
+import { DASHBOARD_STATS } from "@/data";
 
 export interface Employee {
   id: string | number;
@@ -94,18 +94,6 @@ export const seedDatabaseIfEmpty = async () => {
     const usersSnap = await getDocs(query(usersColRef, limit(2)));
     if (usersSnap.empty) {
       const batch = writeBatch(db);
-      const SEEDED_USERS = [
-        { id: "user_1", name: "Алексей", lastName: "Петров", email: "alex.p@workflow.com", phone: "+998 90 123 45 67", position: "Ombor raxbari", positionRu: "Руководитель склада", avatarUrl: "https://randomuser.me/api/portraits/men/10.jpg" },
-        { id: "user_2", name: "Мария", lastName: "Иванова", email: "maria.i@workflow.com", phone: "+998 91 234 56 78", position: "Ombor mudiri", positionRu: "Супервайзер", avatarUrl: "https://randomuser.me/api/portraits/women/10.jpg" },
-        { id: "user_3", name: "Дмитрий", lastName: "Козлов", email: "dmitry.k@workflow.com", phone: "+998 93 345 67 89", position: "Yuk tashuvchi", positionRu: "Грузчик", avatarUrl: "https://randomuser.me/api/portraits/men/11.jpg" },
-        { id: "user_4", name: "Анна", lastName: "Сидорова", email: "anna.s@workflow.com", phone: "+998 94 456 78 90", position: "Tovar yig'uvchi", positionRu: "Комплектовщик", avatarUrl: "https://randomuser.me/api/portraits/women/11.jpg" },
-        { id: "user_5", name: "Иван", lastName: "Новиков", email: "ivan.n@workflow.com", phone: "+998 95 567 89 01", position: "Buyurtmalarni jo'natish nazoratchisi", positionRu: "Контролёр отправки товаров", avatarUrl: "https://randomuser.me/api/portraits/men/12.jpg" },
-        { id: "user_6", name: "Ольга", lastName: "Федорова", email: "olga.f@workflow.com", phone: "+998 97 678 90 12", position: "Ombor raxbari", positionRu: "Руководитель склада", avatarUrl: "https://randomuser.me/api/portraits/women/12.jpg" },
-        { id: "user_7", name: "Сергей", lastName: "Михайлов", email: "sergey.m@workflow.com", phone: "+998 98 789 01 23", position: "Ombor mudiri", positionRu: "Супервайзер", avatarUrl: "https://randomuser.me/api/portraits/men/13.jpg" },
-        { id: "user_8", name: "Татьяна", lastName: "Волкова", email: "tatiana.v@workflow.com", phone: "+998 99 890 12 34", position: "Tovar yig'uvchi", positionRu: "Комплектовщик", avatarUrl: "https://randomuser.me/api/portraits/women/13.jpg" },
-        { id: "user_9", name: "Роман", lastName: "Беляев", email: "roman.b@workflow.com", phone: "+998 90 901 23 45", position: "Yuk tashuvchi", positionRu: "Грузчик", avatarUrl: "https://randomuser.me/api/portraits/men/14.jpg" },
-        { id: "user_10", name: "Екатерина", lastName: "Попова", email: "ekaterina.p@workflow.com", phone: "+998 91 012 34 56", position: "Buyurtmalarni qabul qilish nazoratchisi", positionRu: "Контролёр приёмки товаров", avatarUrl: "https://randomuser.me/api/portraits/women/14.jpg" },
-      ];
       SEEDED_USERS.forEach((u) => {
         const docRef = doc(usersColRef, u.id);
         batch.set(docRef, {
@@ -131,32 +119,41 @@ export const seedDatabaseIfEmpty = async () => {
     if (attendanceSnap.empty) {
       const batch = writeBatch(db);
       const now = new Date();
-      
+
       const seedCheckIns = [
         {
           id: "att_1",
           userId: "user_1", // Алексей Петров
-          image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&fit=crop&q=80",
+          image:
+            "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&fit=crop&q=80",
           location: { latitude: 41.311081, longitude: 69.240562 },
-          timestamp: new Date(now.getTime() - 2 * 60 * 60 * 1000).toLocaleString("ru-RU"), // 2 hours ago
-          checkInTime: new Date(now.getTime() - 2 * 60 * 60 * 1000)
+          timestamp: new Date(
+            now.getTime() - 2 * 60 * 60 * 1000,
+          ).toLocaleString("ru-RU"), // 2 hours ago
+          checkInTime: new Date(now.getTime() - 2 * 60 * 60 * 1000),
         },
         {
           id: "att_2",
           userId: "user_2", // Мария Иванова
-          image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&fit=crop&q=80",
+          image:
+            "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&fit=crop&q=80",
           location: { latitude: 41.327543, longitude: 69.281121 },
-          timestamp: new Date(now.getTime() - 45 * 60 * 1000).toLocaleString("ru-RU"), // 45 mins ago
-          checkInTime: new Date(now.getTime() - 45 * 60 * 1000)
+          timestamp: new Date(now.getTime() - 45 * 60 * 1000).toLocaleString(
+            "ru-RU",
+          ), // 45 mins ago
+          checkInTime: new Date(now.getTime() - 45 * 60 * 1000),
         },
         {
           id: "att_3",
           userId: "user_5", // Иван Новиков
-          image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&fit=crop&q=80",
+          image:
+            "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&fit=crop&q=80",
           location: { latitude: 41.299498, longitude: 69.240091 },
-          timestamp: new Date(now.getTime() - 15 * 60 * 1000).toLocaleString("ru-RU"), // 15 mins ago
-          checkInTime: new Date(now.getTime() - 15 * 60 * 1000)
-        }
+          timestamp: new Date(now.getTime() - 15 * 60 * 1000).toLocaleString(
+            "ru-RU",
+          ), // 15 mins ago
+          checkInTime: new Date(now.getTime() - 15 * 60 * 1000),
+        },
       ];
 
       seedCheckIns.forEach((checkIn) => {
@@ -166,7 +163,7 @@ export const seedDatabaseIfEmpty = async () => {
           image: checkIn.image,
           location: checkIn.location,
           timestamp: checkIn.timestamp,
-          checkInTime: checkIn.checkInTime
+          checkInTime: checkIn.checkInTime,
         });
       });
       await batch.commit();
@@ -237,7 +234,10 @@ export const getEmployeesFromFirestore = async () => {
         lastName: data.lastName || data.surname || "",
         email: data.email || "",
         phone: data.phone || data.number || "",
-        position: data.positionRu || data.position || (data.role === "admin" ? "Администратор" : "Сотрудник"),
+        position:
+          data.positionRu ||
+          data.position ||
+          (data.role === "admin" ? "Администратор" : "Сотрудник"),
         avatar: data.avatarUrl || data.avatar || "/main-logo.png",
         role: data.role || "user",
       });
@@ -245,14 +245,14 @@ export const getEmployeesFromFirestore = async () => {
     return list;
   }
   // Fallback to local users list
-  return mockUsers.map((u) => ({
+  return SEEDED_USERS.map((u) => ({
     id: u.id,
     name: u.name,
     lastName: u.lastName || "",
     email: u.email || "",
     phone: u.phone || "",
-    position: u.time || "",
-    avatar: u.avatar || "/main-logo.png",
+    position: u.positionRu || u.position || "Сотрудник",
+    avatar: u.avatarUrl || "/main-logo.png",
     role: "user",
   }));
 };
@@ -297,3 +297,7 @@ export const getAttendanceFeed = async () => {
   }
   return [];
 };
+
+export const usersCount = (await getDocs(collection(db, "users"))).size;
+
+

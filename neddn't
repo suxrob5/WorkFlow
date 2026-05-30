@@ -1,0 +1,27 @@
+  {/* Employee List */}
+        <div className="rounded-3xl bg-white/60 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 backdrop-blur-xl p-6 md:p-8 shadow-md dark:shadow-xl transition-all duration-300">
+          <Users />
+        </div>
+
+
+
+    
+    
+    <div className="rounded-3xl bg-white/60 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 backdrop-blur-xl p-6 shadow-md dark:shadow-xl">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="text-base font-bold text-slate-900 dark:text-white">
+                Рабочие часы за год
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Фактические vs сверхурочные часы по месяцам
+              </p>
+            </div>
+            <span className="text-xs text-violet-600 dark:text-violet-400 bg-violet-500/10 border border-violet-400/15 dark:border-violet-400/20 px-3 py-1 rounded-full font-bold">
+              2026 год
+            </span>
+          </div>
+          <LineChart data={charts?.line} />
+        </div>
+
+        

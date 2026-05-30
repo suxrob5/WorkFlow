@@ -5,6 +5,7 @@ import Link from "next/link";
 import { SignedIn } from "./signed-in";
 import { useAuthState, useSignOut } from "react-firebase-hooks/auth";
 import { SignedOut } from "./signed-out";
+import PushDashboardStats from "./1";
 
 const Test = () => {
   const [user, loading] = useAuthState(auth);
@@ -12,6 +13,7 @@ const Test = () => {
   return (
     <div className="min-h-screen p-8 bg-blue-50">
       <h1 className="text-4xl font-bold mb-8">Test Page Login</h1>
+      <PushDashboardStats />
       <SignedIn>
         {loading ? (
           <div className="text-center">

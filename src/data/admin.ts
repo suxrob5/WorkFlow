@@ -1,5 +1,7 @@
 // ── Sidebar / nav ────────────────────────────────────────────
 
+import { StatCard } from "@/types";
+
 export const NAV_LINKS = [
   { href: "/dashboard", label: "Главная" },
   { href: "/employee", label: "Сотрудники" },
@@ -125,49 +127,9 @@ export const SHIFTS: Shift[] = [
 
 // ── Dashboard KPI kartochkalari ───────────────────────────────
 
-export interface StatCard {
-  label: string;
-  value: string;
-  delta: string;
-  deltaLabel: string;
-  color: string;
-  glow: string;
-}
+  
 
-export const DASHBOARD_STATS: StatCard[] = [
-  {
-    label: "Всего сотрудников",
-    value: "350",
-    delta: "+12",
-    deltaLabel: "за месяц",
-    color: "from-sky-500 to-blue-600",
-    glow: "shadow-sky-500/25",
-  },
-  {
-    label: "На смене сегодня",
-    value: "286",
-    delta: "81.7%",
-    deltaLabel: "явка",
-    color: "from-emerald-500 to-teal-600",
-    glow: "shadow-emerald-500/25",
-  },
-  {
-    label: "Отсутствуют",
-    value: "64",
-    delta: "-5",
-    deltaLabel: "vs вчера",
-    color: "from-rose-500 to-red-600",
-    glow: "shadow-rose-500/25",
-  },
-  {
-    label: "Эффективность",
-    value: "94%",
-    delta: "+2.1%",
-    deltaLabel: "vs прошлый мес.",
-    color: "from-violet-500 to-indigo-600",
-    glow: "shadow-violet-500/25",
-  },
-];
+
 
 // ── "Рабочие графики" sahifasi kartochkalari ─────────────────
 
@@ -348,3 +310,27 @@ export const CHART_SCALE_STYLE = {
   grid: { color: "rgba(255,255,255,0.05)" },
   ticks: { color: "rgba(255,255,255,0.6)", font: { size: 11 } },
 } as const;
+
+export interface MockUser {
+  id: string;
+  name: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  position: string;
+  positionRu: string;
+  avatarUrl: string;
+}
+
+export const SEEDED_USERS: MockUser[] = [
+  { id: "user_1", name: "Алексей", lastName: "Петров", email: "alex.p@workflow.com", phone: "+998 90 123 45 67", position: "Ombor raxbari", positionRu: "Руководитель склада", avatarUrl: "https://randomuser.me/api/portraits/men/10.jpg" },
+  { id: "user_2", name: "Мария", lastName: "Иванова", email: "maria.i@workflow.com", phone: "+998 91 234 56 78", position: "Ombor mudiri", positionRu: "Супервайзер", avatarUrl: "https://randomuser.me/api/portraits/women/10.jpg" },
+  { id: "user_3", name: "Дмитрий", lastName: "Козлов", email: "dmitry.k@workflow.com", phone: "+998 93 345 67 89", position: "Yuk tashuvchi", positionRu: "Грузчик", avatarUrl: "https://randomuser.me/api/portraits/men/11.jpg" },
+  { id: "user_4", name: "Анна", lastName: "Сидорова", email: "anna.s@workflow.com", phone: "+998 94 456 78 90", position: "Tovar yig'uvchi", positionRu: "Комплектовщик", avatarUrl: "https://randomuser.me/api/portraits/women/11.jpg" },
+  { id: "user_5", name: "Иван", lastName: "Новиков", email: "ivan.n@workflow.com", phone: "+998 95 567 89 01", position: "Buyurtmalarni jo'natish nazoratchisi", positionRu: "Контролёр отправки товаров", avatarUrl: "https://randomuser.me/api/portraits/men/12.jpg" },
+  { id: "user_6", name: "Ольга", lastName: "Федорова", email: "olga.f@workflow.com", phone: "+998 97 678 90 12", position: "Ombor raxbari", positionRu: "Руководитель склада", avatarUrl: "https://randomuser.me/api/portraits/women/12.jpg" },
+  { id: "user_7", name: "Сергей", lastName: "Михайлов", email: "sergey.m@workflow.com", phone: "+998 98 789 01 23", position: "Ombor mudiri", positionRu: "Супервайзер", avatarUrl: "https://randomuser.me/api/portraits/men/13.jpg" },
+  { id: "user_8", name: "Татьяна", lastName: "Волкова", email: "tatiana.v@workflow.com", phone: "+998 99 890 12 34", position: "Tovar yig'uvchi", positionRu: "Комплектовщик", avatarUrl: "https://randomuser.me/api/portraits/women/13.jpg" },
+  { id: "user_9", name: "Роман", lastName: "Беляев", email: "roman.b@workflow.com", phone: "+998 90 901 23 45", position: "Yuk tashuvchi", positionRu: "Грузчик", avatarUrl: "https://randomuser.me/api/portraits/men/14.jpg" },
+  { id: "user_10", name: "Екатерина", lastName: "Попова", email: "ekaterina.p@workflow.com", phone: "+998 91 012 34 56", position: "Buyurtmalarni qabul qilish nazoratchisi", positionRu: "Контролёр приёмки товаров", avatarUrl: "https://randomuser.me/api/portraits/women/14.jpg" },
+];

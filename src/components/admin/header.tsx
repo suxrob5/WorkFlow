@@ -62,7 +62,7 @@ const AdHeader = () => {
             </p>
           </div>
         </Link>
-        <nav className="w-[60%]  ml-5 border">
+        <nav className="w-[60%]  ml-5">
           <ul className="flex w-max items-center gap-2 text-sm font-semibold lg:mx-auto lg:gap-4">
             <li>
               <Link

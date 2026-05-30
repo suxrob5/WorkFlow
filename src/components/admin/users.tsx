@@ -77,7 +77,15 @@ const Users = () => {
       if (!mounted) return;
       const start = (page - 1) * PAGE_SIZE;
       const next = filtered.slice(start, start + PAGE_SIZE);
-      setItems((prev) => [...prev, ...next]);
+      setItems((prev) => {
+        if (page === 1) {
+          return next;
+        }
+        const uniquePrev = prev.filter(
+          (item) => !next.some((n) => n.id === item.id),
+        );
+        return [...uniquePrev, ...next];
+      });
       setHasMore(start + PAGE_SIZE < filtered.length);
       setLoading(false);
     };
