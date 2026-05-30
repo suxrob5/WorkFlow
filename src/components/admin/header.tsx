@@ -45,7 +45,6 @@ const AdHeader = () => {
   return (
     <header className="sticky top-0 z-30 bg-[#011E5D]/95 text-white backdrop-blur-sm border-b border-white/10 shadow-[0_15px_40px_-25px_rgba(0,0,0,0.5)] transition-all duration-300">
       <div className="mx-auto flex justify-between max-w-400 items-center gap-3 px-4 py-3 text-[17px] lg:flex-nowrap lg:gap-6 lg:px-6">
-
         <Link href="/dashboard" className="flex items-center gap-3">
           <Image
             src="/main-logo.png"
@@ -137,7 +136,9 @@ const AdHeader = () => {
             >
               <span className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-linear-to-br from-rose-100 to-pink-300 text-sm font-semibold text-white shadow-lg shadow-rose-500/20 transition duration-200 group-hover:-translate-y-0.5 group-hover:shadow-rose-500/40">
                 <Image
-                  src={typeof avatarUrl === "string" ? avatarUrl.trim() : avatarUrl}
+                  src={
+                    typeof avatarUrl === "string" ? avatarUrl.trim() : avatarUrl
+                  }
                   alt="Admin Avatar"
                   fill
                   className="rounded-full object-cover"

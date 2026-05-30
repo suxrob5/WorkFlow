@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { users as allUsers } from "@/data/user";
+import { getEmployeesFromFirestore, seedDatabaseIfEmpty } from "@/firebase/db";
 
 type User = {
-  id: number;
+  id: string | number;
   name: string;
   lastName?: string;
   email?: string;
@@ -16,35 +16,41 @@ type User = {
 const PAGE_SIZE = 4;
 
 const Users = () => {
+  const [source, setSource] = useState<User[]>([]);
   const [filter, setFilter] = useState("");
   const [dept, setDept] = useState("");
   const [page, setPage] = useState(1);
   const [items, setItems] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
+  const [fetchingSource, setFetchingSource] = useState(true);
   const [hasMore, setHasMore] = useState(true);
-
-  // normalize source users
-  const source: User[] = useMemo(
-    () =>
-      allUsers.map((u) => ({
-        id: u.id,
-        name: u.name,
-        lastName: u.lastName,
-        email: u.email,
-        position: (u as any).position || (u as any).time || "",
-        avatar: u.avatar,
-      })),
-    [],
-  );
 
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  // Fetch employees from Firestore on mount
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        setFetchingSource(true);
+        // Ensure seeding
+        await seedDatabaseIfEmpty();
+        const liveEmployees = await getEmployeesFromFirestore();
+        setSource(liveEmployees);
+      } catch (error) {
+        console.error("Error fetching live employees:", error);
+      } finally {
+        setFetchingSource(false);
+      }
+    };
+    fetchEmployees();
+  }, []);
 
   const filtered = useMemo(() => {
     return source.filter((u) => {
       const q = filter.trim().toLowerCase();
       const inName = q
-        ? `${u.name} ${u.lastName}`.toLowerCase().includes(q)
+        ? `${u.name} ${u.lastName || ""}`.toLowerCase().includes(q)
         : true;
       const inDept = dept
         ? (u.position || "").toLowerCase() === dept.toLowerCase()
@@ -61,10 +67,12 @@ const Users = () => {
   }, [filter, dept]);
 
   useEffect(() => {
+    if (fetchingSource) return;
+
     let mounted = true;
     const load = async () => {
       setLoading(true);
-      // simulate network delay
+      // simulate minor network delay
       await new Promise((r) => setTimeout(r, 400));
       if (!mounted) return;
       const start = (page - 1) * PAGE_SIZE;
@@ -77,14 +85,19 @@ const Users = () => {
     return () => {
       mounted = false;
     };
-  }, [page, filtered]);
+  }, [page, filtered, fetchingSource]);
 
   useEffect(() => {
     if (!sentinelRef.current) return;
     if (observerRef.current) observerRef.current.disconnect();
     observerRef.current = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !loading && hasMore) {
+        if (
+          entries[0].isIntersecting &&
+          !loading &&
+          hasMore &&
+          !fetchingSource
+        ) {
           setPage((p) => p + 1);
         }
       },
@@ -92,7 +105,7 @@ const Users = () => {
     );
     observerRef.current.observe(sentinelRef.current);
     return () => observerRef.current?.disconnect();
-  }, [loading, hasMore]);
+  }, [loading, hasMore, fetchingSource]);
 
   // derive departments for filter
   const departments = useMemo(() => {
@@ -141,7 +154,11 @@ const Users = () => {
       </div>
 
       <section className="space-y-3">
-        {items && items.length > 0 ? (
+        {fetchingSource ? (
+          <div className="py-8 text-center text-sm text-slate-500 dark:text-slate-300 animate-pulse">
+            Loading employees database…
+          </div>
+        ) : items && items.length > 0 ? (
           items.map((user) => (
             <div
               key={user.id}
@@ -176,13 +193,13 @@ const Users = () => {
 
         <div ref={sentinelRef} />
 
-        {loading && (
+        {loading && !fetchingSource && (
           <div className="py-4 text-center text-sm text-slate-500 dark:text-slate-300">
             Loading…
           </div>
         )}
 
-        {!hasMore && !loading && items.length > 0 && (
+        {!hasMore && !loading && !fetchingSource && items.length > 0 && (
           <div className="py-4 text-center text-sm text-slate-500 dark:text-slate-300">
             No more users
           </div>

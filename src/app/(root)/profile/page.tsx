@@ -282,7 +282,11 @@ const Profile = () => {
               <div className="relative group w-32 h-32 md:w-36 md:h-36 rounded-full p-1.5 bg-linear-to-tr from-sky-400 via-indigo-500 to-blue-600 shadow-[0_10px_35px_rgba(14,165,233,0.2)] dark:shadow-[0_10px_35px_rgba(14,165,233,0.3)] transition duration-300 hover:scale-[1.03]">
                 <div className="w-full h-full rounded-full overflow-hidden border-4 border-slate-50 dark:border-[#021236] relative transition-colors duration-300">
                   <Image
-                    src={typeof avatarUrl === "string" ? avatarUrl.trim() : avatarUrl}
+                    src={
+                      typeof avatarUrl === "string"
+                        ? avatarUrl.trim()
+                        : avatarUrl
+                    }
                     alt="Profile Avatar"
                     width={150}
                     height={150}
@@ -462,10 +466,22 @@ const Profile = () => {
                 onClick={() => fileInputRef.current?.click()}
                 className="relative w-24 h-24 rounded-2xl border-2 border-dashed border-slate-300 dark:border-white/20 flex flex-col items-center justify-center hover:border-sky-500 hover:bg-sky-50 dark:hover:bg-sky-500/10 transition duration-200 cursor-pointer group/upload"
               >
-                <svg className="w-8 h-8 text-slate-400 group-hover/upload:text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                <svg
+                  className="w-8 h-8 text-slate-400 group-hover/upload:text-sky-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
                 </svg>
-                <span className="text-[10px] font-bold text-slate-400 group-hover/upload:text-sky-500 uppercase mt-1">Загрузить</span>
+                <span className="text-[10px] font-bold text-slate-400 group-hover/upload:text-sky-500 uppercase mt-1">
+                  Загрузить
+                </span>
                 <input
                   type="file"
                   ref={fileInputRef}

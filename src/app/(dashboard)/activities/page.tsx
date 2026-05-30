@@ -1,29 +1,96 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AdHeader from "@/components/admin/header";
 import BarChart from "@/components/admin/chart/bar-chart";
 import LineChart from "@/components/admin/chart/line-chart";
 import DoughnutChart from "@/components/admin/chart/doughnut-chart";
 import {
-  SHIFTS,
-  STATUS_CONFIG,
-  WEEKDAYS,
-  SCHEDULE_SUMMARY,
-  type ShiftStatus,
-} from "@/data/admin";
+  seedDatabaseIfEmpty,
+  getScheduleSummary,
+  getShiftsFromFirestore,
+  getChartsData,
+} from "@/firebase/db";
+import { STATUS_CONFIG, WEEKDAYS, type ShiftStatus } from "@/data/admin";
 
 export default function ActivitiesPage() {
   const [activeChart, setActiveChart] = useState<"bar" | "line" | "doughnut">(
     "bar",
   );
   const [searchTerm, setSearchTerm] = useState("");
+  const [summary, setSummary] = useState<any[]>([]);
+  const [shifts, setShifts] = useState<any[]>([]);
+  const [charts, setCharts] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = SHIFTS.filter(
+  useEffect(() => {
+    const loadActivitiesData = async () => {
+      try {
+        setLoading(true);
+        // Ensure database is seeded with mock data if it is empty
+        await seedDatabaseIfEmpty();
+
+        const liveSummary = await getScheduleSummary();
+        const liveShifts = await getShiftsFromFirestore();
+        const liveCharts = await getChartsData();
+
+        setSummary(liveSummary);
+        setShifts(liveShifts);
+        setCharts(liveCharts);
+      } catch (error) {
+        console.error("Error loading activities data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadActivitiesData();
+  }, []);
+
+  const filtered = shifts.filter(
     (s) =>
-      s.employee.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s.dept.toLowerCase().includes(searchTerm.toLowerCase()),
+      (s.employee || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (s.dept || "").toLowerCase().includes(searchTerm.toLowerCase()),
   );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen text-slate-800 dark:text-slate-100 relative overflow-hidden transition-colors duration-300">
+        <AdHeader />
+
+        {/* Ambient background glows */}
+        <div className="absolute top-[-15%] right-[-10%] w-[55vw] h-[55vw] rounded-full bg-violet-500/8 blur-[130px] pointer-events-none z-0" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[55vw] h-[55vw] rounded-full bg-sky-600/8 blur-[140px] pointer-events-none z-0" />
+
+        <main className="relative z-10 max-w-7xl mx-auto px-4 py-8 md:px-6 space-y-8 animate-pulse">
+          {/* Skeleton Header */}
+          <div className="space-y-2">
+            <div className="h-8 w-64 bg-slate-200 dark:bg-white/10 rounded-2xl" />
+            <div className="h-4 w-96 bg-slate-200 dark:bg-white/5 rounded-xl" />
+          </div>
+
+          {/* Skeleton Summary Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {[0, 1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="rounded-3xl bg-white/60 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 p-5 h-28 flex flex-col justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-slate-300 dark:bg-white/10" />
+                  <div className="h-4 w-20 bg-slate-300 dark:bg-white/10 rounded-md" />
+                </div>
+                <div className="h-6 w-12 bg-slate-300 dark:bg-white/10 rounded-lg" />
+              </div>
+            ))}
+          </div>
+
+          {/* Skeleton Chart */}
+          <div className="h-[380px] rounded-3xl bg-white/60 dark:bg-white/5 border border-slate-200/60 dark:border-white/10" />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen text-slate-800 dark:text-slate-100 relative overflow-hidden transition-colors duration-300">
@@ -62,9 +129,9 @@ export default function ActivitiesPage() {
           </button>
         </div>
 
-        {/* Summary Cards — from @/data/admin */}
+        {/* Summary Cards — from Firebase */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {SCHEDULE_SUMMARY.map((card, i) => (
+          {summary.map((card, i) => (
             <div
               key={i}
               className="rounded-3xl bg-white/60 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 backdrop-blur-xl p-5 hover:border-slate-300 dark:hover:border-white/20 hover:-translate-y-0.5 transition-all duration-300 shadow-md dark:shadow-lg"
@@ -90,7 +157,7 @@ export default function ActivitiesPage() {
         </div>
 
         {/* Chart Switcher + Display */}
-        <div className="rounded-3xl bg-white/60 dark:text-black text-black dark:bg-white/5 border border-slate-200/60 dark:border-white/10 backdrop-blur-xl p-6 shadow-md dark:shadow-xl">
+        <div className="rounded-3xl bg-white/60 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 backdrop-blur-xl p-6 shadow-md dark:shadow-xl">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
               <h2 className="text-base font-bold text-slate-900 dark:text-white">
@@ -124,13 +191,15 @@ export default function ActivitiesPage() {
             </div>
           </div>
           <div key={activeChart} className="">
-            {activeChart === "bar" && <BarChart />}
-            {activeChart === "line" && <LineChart />}
-            {activeChart === "doughnut" && <DoughnutChart />}
+            {activeChart === "bar" && <BarChart data={charts?.bar} />}
+            {activeChart === "line" && <LineChart data={charts?.line} />}
+            {activeChart === "doughnut" && (
+              <DoughnutChart data={charts?.doughnut} />
+            )}
           </div>
         </div>
 
-        {/* Weekly shift heatmap — SHIFTS & WEEKDAYS from @/data/admin */}
+        {/* Weekly shift heatmap — from Firebase */}
         <div className="rounded-3xl bg-white/60 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 backdrop-blur-xl p-6 shadow-md dark:shadow-xl">
           <h2 className="text-base font-bold text-slate-900 dark:text-white mb-2">
             Сетка рабочих смен
@@ -174,7 +243,7 @@ export default function ActivitiesPage() {
                     </td>
                     {WEEKDAYS.map((day) => (
                       <td key={day} className="text-center py-3 px-2">
-                        {row.days.includes(day) ? (
+                        {row.days && row.days.includes(day) ? (
                           <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-sky-500/20 border border-sky-400/30">
                             <span className="w-2 h-2 rounded-full bg-sky-400" />
                           </span>
@@ -187,9 +256,12 @@ export default function ActivitiesPage() {
                     ))}
                     <td className="py-3 pl-4">
                       <span
-                        className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${STATUS_CONFIG[row.status as ShiftStatus].color}`}
+                        className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
+                          STATUS_CONFIG[row.status as ShiftStatus]?.color || ""
+                        }`}
                       >
-                        {STATUS_CONFIG[row.status as ShiftStatus].label}
+                        {STATUS_CONFIG[row.status as ShiftStatus]?.label ||
+                          row.status}
                       </span>
                     </td>
                   </tr>
@@ -199,7 +271,7 @@ export default function ActivitiesPage() {
           </div>
         </div>
 
-        {/* Shift List with search — SHIFTS from @/data/admin */}
+        {/* Shift List with search — from Firebase */}
         <div className="rounded-3xl bg-white/60 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 backdrop-blur-xl p-6 shadow-md dark:shadow-xl transition-all duration-300">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
             <div>
@@ -243,7 +315,7 @@ export default function ActivitiesPage() {
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-2xl bg-linear-to-r from-sky-500/20 to-blue-600/20 border border-sky-400/20 flex items-center justify-center shrink-0">
                     <span className="text-sky-600 dark:text-sky-400 font-bold text-sm">
-                      {shift.employee.charAt(0)}
+                      {(shift.employee || "").charAt(0)}
                     </span>
                   </div>
                   <div>
@@ -259,15 +331,22 @@ export default function ActivitiesPage() {
                   {WEEKDAYS.map((day) => (
                     <span
                       key={day}
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-lg border ${shift.days.includes(day) ? "bg-sky-500/15 text-sky-600 dark:text-sky-300 border-sky-400/20" : "bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-500 border-slate-200 dark:border-white/5"}`}
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-lg border ${
+                        shift.days && shift.days.includes(day)
+                          ? "bg-sky-500/15 text-sky-600 dark:text-sky-300 border-sky-400/20"
+                          : "bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-500 border-slate-200 dark:border-white/5"
+                      }`}
                     >
                       {day}
                     </span>
                   ))}
                   <span
-                    className={`ml-2 text-[10px] font-bold px-2.5 py-1 rounded-full border ${STATUS_CONFIG[shift.status as ShiftStatus].color}`}
+                    className={`ml-2 text-[10px] font-bold px-2.5 py-1 rounded-full border ${
+                      STATUS_CONFIG[shift.status as ShiftStatus]?.color || ""
+                    }`}
                   >
-                    {STATUS_CONFIG[shift.status as ShiftStatus].label}
+                    {STATUS_CONFIG[shift.status as ShiftStatus]?.label ||
+                      shift.status}
                   </span>
                 </div>
               </div>

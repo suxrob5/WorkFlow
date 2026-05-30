@@ -1,4 +1,3 @@
-
 // ── Sidebar / nav ────────────────────────────────────────────
 
 export const NAV_LINKS = [
@@ -42,16 +41,86 @@ export interface Shift {
 }
 
 export const SHIFTS: Shift[] = [
-  { id: 1, employee: "Алексей Петров",   dept: "Разработка",    shift: "Утро (08:00–16:00)",  days: ["Пн","Вт","Ср","Чт","Пт"], status: "active"   },
-  { id: 2, employee: "Мария Иванова",    dept: "Менеджмент",    shift: "День (10:00–18:00)",  days: ["Пн","Вт","Чт","Пт"],        status: "active"   },
-  { id: 3, employee: "Дмитрий Козлов",   dept: "DevOps",        shift: "Ночь (22:00–06:00)",  days: ["Пн","Ср","Пт"],             status: "active"   },
-  { id: 4, employee: "Анна Сидорова",    dept: "Дизайн",        shift: "Утро (08:00–16:00)",  days: ["Вт","Ср","Чт","Пт"],        status: "vacation" },
-  { id: 5, employee: "Иван Новиков",     dept: "Тестирование",  shift: "День (10:00–18:00)",  days: ["Пн","Вт","Ср","Чт","Пт"], status: "active"   },
-  { id: 6, employee: "Ольга Федорова",   dept: "Разработка",    shift: "Вечер (14:00–22:00)", days: ["Ср","Чт","Пт","Сб"],        status: "sick"     },
-  { id: 7, employee: "Сергей Михайлов",  dept: "Менеджмент",    shift: "День (10:00–18:00)",  days: ["Пн","Вт","Ср"],             status: "active"   },
-  { id: 8, employee: "Татьяна Волкова",  dept: "Дизайн",        shift: "Утро (08:00–16:00)",  days: ["Пн","Вт","Ср","Чт","Пт"], status: "active"   },
-  { id: 9, employee: "Роман Беляев",     dept: "DevOps",        shift: "День (10:00–18:00)",  days: ["Пн","Вт","Ср","Чт"],        status: "active"   },
-  { id:10, employee: "Екатерина Попова", dept: "Тестирование",  shift: "Утро (08:00–16:00)",  days: ["Вт","Ср","Чт","Пт"],        status: "vacation" },
+  {
+    id: 1,
+    employee: "Алексей Петров",
+    dept: "Разработка",
+    shift: "Утро (08:00–16:00)",
+    days: ["Пн", "Вт", "Ср", "Чт", "Пт"],
+    status: "active",
+  },
+  {
+    id: 2,
+    employee: "Мария Иванова",
+    dept: "Менеджмент",
+    shift: "День (10:00–18:00)",
+    days: ["Пн", "Вт", "Чт", "Пт"],
+    status: "active",
+  },
+  {
+    id: 3,
+    employee: "Дмитрий Козлов",
+    dept: "DevOps",
+    shift: "Ночь (22:00–06:00)",
+    days: ["Пн", "Ср", "Пт"],
+    status: "active",
+  },
+  {
+    id: 4,
+    employee: "Анна Сидорова",
+    dept: "Дизайн",
+    shift: "Утро (08:00–16:00)",
+    days: ["Вт", "Ср", "Чт", "Пт"],
+    status: "vacation",
+  },
+  {
+    id: 5,
+    employee: "Иван Новиков",
+    dept: "Тестирование",
+    shift: "День (10:00–18:00)",
+    days: ["Пн", "Вт", "Ср", "Чт", "Пт"],
+    status: "active",
+  },
+  {
+    id: 6,
+    employee: "Ольга Федорова",
+    dept: "Разработка",
+    shift: "Вечер (14:00–22:00)",
+    days: ["Ср", "Чт", "Пт", "Сб"],
+    status: "sick",
+  },
+  {
+    id: 7,
+    employee: "Сергей Михайлов",
+    dept: "Менеджмент",
+    shift: "День (10:00–18:00)",
+    days: ["Пн", "Вт", "Ср"],
+    status: "active",
+  },
+  {
+    id: 8,
+    employee: "Татьяна Волкова",
+    dept: "Дизайн",
+    shift: "Утро (08:00–16:00)",
+    days: ["Пн", "Вт", "Ср", "Чт", "Пт"],
+    status: "active",
+  },
+  {
+    id: 9,
+    employee: "Роман Беляев",
+    dept: "DevOps",
+    shift: "День (10:00–18:00)",
+    days: ["Пн", "Вт", "Ср", "Чт"],
+    status: "active",
+  },
+  {
+    id: 10,
+    employee: "Екатерина Попова",
+    dept: "Тестирование",
+    shift: "Утро (08:00–16:00)",
+    days: ["Вт", "Ср", "Чт", "Пт"],
+    status: "vacation",
+  },
 ];
 
 // ── Dashboard KPI kartochkalari ───────────────────────────────
@@ -111,10 +180,34 @@ export interface SummaryCard {
 }
 
 export const SCHEDULE_SUMMARY: SummaryCard[] = [
-  { label: "Активных смен",   value: "12",  sub: "В этом месяце", icon: "🗓️", color: "from-sky-500 to-blue-600"      },
-  { label: "Утренних смен",   value: "5",   sub: "08:00 – 16:00",  icon: "🌅", color: "from-amber-500 to-orange-500"  },
-  { label: "Ночных смен",     value: "3",   sub: "22:00 – 06:00",  icon: "🌙", color: "from-indigo-500 to-violet-600" },
-  { label: "Сверхурочных ч.", value: "147", sub: "За этот месяц",  icon: "⚡", color: "from-rose-500 to-pink-600"    },
+  {
+    label: "Активных смен",
+    value: "12",
+    sub: "В этом месяце",
+    icon: "🗓️",
+    color: "from-sky-500 to-blue-600",
+  },
+  {
+    label: "Утренних смен",
+    value: "5",
+    sub: "08:00 – 16:00",
+    icon: "🌅",
+    color: "from-amber-500 to-orange-500",
+  },
+  {
+    label: "Ночных смен",
+    value: "3",
+    sub: "22:00 – 06:00",
+    icon: "🌙",
+    color: "from-indigo-500 to-violet-600",
+  },
+  {
+    label: "Сверхурочных ч.",
+    value: "147",
+    sub: "За этот месяц",
+    icon: "⚡",
+    color: "from-rose-500 to-pink-600",
+  },
 ];
 
 // ── Bar chart — haftalik poseshaemost' ───────────────────────
@@ -145,7 +238,20 @@ export const BAR_CHART_DATA = {
 
 // ── Line chart — yillik ish soatlari ─────────────────────────
 
-export const LINE_CHART_LABELS = ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"];
+export const LINE_CHART_LABELS = [
+  "Янв",
+  "Фев",
+  "Мар",
+  "Апр",
+  "Май",
+  "Июн",
+  "Июл",
+  "Авг",
+  "Сен",
+  "Окт",
+  "Ноя",
+  "Дек",
+];
 
 export const LINE_CHART_DATA = {
   labels: LINE_CHART_LABELS,
@@ -211,10 +317,7 @@ export const PIE_CHART_DATA = {
     {
       label: "Сотрудники",
       data: [286, 64],
-      backgroundColor: [
-        "rgba(56, 189, 248, 0.85)",
-        "rgba(239, 68, 68, 0.75)",
-      ],
+      backgroundColor: ["rgba(56, 189, 248, 0.85)", "rgba(239, 68, 68, 0.75)"],
       borderColor: "rgba(1,18,54,1)",
       borderWidth: 3,
       hoverOffset: 12,

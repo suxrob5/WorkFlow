@@ -338,7 +338,9 @@ const Register = () => {
                   placeholder="7654321"
                   value={passportNumber}
                   onChange={(e) =>
-                    setPassportNumber(e.target.value.replace(/\D/g, "").slice(0, 7))
+                    setPassportNumber(
+                      e.target.value.replace(/\D/g, "").slice(0, 7),
+                    )
                   }
                   className="min-w-0 flex-1 rounded-xl bg-slate-50 border border-slate-300 px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-sky-500/50 transition-all duration-200"
                 />

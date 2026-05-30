@@ -27,7 +27,7 @@ ChartJS.register(
   Filler,
 );
 
-export default function LineChart() {
+export default function LineChart({ data }: { data?: any }) {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Sync state with Tailwind dark mode class on the HTML tag
@@ -84,9 +84,11 @@ export default function LineChart() {
     },
   };
 
+  const chartData = data || LINE_CHART_DATA;
+
   return (
     <div style={{ width: "100%", height: "280px", position: "relative" }}>
-      <Line data={LINE_CHART_DATA} options={options} />
+      <Line data={chartData} options={options} />
     </div>
   );
 }

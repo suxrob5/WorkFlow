@@ -3,7 +3,13 @@ import Image from "next/image";
 import LastSec from "./last-sec";
 import AcCamCaptureScreen from "./ac-cam-capture-screen";
 import StableState from "./stanble-state";
-import { addDoc, collection, doc, getDoc, serverTimestamp } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 import { auth, db } from "@/firebase";
 
 interface DynamicAvaProps {
@@ -71,7 +77,6 @@ const DynamicAva: React.FC<DynamicAvaProps> = ({
 
     const userDoc = await getDoc(doc(db, "users", user!.uid));
     console.log(userDoc);
-
 
     // await pushData(newCheckIn);
 

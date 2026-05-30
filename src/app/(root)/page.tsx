@@ -34,9 +34,6 @@ export interface CheckIn {
 }
 
 export default function Home() {
-
-
-
   const handleSub = async () => {
     const user = auth.currentUser;
 
@@ -54,11 +51,8 @@ export default function Home() {
     const userDoc = await getDoc(doc(db, "users", user!.uid));
     console.log(userDoc);
 
-
-
     // console.log(userDoc.data());
-  }
-
+  };
 
   // fetchUserData()
   // onAuthStateChanged(auth, async (user) => {
@@ -77,9 +71,6 @@ export default function Home() {
   //     console.log("User ma'lumotlari topilmadi");
   //   }
   // });
-
-
-
 
   const [user, loading] = useAuthState(auth);
   const router = useRouter();
@@ -166,7 +157,7 @@ export default function Home() {
 
     const q = query(
       collection(db, "attendance"),
-      where("userId", "==", auth.currentUser.uid)
+      where("userId", "==", auth.currentUser.uid),
     );
 
     const snapshot = await getDocs(q);
@@ -179,9 +170,13 @@ export default function Home() {
         image: data.image || "",
         location: data.location || {
           latitude: data.lat || 0,
-          longitude: data.lng || 0
+          longitude: data.lng || 0,
         },
-        timestamp: data.timestamp || (data.checkInTime?.toDate ? data.checkInTime.toDate().toLocaleString("ru-RU") : "N/A"),
+        timestamp:
+          data.timestamp ||
+          (data.checkInTime?.toDate
+            ? data.checkInTime.toDate().toLocaleString("ru-RU")
+            : "N/A"),
         docId: doc.id,
       });
     });
@@ -281,7 +276,6 @@ export default function Home() {
           />
         </div>
       </main>
-
     </div>
   );
 }

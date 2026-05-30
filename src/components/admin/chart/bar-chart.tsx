@@ -23,7 +23,7 @@ ChartJS.register(
   Legend,
 );
 
-export default function BarChart() {
+export default function BarChart({ data }: { data?: any }) {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
@@ -77,9 +77,11 @@ export default function BarChart() {
     },
   };
 
+  const chartData = data || BAR_CHART_DATA;
+
   return (
     <div style={{ width: "100%", height: "280px", position: "relative" }}>
-      <Bar data={BAR_CHART_DATA} options={options} />
+      <Bar data={chartData} options={options} />
     </div>
   );
 }

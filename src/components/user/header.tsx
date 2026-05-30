@@ -106,7 +106,9 @@ const Header = () => {
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-sky-100 to-blue-300 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition duration-200 group-hover:-translate-y-0.5 overflow-hidden relative">
                 <Image
-                  src={typeof avatarUrl === "string" ? avatarUrl.trim() : avatarUrl}
+                  src={
+                    typeof avatarUrl === "string" ? avatarUrl.trim() : avatarUrl
+                  }
                   alt="User Avatar"
                   fill
                   className="rounded-full object-cover"

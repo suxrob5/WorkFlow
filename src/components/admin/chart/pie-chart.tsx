@@ -13,7 +13,7 @@ import { PIE_CHART_DATA, CHART_TOOLTIP_STYLE } from "@/data/admin";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-export default function PieChart() {
+export default function PieChart({ data }: { data?: any }) {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
@@ -55,9 +55,11 @@ export default function PieChart() {
     },
   };
 
+  const chartData = data || PIE_CHART_DATA;
+
   return (
     <div style={{ width: "100%", height: "260px", position: "relative" }}>
-      <Pie data={PIE_CHART_DATA} options={options} />
+      <Pie data={chartData} options={options} />
     </div>
   );
 }
