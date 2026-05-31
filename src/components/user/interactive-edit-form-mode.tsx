@@ -124,39 +124,27 @@ const InteractiveEditForm: React.FC<InteractiveEditFormProps> = ({
         </div>
         <div className="space-y-2">
           <label className="text-xs font-semibold tracking-wider text-slate-600 dark:text-slate-300 ml-1">
-            ПАСПОРТ
+            ПАСПОРТ (ФИКСИРОВАННЫЙ)
           </label>
-          <input
-            type="text"
-            value={editPassport}
-            onChange={(e) => setEditPassport(e.target.value)}
-            className="w-full rounded-2xl bg-white/85 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-3.5 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-500/30 dark:focus:ring-sky-500/50 focus:border-sky-500/50 dark:focus:border-sky-500/50 transition-all duration-200"
-            placeholder="AD 1234567"
-          />
+          <div className="w-full rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/5 px-4 py-3.5 text-slate-600 dark:text-slate-400 select-none font-medium">
+            {editPassport || "—"}
+          </div>
         </div>
         <div className="space-y-2">
           <label className="text-xs font-semibold tracking-wider text-slate-600 dark:text-slate-300 ml-1">
-            ДОЛЖНОСТЬ
+            ДОЛЖНОСТЬ (ФИКСИРОВАННАЯ)
           </label>
-          <input
-            type="text"
-            value={editPositionRu}
-            onChange={(e) => setEditPositionRu(e.target.value)}
-            className="w-full rounded-2xl bg-white/85 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-3.5 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-500/30 dark:focus:ring-sky-500/50 focus:border-sky-500/50 dark:focus:border-sky-500/50 transition-all duration-200"
-            placeholder="Грузчик"
-          />
+          <div className="w-full rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/5 px-4 py-3.5 text-slate-600 dark:text-slate-400 select-none font-medium">
+            {editPositionRu || "—"}
+          </div>
         </div>
         <div className="space-y-2">
           <label className="text-xs font-semibold tracking-wider text-slate-600 dark:text-slate-300 ml-1">
-            LAVOZIM
+            LAVOZIM (O'ZGARTIRIB BO'LMAYDI)
           </label>
-          <input
-            type="text"
-            value={editPosition}
-            onChange={(e) => setEditPosition(e.target.value)}
-            className="w-full rounded-2xl bg-white/85 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-3.5 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-500/30 dark:focus:ring-sky-500/50 focus:border-sky-500/50 dark:focus:border-sky-500/50 transition-all duration-200"
-            placeholder="Yuk tashuvchi"
-          />
+          <div className="w-full rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/5 px-4 py-3.5 text-slate-600 dark:text-slate-400 select-none font-medium">
+            {editPosition || "—"}
+          </div>
         </div>
       </div>
 

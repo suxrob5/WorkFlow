@@ -7,6 +7,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "@/firebase";
 import { useRouter } from "next/navigation";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { updateUserAvatar } from "@/firebase/db";
 
 const AdminProfile = () => {
   const [user, loading] = useAuthState(auth);
@@ -207,10 +208,9 @@ const AdminProfile = () => {
     reader.onloadend = async () => {
       const base64String = reader.result as string;
       if (user?.uid) {
+        setIsSaving(true);
         try {
-          await updateDoc(doc(db, "users", user.uid), {
-            avatarUrl: base64String,
-          });
+          await updateUserAvatar(user.uid, base64String);
           setAvatarUrl(base64String.trim());
           setToastMessage("Аватар администратора обновлен!");
           setShowToast(true);
@@ -219,9 +219,13 @@ const AdminProfile = () => {
           console.error("Firestore Upload error:", error);
           setToastMessage("Ошибка загрузки");
           setShowToast(true);
+        } finally {
+          setIsSaving(false);
         }
       }
     };
+    // Reset input value to allow selecting the same file again
+    e.target.value = "";
     reader.readAsDataURL(file);
   };
 
@@ -368,8 +372,8 @@ const AdminProfile = () => {
               </button>
             </div>
             <div className="flex flex-wrap gap-4">
-              <button
-                onClick={() => fileInputRef.current?.click()}
+              <label
+                htmlFor="admin-avatar-upload"
                 className="relative w-24 h-24 rounded-2xl border-2 border-dashed border-rose-300 dark:border-white/20 flex flex-col items-center justify-center hover:border-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition cursor-pointer group"
               >
                 <svg
@@ -390,12 +394,12 @@ const AdminProfile = () => {
                 </span>
                 <input
                   type="file"
-                  ref={fileInputRef}
+                  id="admin-avatar-upload"
                   onChange={handleFileUpload}
                   accept="image/*"
                   className="hidden"
                 />
-              </button>
+              </label>
             </div>
           </div>
         )}

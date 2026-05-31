@@ -7,9 +7,9 @@ import ToastMessage from "@/components/user/ToastMessage";
 import ProfileHero from "@/components/user/profile-hero";
 import { Gallary, Plus, XIcon } from "@/assets/logos/images";
 import ProfileInformation from "@/components/user/profile-inform";
+import InteractiveEditForm from "@/components/user/interactive-edit-form-mode";
 import { useRouter } from "next/navigation";
-import { auth } from "@/firebase";
-import { useProfile } from "@/firebase/db";
+import { useProfile, updateUserAvatar, updateUserProfile } from "@/firebase/db";
 
 const ProfileLoading = () => (
   <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-[#021236]">
@@ -31,21 +31,128 @@ const ProfileLoading = () => (
 );
 
 const Profile = () => {
-  const { profileData, user, loading } = useProfile();
   const router = useRouter();
+  const { profileData, user, loading } = useProfile();
 
   // // Interactive UI States
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("11111");
+  const [toastMessage, setToastMessage] = useState("");
   const [showAvatarSelector, setShowAvatarSelector] = useState(false);
 
+  // Form inputs for editing state
+  const [editName, setEditName] = useState("");
+  const [editSurname, setEditSurname] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editBio, setEditBio] = useState("");
+  const [editBirthDate, setEditBirthDate] = useState("");
+  const [editAddress, setEditAddress] = useState("");
+  const [editPosition, setEditPosition] = useState("");
+  const [editPositionRu, setEditPositionRu] = useState("");
+  const [editPassport, setEditPassport] = useState("");
+
+  // Sync local edit state when profile data is loaded/updated from Firestore
+  useEffect(() => {
+    if (profileData && profileData !== "nothing") {
+      setEditName(profileData.name || profileData.fullName?.split(" ")[0] || "");
+      setEditSurname(profileData.surname || profileData.lastName || profileData.fullName?.split(" ")[1] || "");
+      setEditEmail(profileData.email || "");
+      setEditPhone(profileData.phone || "");
+      setEditBio(profileData.bio || "");
+      setEditBirthDate(profileData.birthDate || "");
+      setEditAddress(profileData.address || "");
+      setEditPosition(profileData.position || "");
+      setEditPositionRu(profileData.positionRu || "");
+      setEditPassport(profileData.passport || "");
+    }
+  }, [profileData]);
+
+  const handleSave = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!user?.uid) return;
+    setIsSaving(true);
+
+    try {
+      await updateUserProfile(user.uid, {
+        fullName: `${editName} ${editSurname}`.trim(),
+        name: editName,
+        surname: editSurname,
+        email: editEmail,
+        phone: editPhone,
+        bio: editBio,
+        birthDate: editBirthDate,
+        address: editAddress,
+      });
+
+      setIsEditing(false);
+      setToastMessage("Профиль успешно обновлен!");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    } catch (error) {
+      console.error("Error saving profile:", error);
+      setToastMessage("Ошибка при сохранении");
+      setShowToast(true);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const cancelEdit = () => {
+    // Reset edit state to the current saved data
+    if (profileData && profileData !== "nothing") {
+      setEditName(profileData.name || profileData.fullName?.split(" ")[0] || "");
+      setEditSurname(profileData.surname || profileData.lastName || profileData.fullName?.split(" ")[1] || "");
+      setEditEmail(profileData.email || "");
+      setEditPhone(profileData.phone || "");
+      setEditBio(profileData.bio || "");
+      setEditBirthDate(profileData.birthDate || "");
+      setEditAddress(profileData.address || "");
+      setEditPosition(profileData.position || "");
+      setEditPositionRu(profileData.positionRu || "");
+      setEditPassport(profileData.passport || "");
+    }
     setIsEditing(false);
     setToastMessage("Редактирование отменено");
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      setToastMessage("Файл слишком большой. Максимальный размер 2МБ.");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64String = reader.result as string;
+      if (user?.uid) {
+        setIsSaving(true);
+        try {
+          await updateUserAvatar(user.uid, base64String);
+          setToastMessage("Аватар успешно обновлен!");
+          setShowToast(true);
+          setShowAvatarSelector(false);
+          setTimeout(() => setShowToast(false), 3000);
+        } catch (error) {
+          console.error("Upload error:", error);
+          setToastMessage("Ошибка при загрузке аватара");
+          setShowToast(true);
+        } finally {
+          setIsSaving(false);
+        }
+      }
+    };
+    // Reset input value to allow selecting the same file again
+    e.target.value = "";
+    reader.readAsDataURL(file);
   };
 
   // Redirect logic: Keep this page for 'user' role only.
@@ -61,6 +168,8 @@ const Profile = () => {
   if (loading || (user && profileData?.role === "admin")) {
     return <ProfileLoading />;
   }
+
+
 
   return (
     <div className="min-h-screen text-slate-800 dark:text-slate-100 font-nunito relative overflow-hidden pb-12 transition-colors duration-300">
@@ -84,6 +193,7 @@ const Profile = () => {
           cancelEdit={cancelEdit}
           isSaving={isSaving}
           user={user}
+          handleSave={handleSave}
         />
 
         {/* Avatar Picker Modal Dropdown (appears beautifully right under banner when avatar clicked) */}
@@ -102,8 +212,8 @@ const Profile = () => {
               </button>
             </div>
             <div className="flex flex-wrap gap-4">
-              <button
-                // onClick={() => fileInputRef.current?.click()}
+              <label
+                htmlFor="avatar-upload"
                 className="relative w-24 h-24 rounded-2xl border-2 border-dashed border-slate-300 dark:border-white/20 flex flex-col items-center justify-center hover:border-sky-500 hover:bg-sky-50 dark:hover:bg-sky-500/10 transition duration-200 cursor-pointer group/upload"
               >
                 <Plus />
@@ -112,12 +222,12 @@ const Profile = () => {
                 </span>
                 <input
                   type="file"
-                  // ref={fileInputRef}
-                  // onChange={handleFileUpload}
+                  id="avatar-upload"
+                  onChange={handleFileUpload}
                   accept="image/*"
                   className="hidden"
                 />
-              </button>
+              </label>
             </div>
           </div>
         )}
@@ -133,7 +243,36 @@ const Profile = () => {
               <span className="w-1.5 h-6 rounded-full bg-sky-500" />
               Сведения о сотруднике
             </h3>
-            <ProfileInformation />
+            {!isEditing ? (
+              <ProfileInformation />
+            ) : (
+              <InteractiveEditForm
+                editName={editName}
+                setEditName={setEditName}
+                editSurname={editSurname}
+                setEditSurname={setEditSurname}
+                editEmail={editEmail}
+                setEditEmail={setEditEmail}
+                editPhone={editPhone}
+                setEditPhone={setEditPhone}
+                editBirthDate={editBirthDate}
+                setEditBirthDate={setEditBirthDate}
+                editPassport={editPassport}
+                setEditPassport={setEditPassport}
+                editPosition={editPosition}
+                setEditPosition={setEditPosition}
+                editPositionRu={editPositionRu}
+                setEditPositionRu={setEditPositionRu}
+                editAddress={editAddress}
+                setEditAddress={setEditAddress}
+                editBio={editBio}
+                setEditBio={setEditBio}
+                handleSave={handleSave}
+                role={profileData?.role || "user"}
+                cancelEdit={cancelEdit}
+                isSaving={isSaving}
+              />
+            )}
           </div>
         </div>
       </main>
@@ -301,39 +440,4 @@ export default Profile;
 //   setEditPositionRu(positionRu);
 //   setEditPassport(passport);
 //   setIsEditing(false);
-// };
-
-// const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-//   const file = e.target.files?.[0];
-//   if (!file) return;
-
-//   // 2MB size limit check
-//   if (file.size > 2 * 1024 * 1024) {
-//     setToastMessage("Файл слишком большой. Максимальный размер 2МБ.");
-//     setShowToast(true);
-//     setTimeout(() => setShowToast(false), 3000);
-//     return;
-//   }
-
-//   const reader = new FileReader();
-//   reader.onloadend = async () => {
-//     const base64String = reader.result as string;
-//     if (user?.uid) {
-//       try {
-//         await updateDoc(doc(db, "users", user.uid), {
-//           avatarUrl: base64String,
-//         });
-//         setAvatarUrl(base64String.trim());
-//         setToastMessage("Аватар успешно загружен!");
-//         setShowToast(true);
-//         setTimeout(() => setShowToast(false), 3000);
-//       } catch (error) {
-//         console.error("Firestore Upload error:", error);
-//         setToastMessage("Ошибка: файл слишком велик для базы данных.");
-//         setShowToast(true);
-//         setTimeout(() => setShowToast(false), 3000);
-//       }
-//     }
-//   };
-//   reader.readAsDataURL(file);
 // };

@@ -12,6 +12,7 @@ interface ProfileHeroProps {
   cancelEdit: () => void;
   isSaving: boolean;
   user: any;
+  handleSave: (e: React.FormEvent) => Promise<void>;
 }
 
 const ProfileHero = ({
@@ -21,7 +22,8 @@ const ProfileHero = ({
   setIsEditing,
   cancelEdit,
   isSaving,
-  user
+  user,
+  handleSave
 }: ProfileHeroProps) => {
 
   const { profileData, loading } = useProfile();
@@ -129,8 +131,8 @@ const ProfileHero = ({
                 Отмена
               </button>
               <button
-                // onClick={handleSave}
-                // disabled={isSaving}
+                onClick={handleSave}
+                disabled={isSaving}
                 className="bg-linear-to-br from-sky-500 to-blue-600 hover:opacity-90 disabled:opacity-50 text-white font-bold px-6 py-2.5 rounded-2xl shadow-lg shadow-sky-500/20 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] flex items-center gap-2 cursor-pointer"
               >
                 {isSaving ? (

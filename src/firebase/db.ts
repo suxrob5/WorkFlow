@@ -7,6 +7,7 @@ import {
   getDoc,
   writeBatch,
   query,
+  updateDoc,
   limit,
   onSnapshot,
 } from "firebase/firestore";
@@ -343,3 +344,21 @@ export function useProfile() {
 
   return { profileData, user, loading: authLoading || loading };
 }
+
+/**
+ * Updates the user's avatar image in Firestore using a base64 string.
+ */
+export const updateUserAvatar = async (uid: string, base64String: string) => {
+  const userRef = doc(db, "users", uid);
+  return await updateDoc(userRef, {
+    avatarUrl: base64String.trim(),
+  });
+};
+
+/**
+ * Updates general user profile information.
+ */
+export const updateUserProfile = async (uid: string, data: any) => {
+  const userRef = doc(db, "users", uid);
+  return await updateDoc(userRef, data);
+};

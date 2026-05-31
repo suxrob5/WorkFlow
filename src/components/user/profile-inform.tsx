@@ -9,6 +9,13 @@ const ProfileInformation = () => {
     if (loading || !profileData || profileData === "nothing") {
         return null;
     }
+
+    const registrationDate = profileData.createdAt
+        ? (profileData.createdAt.toDate
+            ? profileData.createdAt.toDate()
+            : new Date(profileData.createdAt))
+        : new Date();
+
     return (
         <div className=" grid gap-3 grid-cols-1">
             {/* 1ST STAGE */}
@@ -73,7 +80,7 @@ const ProfileInformation = () => {
                         Дата регистрации
                     </span>
                     <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">
-                        {profileData.createdAt.toDate().toLocaleDateString("ru-RU", {
+                        {registrationDate.toLocaleDateString("ru-RU", {
                             day: "numeric",
                             month: "long",
                             year: "numeric",
@@ -81,7 +88,7 @@ const ProfileInformation = () => {
                     </p>
                 </div>
             </div>
-              {/* 5TH STAGE */}
+            {/* 5TH STAGE */}
             <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
                 <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
                     Биография
