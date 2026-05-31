@@ -5,20 +5,13 @@ import AdHeader from "@/components/admin/header";
 import BarChart from "@/components/admin/chart/bar-chart";
 import LineChart from "@/components/admin/chart/line-chart";
 import DoughnutChart from "@/components/admin/chart/doughnut-chart";
-import {
-  seedDatabaseIfEmpty,
-  getScheduleSummary,
-  getShiftsFromFirestore,
-  getChartsData,
-} from "@/firebase/db";
-import { STATUS_CONFIG, WEEKDAYS, type ShiftStatus } from "@/data/admin";
+import { getActivitiesDataFromFirestore } from "@/firebase/db";
 
 export default function ActivitiesPage() {
   const [activeChart, setActiveChart] = useState<"bar" | "line" | "doughnut">(
     "bar",
   );
   const [summary, setSummary] = useState<any[]>([]);
-  const [shifts, setShifts] = useState<any[]>([]);
   const [charts, setCharts] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -26,16 +19,10 @@ export default function ActivitiesPage() {
     const loadActivitiesData = async () => {
       try {
         setLoading(true);
-        // Ensure database is seeded with mock data if it is empty
-        await seedDatabaseIfEmpty();
+        const activitiesData = await getActivitiesDataFromFirestore();
 
-        const liveSummary = await getScheduleSummary();
-        const liveShifts = await getShiftsFromFirestore();
-        const liveCharts = await getChartsData();
-
-        setSummary(liveSummary);
-        setShifts(liveShifts);
-        setCharts(liveCharts);
+        setSummary(activitiesData.summary);
+        setCharts(activitiesData.charts);
       } catch (error) {
         console.error("Error loading activities data:", error);
       } finally {
@@ -189,78 +176,6 @@ export default function ActivitiesPage() {
             {activeChart === "doughnut" && (
               <DoughnutChart data={charts?.doughnut} />
             )}
-          </div>
-        </div>
-
-        {/* Weekly shift heatmap — from Firebase */}
-        <div className="rounded-3xl bg-white/60 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 backdrop-blur-xl p-6 shadow-md dark:shadow-xl">
-          <h2 className="text-base font-bold text-slate-900 dark:text-white mb-2">
-            Сетка рабочих смен
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mb-5">
-            Визуальное расписание по дням недели
-          </p>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-160 text-sm">
-              <thead>
-                <tr>
-                  <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 pb-3 pr-4 whitespace-nowrap">
-                    Сотрудник
-                  </th>
-                  {WEEKDAYS.map((day) => (
-                    <th
-                      key={day}
-                      className="text-center text-xs font-semibold text-slate-500 dark:text-slate-400 pb-3 px-2"
-                    >
-                      {day}
-                    </th>
-                  ))}
-                  <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 pb-3 pl-4">
-                    Статус
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {shifts.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="hover:bg-white/30 dark:hover:bg-white/5 transition duration-200"
-                  >
-                    <td className="py-3 pr-4">
-                      <p className="text-sm font-bold text-slate-900 dark:text-white whitespace-nowrap">
-                        {row.userName || row.employee}
-                      </p>
-                      <p className="text-[10px] text-slate-500 dark:text-slate-400">
-                        {row.dept}
-                      </p>
-                    </td>
-                    {WEEKDAYS.map((day) => (
-                      <td key={day} className="text-center py-3 px-2">
-                        {row.days && row.days.includes(day) ? (
-                          <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-sky-500/20 border border-sky-400/30">
-                            <span className="w-2 h-2 rounded-full bg-sky-400" />
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200/50 dark:border-transparent">
-                            <span className="w-2 h-2 rounded-full bg-slate-300 dark:bg-white/10" />
-                          </span>
-                        )}
-                      </td>
-                    ))}
-                    <td className="py-3 pl-4">
-                      <span
-                        className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
-                          STATUS_CONFIG[row.status as ShiftStatus]?.color || ""
-                        }`}
-                      >
-                        {STATUS_CONFIG[row.status as ShiftStatus]?.label ||
-                          row.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
         </div>
       </main>

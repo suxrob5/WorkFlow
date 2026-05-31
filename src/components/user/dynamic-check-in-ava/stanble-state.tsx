@@ -42,7 +42,7 @@ const StableState = ({ isCheckingOut, startCamera }: StableStateProps) => {
 
       <button
         onClick={startCamera}
-        className="bg-linear-to-r from-sky-500 to-blue-600 hover:opacity-95 text-white font-bold px-8 py-3.5 rounded-2xl shadow-lg shadow-sky-500/20 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] flex items-center gap-2.5 cursor-pointer text-[0]"
+        className="bg-linear-to-r from-sky-500 to-blue-600 hover:opacity-95 text-white font-bold px-8 py-3.5 rounded-2xl shadow-lg shadow-sky-500/20 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] flex items-center gap-2.5 cursor-pointer"
       >
         <span className="text-sm">
           {isCheckingOut ? "Закончить работу" : "Начать работу"}

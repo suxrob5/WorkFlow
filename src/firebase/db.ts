@@ -1,4 +1,4 @@
-import { auth, db } from "./index";
+﻿import { auth, db } from "./index";
 import {
   collection,
   doc,
@@ -10,6 +10,7 @@ import {
   updateDoc,
   limit,
   onSnapshot,
+  deleteField,
 } from "firebase/firestore";
 import {
   SCHEDULE_SUMMARY,
@@ -42,6 +43,8 @@ export interface AttendanceFeedItem {
   image: string;
   location: { latitude: number; longitude: number } | null;
   timestamp: string;
+  checkIn: string;
+  checkOut?: string;
   employeeName: string;
   employeePosition: string;
   employeeAvatar: string;
@@ -265,38 +268,67 @@ export const getAttendanceFeed = async () => {
   const colRef = collection(db, "attendance");
   const snap = await getDocs(colRef);
   const list: AttendanceFeedItem[] = [];
+  const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
 
   if (!snap.empty) {
     const usersList = await getEmployeesFromFirestore();
-    const usersMap = new Map(usersList.map((u) => [u.id, u]));
+    const usersMap = new Map(usersList.map((u) => [String(u.id), u]));
 
-    snap.forEach((d) => {
-      const data = d.data();
-      const user = usersMap.get(data.userId) || {
-        name: "Сотрудник",
-        lastName: "",
-        position: "Отдел",
-        avatar: "/main-logo.png",
-      };
+    await Promise.all(
+      snap.docs.map(async (d) => {
+        const data = d.data();
+        const user = usersMap.get(String(data.userId)) || {
+          name: data.userName || "Сотрудник",
+          lastName: "",
+          position: "Отдел",
+          avatar: "/main-logo.png",
+        };
+        const sortTime = data.createdAt?.toDate
+          ? data.createdAt.toDate().getTime()
+          : data.checkInTime?.toDate
+            ? data.checkInTime.toDate().getTime()
+            : data.date && data.checkIn
+              ? new Date(`${data.date}T${data.checkIn}:00`).getTime()
+              : data.timestamp
+                ? new Date(String(data.timestamp).replace(/,/g, "")).getTime()
+                : 0;
+        const mediaExpired = sortTime > 0 && sortTime < oneDayAgo;
+        const hasMedia =
+          data.image ||
+          data.imageUrl ||
+          data.checkOutImageUrl ||
+          data.location ||
+          data.checkOutLocation;
 
-      list.push({
-        id: d.id,
-        userId: data.userId,
-        image: data.image || "",
-        location: data.location || null,
-        timestamp: data.timestamp || "",
-        employeeName: `${user.name} ${user.lastName || ""}`.trim(),
-        employeePosition: user.position,
-        employeeAvatar: user.avatar,
-        sortTime: data.checkInTime?.toDate
-          ? data.checkInTime.toDate().getTime()
-          : data.timestamp
-            ? new Date(data.timestamp.replace(/,/g, "")).getTime()
-            : 0,
-      });
-    });
+        if (mediaExpired && hasMedia) {
+          await updateDoc(doc(db, "attendance", d.id), {
+            image: deleteField(),
+            imageUrl: deleteField(),
+            checkOutImageUrl: deleteField(),
+            location: deleteField(),
+            checkOutLocation: deleteField(),
+          });
+        }
 
-    // Sort descending (most recent first)
+        list.push({
+          id: d.id,
+          userId: data.userId,
+          image: mediaExpired ? "" : data.imageUrl || data.image || "",
+          location: mediaExpired ? null : data.location || null,
+          timestamp:
+            data.timestamp ||
+            [data.date, data.checkIn].filter(Boolean).join(" ") ||
+            "",
+          checkIn: data.checkIn || "",
+          checkOut: data.checkOut,
+          employeeName: `${user.name} ${user.lastName || ""}`.trim(),
+          employeePosition: user.position,
+          employeeAvatar: user.avatar,
+          sortTime,
+        });
+      }),
+    );
+
     return list.sort((a, b) => b.sortTime - a.sortTime);
   }
   return [];
@@ -425,7 +457,9 @@ export const getTodayAbsentUsers = async () => {
 
   const presentIds = new Set(presentUsers.map((user: any) => user.userId));
 
-  const absentUsers = users.filter((user: any) => !presentIds.has(user.uid));
+  const absentUsers = users.filter(
+    (user: any) => !presentIds.has(user.uid || user.id),
+  );
 
   return {
     users: absentUsers,
@@ -449,4 +483,309 @@ export const getActiveShifts = async () => {
     users: activeUsers,
     size: activeUsers.length,
   };
+};
+
+const toDateKey = (date: Date) => date.toISOString().split("T")[0];
+
+export const getDashboardChartsFromFirestore = async () => {
+  const usersSnap = await getDocs(collection(db, "users"));
+  const attendanceSnap = await getDocs(collection(db, "attendance"));
+  const totalUsers = usersSnap.size;
+  const now = new Date();
+  const today = toDateKey(now);
+
+  const monday = new Date(now);
+  const day = monday.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  monday.setDate(monday.getDate() + diff);
+  monday.setHours(0, 0, 0, 0);
+
+  const weekDates = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + index);
+    return toDateKey(date);
+  });
+
+  const presentByDate = new Map<string, Set<string>>();
+  const lateTodayUsers = new Set<string>();
+  const presentTodayUsers = new Set<string>();
+
+  attendanceSnap.forEach((attendanceDoc) => {
+    const data = attendanceDoc.data();
+    const attendanceDate = data.date;
+    const userId = data.userId;
+
+    if (!attendanceDate || !userId) return;
+
+    if (!presentByDate.has(attendanceDate)) {
+      presentByDate.set(attendanceDate, new Set());
+    }
+    presentByDate.get(attendanceDate)?.add(userId);
+
+    if (attendanceDate === today) {
+      presentTodayUsers.add(userId);
+
+      if (data.status === "late" || Number(data.lateMinutes || 0) > 0) {
+        lateTodayUsers.add(userId);
+      }
+    }
+  });
+
+  const presentCounts = weekDates.map(
+    (date) => presentByDate.get(date)?.size ?? 0,
+  );
+  const absentCounts = presentCounts.map((present) =>
+    Math.max(totalUsers - present, 0),
+  );
+  const lateToday = lateTodayUsers.size;
+  const presentOnTimeToday = Math.max(presentTodayUsers.size - lateToday, 0);
+  const absentToday = Math.max(totalUsers - presentTodayUsers.size, 0);
+
+  return {
+    bar: {
+      labels: ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"],
+      datasets: [
+        {
+          label: "Присутствовали",
+          data: presentCounts,
+          backgroundColor: "rgba(56, 189, 248, 0.8)",
+          borderColor: "rgba(56, 189, 248, 1)",
+          borderWidth: 2,
+          borderRadius: 8,
+          borderSkipped: false as const,
+        },
+        {
+          label: "Отсутствовали",
+          data: absentCounts,
+          backgroundColor: "rgba(239, 68, 68, 0.6)",
+          borderColor: "rgba(239, 68, 68, 1)",
+          borderWidth: 2,
+          borderRadius: 8,
+          borderSkipped: false as const,
+        },
+      ],
+    },
+    pie: {
+      labels: ["Пришли вовремя", "Опоздали", "Не пришли"],
+      datasets: [
+        {
+          label: "Сотрудники",
+          data: [presentOnTimeToday, lateToday, absentToday],
+          backgroundColor: [
+            "rgba(56, 189, 248, 0.85)",
+            "rgba(245, 158, 11, 0.85)",
+            "rgba(239, 68, 68, 0.75)",
+          ],
+          borderColor: "rgba(1,18,54,1)",
+          borderWidth: 3,
+          hoverOffset: 12,
+        },
+      ],
+    },
+    line: LINE_CHART_DATA,
+  };
+};
+
+export const getActivitiesDataFromFirestore = async () => {
+  const [usersSnap, attendanceSnap, shifts] = await Promise.all([
+    getDocs(collection(db, "users")),
+    getDocs(collection(db, "attendance")),
+    getShiftsFromFirestore(),
+  ]);
+
+  const now = new Date();
+  const today = toDateKey(now);
+  const month = now.getMonth();
+  const year = now.getFullYear();
+  const monthlyWorked = Array(12).fill(0);
+  const monthlyOvertime = Array(12).fill(0);
+  const departmentCounts = new Map<string, number>();
+  const activeShiftUsers = new Set<string>();
+  const todayUsers = new Set<string>();
+  const lateTodayUsers = new Set<string>();
+
+  usersSnap.forEach((userDoc) => {
+    const data = userDoc.data();
+    const department =
+      data.positionRu || data.position || data.role || "Без должности";
+    departmentCounts.set(department, (departmentCounts.get(department) ?? 0) + 1);
+  });
+
+  attendanceSnap.forEach((attendanceDoc) => {
+    const data = attendanceDoc.data();
+    const attendanceDate = data.date;
+    const userId = data.userId;
+
+    if (!attendanceDate || !userId) return;
+
+    if (!data.checkOut) {
+      activeShiftUsers.add(userId);
+    }
+
+    if (attendanceDate === today) {
+      todayUsers.add(userId);
+
+      if (data.status === "late" || Number(data.lateMinutes || 0) > 0) {
+        lateTodayUsers.add(userId);
+      }
+    }
+
+    const parsedDate = new Date(attendanceDate);
+    if (
+      !Number.isNaN(parsedDate.getTime()) &&
+      parsedDate.getFullYear() === year
+    ) {
+      monthlyWorked[parsedDate.getMonth()] += Number(data.workedMinutes || 0);
+      monthlyOvertime[parsedDate.getMonth()] += Number(
+        data.overtimeMinutes || 0,
+      );
+    }
+  });
+
+  const workedThisMonthMinutes = monthlyWorked[month];
+
+  return {
+    summary: [
+      {
+        label: "Активных смен",
+        value: String(activeShiftUsers.size),
+        sub: "сейчас открыты",
+        icon: "⏱",
+        color: "from-sky-500 to-blue-600",
+      },
+      {
+        label: "Смен сегодня",
+        value: String(todayUsers.size),
+        sub: "отметились сегодня",
+        icon: "✔",
+        color: "from-emerald-500 to-teal-600",
+      },
+      {
+        label: "Опоздавших",
+        value: String(lateTodayUsers.size),
+        sub: "за сегодняшний день",
+        icon: "!",
+        color: "from-amber-500 to-orange-500",
+      },
+      {
+        label: "Отработано часов",
+        value: String(Math.round(workedThisMonthMinutes / 60)),
+        sub: "за этот месяц",
+        icon: "ч",
+        color: "from-rose-500 to-pink-600",
+      },
+    ],
+    shifts,
+    charts: {
+      bar: (await getDashboardChartsFromFirestore()).bar,
+      line: {
+        labels: [
+          "Янв",
+          "Фев",
+          "Мар",
+          "Апр",
+          "Май",
+          "Июн",
+          "Июл",
+          "Авг",
+          "Сен",
+          "Окт",
+          "Ноя",
+          "Дек",
+        ],
+        datasets: [
+          {
+            label: "Рабочие часы",
+            data: monthlyWorked.map((minutes) => Math.round(minutes / 60)),
+            borderColor: "rgba(56, 189, 248, 1)",
+            backgroundColor: "rgba(56, 189, 248, 0.1)",
+            pointBackgroundColor: "rgba(56, 189, 248, 1)",
+            pointBorderColor: "#fff",
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 8,
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+          },
+          {
+            label: "Сверхурочные",
+            data: monthlyOvertime.map((minutes) => Math.round(minutes / 60)),
+            borderColor: "rgba(167, 139, 250, 1)",
+            backgroundColor: "rgba(167, 139, 250, 0.1)",
+            pointBackgroundColor: "rgba(167, 139, 250, 1)",
+            pointBorderColor: "#fff",
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 8,
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+          },
+        ],
+      },
+      doughnut: {
+        labels: Array.from(departmentCounts.keys()),
+        datasets: [
+          {
+            label: "Сотрудники",
+            data: Array.from(departmentCounts.values()),
+            backgroundColor: [
+              "rgba(56, 189, 248, 0.85)",
+              "rgba(99, 102, 241, 0.85)",
+              "rgba(16, 185, 129, 0.85)",
+              "rgba(245, 158, 11, 0.85)",
+              "rgba(239, 68, 68, 0.85)",
+              "rgba(168, 85, 247, 0.85)",
+            ],
+            borderColor: "rgba(1,18,54,1)",
+            borderWidth: 3,
+            hoverOffset: 10,
+          },
+        ],
+      },
+    },
+  };
+};
+
+export const getEmployeeRowsFromFirestore = async () => {
+  const [employees, shifts, attendanceSnap] = await Promise.all([
+    getEmployeesFromFirestore(),
+    getShiftsFromFirestore(),
+    getDocs(collection(db, "attendance")),
+  ]);
+
+  const activeShiftUsers = new Set<string>();
+  attendanceSnap.forEach((attendanceDoc) => {
+    const data = attendanceDoc.data();
+    if (data.userId && !data.checkOut) {
+      activeShiftUsers.add(data.userId);
+    }
+  });
+
+  return employees.map((employee) => {
+    const employeeName = `${employee.name} ${employee.lastName || ""}`.trim();
+    const employeeShift = shifts.find((shift: any) => {
+      const shiftName = shift.userName || shift.employee || "";
+      return (
+        shift.userId === employee.id ||
+        shift.id === employee.id ||
+        shiftName.toLowerCase() === employeeName.toLowerCase()
+      );
+    });
+
+    return {
+      id: employee.id,
+      userName: employeeName,
+      dept: employee.position || "Сотрудник",
+      shift: employeeShift?.shift || "День (09:00-18:00)",
+      days: employeeShift?.days || ["Пн", "Вт", "Ср", "Чт", "Пт"],
+      status: activeShiftUsers.has(String(employee.id))
+        ? "active"
+        : employeeShift?.status || "active",
+      avatar: employee.avatar,
+      email: employee.email,
+      phone: employee.phone,
+    };
+  });
 };

@@ -1,14 +1,58 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getAttendanceFeed } from "@/firebase/db";
 
 const AttendanceFeed = () => {
   const [attendanceFeed, setAttendanceFeed] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadAttendanceFeed = async () => {
+      try {
+        setLoading(true);
+        const feed = await getAttendanceFeed();
+        setAttendanceFeed(feed);
+      } catch (error) {
+        console.error("Error loading attendance feed:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadAttendanceFeed();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[0, 1, 2].map((item) => (
+          <div
+            key={item}
+            className="rounded-2xl border border-slate-200/50 dark:border-white/5 bg-white/40 dark:bg-white/3 overflow-hidden shadow-sm animate-pulse"
+          >
+            <div className="aspect-video w-full bg-slate-200 dark:bg-white/10" />
+            <div className="p-4 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-white/10" />
+                <div className="space-y-2">
+                  <div className="h-4 w-32 rounded-lg bg-slate-200 dark:bg-white/10" />
+                  <div className="h-3 w-24 rounded-lg bg-slate-200 dark:bg-white/5" />
+                </div>
+              </div>
+              <div className="h-10 rounded-xl bg-slate-200 dark:bg-white/10" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <>
       {attendanceFeed.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fadeIn">
-          {attendanceFeed.slice(0, 6).map((feed) => (
+          {attendanceFeed.map((feed) => (
             <div
               key={feed.id}
               className="rounded-2xl border border-slate-200/50 dark:border-white/5 bg-white/40 dark:bg-white/3 overflow-hidden flex flex-col hover:border-slate-300 dark:hover:border-white/15 transition-all duration-300 shadow-sm"

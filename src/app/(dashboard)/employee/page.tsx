@@ -2,27 +2,29 @@
 
 import Header from "@/components/admin/header";
 import { STATUS_CONFIG, WEEKDAYS, type ShiftStatus } from "@/data/admin";
-import { getShiftsFromFirestore, seedDatabaseIfEmpty } from "@/firebase/db";
+import { getEmployeeRowsFromFirestore } from "@/firebase/db";
 import { useEffect, useState } from "react";
 
 const Users = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [shifts, setShifts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadActivitiesData = async () => {
+    const loadEmployeesData = async () => {
       try {
-        // Ensure database is seeded with mock data if it is empty
-        await seedDatabaseIfEmpty();
-        const liveShifts = await getShiftsFromFirestore();
+        setLoading(true);
+        const liveShifts = await getEmployeeRowsFromFirestore();
 
         setShifts(liveShifts);
       } catch (error) {
-        console.error("Error loading activities data:", error);
+        console.error("Error loading employees data:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    loadActivitiesData();
+    loadEmployeesData();
   }, []);
 
   const filtered = shifts.filter(
@@ -71,7 +73,31 @@ const Users = () => {
           </div>
 
           <div className="space-y-3">
-            {filtered.map((shift) => (
+            {loading &&
+              [0, 1, 2, 3, 4].map((item) => (
+                <div
+                  key={item}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/40 dark:bg-white/3 border border-slate-100 dark:border-white/5 p-4 rounded-2xl shadow-sm animate-pulse"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-2xl bg-slate-200 dark:bg-white/10" />
+                    <div className="space-y-2">
+                      <div className="h-4 w-36 rounded-lg bg-slate-200 dark:bg-white/10" />
+                      <div className="h-3 w-48 rounded-lg bg-slate-200 dark:bg-white/5" />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {[0, 1, 2, 3, 4].map((day) => (
+                      <div
+                        key={day}
+                        className="h-6 w-8 rounded-lg bg-slate-200 dark:bg-white/10"
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+            {!loading && filtered.map((shift) => (
               <div
                 key={shift.id}
                 className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/40 dark:bg-white/3 border border-slate-100 dark:border-white/5 hover:border-slate-200 dark:hover:border-white/15 p-4 rounded-2xl transition duration-200 hover:bg-white/60 dark:hover:bg-white/5 shadow-sm"
@@ -115,6 +141,12 @@ const Users = () => {
                 </div>
               </div>
             ))}
+
+            {!loading && filtered.length === 0 && (
+              <div className="rounded-2xl border border-dashed border-slate-200 dark:border-white/10 bg-white/30 dark:bg-white/3 p-8 text-center text-sm font-semibold text-slate-500 dark:text-slate-400">
+                Сотрудники не найдены
+              </div>
+            )}
           </div>
         </div>
       </main>

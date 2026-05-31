@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BAR_CHART_DATA, PIE_CHART_DATA, LINE_CHART_DATA } from "@/data/admin";
 import { STAT_ICONS } from "@/assets/logos/images";
 import { StatCard } from "@/types";
 import {
@@ -9,72 +8,109 @@ import {
   getTodayLateUsers,
   getTodayPresentUsers,
   getUsers,
+  getDashboardChartsFromFirestore,
 } from "@/firebase/db";
 import Modal from "./modal";
 const Stats = ({ setCharts }: any) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [totalUsers, setTotalUsers] = useState<any>("");
-  const [todayPresent, setTodayPresent] = useState<any>("");
-  const [todayLate, setTodayLate] = useState<any>("");
-  const [todayAbsent, setTodayAbsent] = useState<any>("");
+  const [totalUsers, setTotalUsers] = useState<any>(null);
+  const [todayPresent, setTodayPresent] = useState<any>(null);
+  const [todayLate, setTodayLate] = useState<any>(null);
+  const [todayAbsent, setTodayAbsent] = useState<any>(null);
   const [modalData, setModalData] = useState<any>("");
   useEffect(() => {
     const loadStats = async () => {
-      const totalUsers = await getUsers();
-      const todayPresent = await getTodayPresentUsers();
-      const todayLate = await getTodayLateUsers();
-      const todayAbsent = await getTodayAbsentUsers();
-      setTotalUsers(totalUsers);
-      setTodayPresent(todayPresent);
-      setTodayLate(todayLate);
-      setTodayAbsent(todayAbsent);
-      setLoading(false);
+      try {
+        const [
+          totalUsers,
+          todayPresent,
+          todayLate,
+          todayAbsent,
+          dashboardCharts,
+        ] = await Promise.all([
+          getUsers(),
+          getTodayPresentUsers(),
+          getTodayLateUsers(),
+          getTodayAbsentUsers(),
+          getDashboardChartsFromFirestore(),
+        ]);
+        setTotalUsers(totalUsers);
+        setTodayPresent(todayPresent);
+        setTodayLate(todayLate);
+        setTodayAbsent(todayAbsent);
+        setCharts(dashboardCharts);
+      } catch (error) {
+        console.error("Error loading dashboard stats:", error);
+        const emptyStats = { users: [], size: 0 };
+        setTotalUsers(emptyStats);
+        setTodayPresent(emptyStats);
+        setTodayLate(emptyStats);
+        setTodayAbsent(emptyStats);
+      } finally {
+        setLoading(false);
+      }
     };
 
     loadStats();
+  }, [setCharts]);
 
-    setCharts({
-      bar: BAR_CHART_DATA,
-      pie: PIE_CHART_DATA,
-      line: LINE_CHART_DATA,
-    });
-    setLoading(false);
-  }, []);
+  if (loading || !totalUsers || !todayPresent || !todayLate || !todayAbsent) {
+    return (
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[0, 1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="rounded-3xl bg-white/60 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 backdrop-blur-xl p-5 h-36 flex flex-col justify-between shadow-md dark:shadow-lg animate-pulse"
+          >
+            <div className="flex items-center justify-between">
+              <div className="w-11 h-11 rounded-2xl bg-slate-200 dark:bg-white/10" />
+              <div className="h-6 w-12 rounded-full bg-slate-200 dark:bg-white/10" />
+            </div>
+            <div className="space-y-2">
+              <div className="h-8 w-20 rounded-xl bg-slate-200 dark:bg-white/10" />
+              <div className="h-4 w-32 rounded-lg bg-slate-200 dark:bg-white/10" />
+              <div className="h-3 w-24 rounded-lg bg-slate-200 dark:bg-white/5" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   const DASHBOARD_STATS: StatCard[] = [
     {
       label: "Всего сотрудников",
-      value: `${totalUsers.size}`,
+      value: `${totalUsers.size ?? 0}`,
       delta: "",
-      modalInfo: totalUsers.users,
+      modalInfo: totalUsers.users ?? [],
       deltaLabel: "активные сотрудники",
       color: "from-sky-500 to-blue-600",
       glow: "shadow-sky-500/25",
     },
     {
       label: "Сегодня пришли",
-      value: `${todayPresent.size}`,
+      value: `${todayPresent.size ?? 0}`,
       delta: "",
-      modalInfo: todayPresent.users,
+      modalInfo: todayPresent.users ?? [],
       deltaLabel: "отметились сегодня",
       color: "from-emerald-500 to-teal-600",
       glow: "shadow-emerald-500/25",
     },
     {
       label: "Отсутствовали",
-      value: `${todayLate.size}`,
+      value: `${todayAbsent.size ?? 0}`,
       delta: "",
-      modalInfo: todayLate.users,
+      modalInfo: todayAbsent.users ?? [],
       deltaLabel: "не пришли сегодня",
       color: "from-amber-500 to-orange-600",
       glow: "shadow-amber-500/25",
     },
     {
       label: "Опоздавшие",
-      value: `${todayAbsent.size}`,
+      value: `${todayLate.size ?? 0}`,
       delta: "",
-      modalInfo: todayAbsent.users,
+      modalInfo: todayLate.users ?? [],
       deltaLabel: "опоздали сегодня",
       color: "from-rose-500 to-red-600",
       glow: "shadow-rose-500/25",
@@ -82,10 +118,8 @@ const Stats = ({ setCharts }: any) => {
   ];
   const handleOpen = (modalInfo: any, name: string, value: string) => {
     setOpen(true);
-    console.log(modalInfo);
     setModalData({ modalInfo, name, value });
   };
-  console.log(modalData);
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
