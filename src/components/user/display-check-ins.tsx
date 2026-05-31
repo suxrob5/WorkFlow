@@ -12,7 +12,6 @@ const DisplayCheckIns: React.FC<Props> = ({
   displayCheckIns,
   deleteCheckIn,
 }) => {
-
   return (
     <>
       {displayCheckIns.length === 0 ? (

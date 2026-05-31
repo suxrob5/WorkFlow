@@ -51,124 +51,108 @@ const DynamicAva: React.FC<DynamicAvaProps> = ({
   cameraStream,
   setLocationLoading,
 }) => {
+  const submitCheckIn = async () => {
+    try {
+      if (!capturedPhoto || !currentLocation) {
+        setToastMessage("Фото или GPS не найдены");
+        setShowToast(true);
+        return;
+      }
 
- const submitCheckIn = async () => {
-  try {
-    if (!capturedPhoto || !currentLocation) {
-      setToastMessage("Фото или GPS не найдены");
-      setShowToast(true);
-      return;
-    }
+      const user = auth.currentUser;
 
-    const user = auth.currentUser;
+      if (!user) {
+        setToastMessage("Пользователь не авторизован");
+        setShowToast(true);
+        return;
+      }
 
-    if (!user) {
-      setToastMessage("Пользователь не авторизован");
-      setShowToast(true);
-      return;
-    }
+      // User data
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      const userData = userDoc.exists()
+        ? userDoc.data()
+        : { name: "Unknown User" };
 
-    // User data
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    const userData = userDoc.exists()
-      ? userDoc.data()
-      : { name: "Unknown User" };
+      // Current date/time
+      const now = new Date();
 
-    // Current date/time
-    const now = new Date();
+      const date = now.toISOString().split("T")[0];
 
-    const date = now.toISOString().split("T")[0];
+      const checkIn = now.toLocaleTimeString("ru-RU", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
 
-    const checkIn = now.toLocaleTimeString("ru-RU", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+      // Work start time
+      const WORK_START_HOUR = 8;
+      const WORK_START_MINUTE = 0;
 
-    // Work start time
-    const WORK_START_HOUR = 8;
-    const WORK_START_MINUTE = 0;
+      const workStart = new Date(now);
+      workStart.setHours(WORK_START_HOUR, WORK_START_MINUTE, 0, 0);
 
-    const workStart = new Date(now);
-    workStart.setHours(
-      WORK_START_HOUR,
-      WORK_START_MINUTE,
-      0,
-      0
-    );
-
-    // Late calculation
-    const lateMinutes = Math.max(
-      0,
-      Math.floor(
-        (now.getTime() - workStart.getTime()) / 60000
-      )
-    );
-
-    const status =
-      lateMinutes > 0 ? "late" : "present";
-
-    // Save attendance
-    await addDoc(collection(db, "attendance"), {
-      userId: user.uid,
-      userName: userData.name,
-
-      date,
-      checkIn,
-
-      status,
-      lateMinutes,
-
-      imageUrl: capturedPhoto,
-
-      location: {
-        latitude: currentLocation.latitude,
-        longitude: currentLocation.longitude,
-      },
-
-      createdAt: serverTimestamp(),
-    });
-
-    // Refresh history
-    const updatedData =
-      await getCheckInsFromFirebase();
-
-    setDisplayCheckIns(updatedData);
-
-    // Reset UI
-    setCapturedPhoto(null);
-    setCurrentLocation(null);
-    setIsCameraActive(false);
-
-    // Success message
-    if (status === "late") {
-      setToastMessage(
-        `Вы опоздали на ${lateMinutes} мин.`
+      // Late calculation
+      const lateMinutes = Math.max(
+        0,
+        Math.floor((now.getTime() - workStart.getTime()) / 60000),
       );
-    } else {
-      setToastMessage(
-        "Смена успешно зафиксирована!"
-      );
+
+      const status = lateMinutes > 0 ? "late" : "present";
+
+      // Save attendance
+      await addDoc(collection(db, "attendance"), {
+        userId: user.uid,
+        userName: userData.name,
+
+        date,
+        checkIn,
+
+        status,
+        lateMinutes,
+
+        imageUrl: capturedPhoto,
+
+        location: {
+          latitude: currentLocation.latitude,
+          longitude: currentLocation.longitude,
+        },
+
+        createdAt: serverTimestamp(),
+      });
+
+      // Refresh history
+      const updatedData = await getCheckInsFromFirebase();
+
+      setDisplayCheckIns(updatedData);
+
+      // Reset UI
+      setCapturedPhoto(null);
+      setCurrentLocation(null);
+      setIsCameraActive(false);
+
+      // Success message
+      if (status === "late") {
+        setToastMessage(`Вы опоздали на ${lateMinutes} мин.`);
+      } else {
+        setToastMessage("Смена успешно зафиксирована!");
+      }
+
+      setShowToast(true);
+
+      setTimeout(() => {
+        setShowToast(false);
+      }, 3000);
+    } catch (error) {
+      console.error("Check-in error:", error);
+
+      setToastMessage("Ошибка при сохранении отметки");
+
+      setShowToast(true);
+
+      setTimeout(() => {
+        setShowToast(false);
+      }, 3000);
     }
-
-    setShowToast(true);
-
-    setTimeout(() => {
-      setShowToast(false);
-    }, 3000);
-  } catch (error) {
-    console.error("Check-in error:", error);
-
-    setToastMessage(
-      "Ошибка при сохранении отметки"
-    );
-
-    setShowToast(true);
-
-    setTimeout(() => {
-      setShowToast(false);
-    }, 3000);
-  }
-};
+  };
 
   // Camera stream controls
   const startCamera = async () => {

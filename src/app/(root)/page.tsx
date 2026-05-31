@@ -22,8 +22,6 @@ import { useRouter } from "next/navigation";
 import { AttendanceType } from "@/types";
 // import { createUserWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 
-
-
 export default function Home() {
   const [user, loading] = useAuthState(auth);
   const router = useRouter();
@@ -43,7 +41,6 @@ export default function Home() {
   // Feedback notifications
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
-
 
   useEffect(() => {
     const checkUserRole = async () => {
@@ -74,7 +71,6 @@ export default function Home() {
   }, [user, loading, router]);
 
   // Check-in array features
-
 
   // Load check-ins from Firestore on mount
   useEffect(() => {
@@ -137,7 +133,6 @@ export default function Home() {
         createdAt: data.createdAt,
       });
     });
-
 
     return firestoreCheckIns;
   }

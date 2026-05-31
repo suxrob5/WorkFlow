@@ -1,4 +1,4 @@
-import { db } from "./index";
+import { auth, db } from "./index";
 import {
   collection,
   doc,
@@ -8,6 +8,7 @@ import {
   writeBatch,
   query,
   limit,
+  onSnapshot,
 } from "firebase/firestore";
 import {
   SCHEDULE_SUMMARY,
@@ -20,6 +21,8 @@ import {
   SEEDED_USERS,
 } from "@/data/admin";
 import { DASHBOARD_STATS } from "@/data";
+import { useEffect, useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 export interface Employee {
   id: string | number;
@@ -298,6 +301,45 @@ export const getAttendanceFeed = async () => {
   return [];
 };
 
-export const usersCount = (await getDocs(collection(db, "users"))).size;
+export const getUsersCount = async () => {
+  const snap = await getDocs(collection(db, "users"));
+  return snap.size;
+};
 
+// get user data
 
+/**
+ * Custom hook to access the authenticated user's profile data.
+ * This replaces the broken top-level hook calls.
+ */
+export function useProfile() {
+  const [user, authLoading] = useAuthState(auth);
+  const [profileData, setProfileData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (!user) {
+      setProfileData("nothing");
+      setLoading(false);
+      return;
+    }
+
+    const unsub = onSnapshot(
+      doc(db, "users", user.uid),
+      (snapshot) => {
+        setProfileData(snapshot.exists() ? snapshot.data() : null);
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Error fetching profile data:", error);
+        setLoading(false);
+      },
+    );
+
+    return () => unsub();
+  }, [user, authLoading]);
+
+  return { profileData, user, loading: authLoading || loading };
+}

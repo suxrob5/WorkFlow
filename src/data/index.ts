@@ -45,3 +45,4 @@ export const DASHBOARD_STATS: StatCard[] = [
     glow: "shadow-rose-500/25",
   },
 ];
+

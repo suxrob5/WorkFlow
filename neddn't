@@ -25,3 +25,142 @@
         </div>
 
         
+          
+        //profiel
+        {!isEditing ? (
+              /* Display View Mode */
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
+                    <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                      Имя
+                    </span>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">
+                      {name}
+                    </p>
+                  </div>
+                  <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
+                    <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                      Фамилия
+                    </span>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">
+                      {surname}
+                    </p>
+                  </div>
+                  <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
+                    <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                      Роль в системе
+                    </span>
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-lg font-bold text-slate-900 dark:text-white capitalize">
+                        {role}
+                      </p>
+                      <span className="px-2 py-0.5 text-[10px] font-extrabold bg-blue-500/20 text-blue-600 dark:text-blue-300 border border-blue-400/20 rounded-md">
+                        Базовый доступ
+                      </span>
+                    </div>
+                  </div>
+                  <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
+                    <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                      Электронная почта
+                    </span>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white mt-1 break-all">
+                      {email}
+                    </p>
+                  </div>
+                  <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
+                    <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                      Номер телефона
+                    </span>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">
+                      {phone}
+                    </p>
+                  </div>
+                  <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
+                    <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                      Дата регистрации
+                    </span>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">
+                      {registrationDate}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
+                    <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                      Должность
+                    </span>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">
+                      {positionRu || position || "—"}
+                    </p>
+                    {positionRu && position && (
+                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">
+                        {position}
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
+                    <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                      Дата рождения
+                    </span>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">
+                      {birthDate || "—"}
+                    </p>
+                  </div>
+                  <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
+                    <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                      Паспорт
+                    </span>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">
+                      {passport || "—"}
+                    </p>
+                  </div>
+                  <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
+                    <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                      Адрес
+                    </span>
+                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-2 leading-relaxed">
+                      {address || "—"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
+                  <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                    О себе
+                  </span>
+                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-2 leading-relaxed italic">
+                    &ldquo;{bio}&rdquo;
+                  </p>
+                </div>
+              </div>
+            ) : (
+              /* Interactive Edit Form Mode */
+              <InteractiveEditForm
+                editName={name}
+                setEditName={setEditName}
+                editSurname={surname}
+                setEditSurname={setEditSurname}
+                editEmail={email}
+                setEditEmail={setEditEmail}
+                editPhone={phone}
+                setEditPhone={setEditPhone}
+                editBirthDate={birthDate}
+                setEditBirthDate={setEditBirthDate}
+                editPassport={passport}
+                setEditPassport={setEditPassport}
+                editPosition={position}
+                setEditPosition={setEditPosition}
+                editPositionRu={positionRu}
+                setEditPositionRu={setEditPositionRu}
+                editAddress={address}
+                setEditAddress={setEditAddress}
+                editBio={bio}
+                setEditBio={setEditBio}
+                handleSave={handleSave}
+                role={role}
+                cancelEdit={cancelEdit}
+                isSaving={isSaving}
+              />
+            )}
