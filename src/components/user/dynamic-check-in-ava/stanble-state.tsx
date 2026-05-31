@@ -1,4 +1,9 @@
-const StableState = ({ startCamera }: { startCamera: () => void }) => {
+interface StableStateProps {
+  isCheckingOut: boolean;
+  startCamera: () => void;
+}
+
+const StableState = ({ isCheckingOut, startCamera }: StableStateProps) => {
   return (
     /* Standby State */
     <div className="py-8 space-y-6 flex flex-col items-center">
@@ -37,9 +42,11 @@ const StableState = ({ startCamera }: { startCamera: () => void }) => {
 
       <button
         onClick={startCamera}
-        className="bg-linear-to-r from-sky-500 to-blue-600 hover:opacity-95 text-white font-bold px-8 py-3.5 rounded-2xl shadow-lg shadow-sky-500/20 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] flex items-center gap-2.5 cursor-pointer text-sm"
+        className="bg-linear-to-r from-sky-500 to-blue-600 hover:opacity-95 text-white font-bold px-8 py-3.5 rounded-2xl shadow-lg shadow-sky-500/20 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] flex items-center gap-2.5 cursor-pointer text-[0]"
       >
-        Начать отметку смены
+        <span className="text-sm">
+          {isCheckingOut ? "Закончить работу" : "Начать работу"}
+        </span>
       </button>
     </div>
   );

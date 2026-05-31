@@ -8,9 +8,15 @@ import {
   doc,
   getDoc,
   serverTimestamp,
+  updateDoc,
 } from "firebase/firestore";
 import { auth, db } from "@/firebase";
 import { AttendanceType } from "@/types";
+
+const WORK_START_HOUR = 9;
+const WORK_START_MINUTE = 0;
+const WORK_END_HOUR = 18;
+const WORK_END_MINUTE = 0;
 
 interface DynamicAvaProps {
   isCameraActive: boolean;
@@ -31,6 +37,9 @@ interface DynamicAvaProps {
   ) => void;
   cameraStream: MediaStream | null;
   setLocationLoading: (loading: boolean) => void;
+  activeCheckInId: string | null;
+  activeCheckIn: AttendanceType | null;
+  isCheckingOut: boolean;
 }
 
 const DynamicAva: React.FC<DynamicAvaProps> = ({
@@ -50,6 +59,9 @@ const DynamicAva: React.FC<DynamicAvaProps> = ({
   setCurrentLocation,
   cameraStream,
   setLocationLoading,
+  activeCheckInId,
+  activeCheckIn,
+  isCheckingOut,
 }) => {
   const submitCheckIn = async () => {
     try {
@@ -82,10 +94,58 @@ const DynamicAva: React.FC<DynamicAvaProps> = ({
         hour: "2-digit",
         minute: "2-digit",
       });
+      const checkOut = checkIn;
 
-      // Work start time
-      const WORK_START_HOUR = 8;
-      const WORK_START_MINUTE = 0;
+      if (isCheckingOut && activeCheckInId) {
+        const workEnd = new Date(now);
+        workEnd.setHours(WORK_END_HOUR, WORK_END_MINUTE, 0, 0);
+
+        const [checkInHour = 0, checkInMinute = 0] = activeCheckIn?.checkIn
+          .split(":")
+          .map(Number) ?? [0, 0];
+        const checkInDate = new Date(now);
+        checkInDate.setHours(checkInHour, checkInMinute, 0, 0);
+
+        const workedMinutes = Math.max(
+          0,
+          Math.floor((now.getTime() - checkInDate.getTime()) / 60000),
+        );
+        const earlyLeaveMinutes = Math.max(
+          0,
+          Math.floor((workEnd.getTime() - now.getTime()) / 60000),
+        );
+        const overtimeMinutes = Math.max(
+          0,
+          Math.floor((now.getTime() - workEnd.getTime()) / 60000),
+        );
+
+        await updateDoc(doc(db, "attendance", activeCheckInId), {
+          checkOut,
+          checkOutImageUrl: capturedPhoto,
+          checkOutLocation: {
+            latitude: currentLocation.latitude,
+            longitude: currentLocation.longitude,
+          },
+          earlyLeaveMinutes,
+          overtimeMinutes,
+          workedMinutes,
+          updatedAt: serverTimestamp(),
+        });
+
+        const updatedData = await getCheckInsFromFirebase();
+
+        setDisplayCheckIns(updatedData);
+        setCapturedPhoto(null);
+        setCurrentLocation(null);
+        setIsCameraActive(false);
+        setToastMessage("Работа успешно закончена!");
+        setShowToast(true);
+
+        setTimeout(() => {
+          setShowToast(false);
+        }, 3000);
+        return;
+      }
 
       const workStart = new Date(now);
       workStart.setHours(WORK_START_HOUR, WORK_START_MINUTE, 0, 0);
@@ -105,6 +165,8 @@ const DynamicAva: React.FC<DynamicAvaProps> = ({
 
         date,
         checkIn,
+        scheduledStart: "09:00",
+        scheduledEnd: "18:00",
 
         status,
         lateMinutes,
@@ -253,7 +315,7 @@ const DynamicAva: React.FC<DynamicAvaProps> = ({
         )}
 
         {!isCameraActive && !capturedPhoto ? (
-          <StableState startCamera={startCamera} />
+          <StableState isCheckingOut={isCheckingOut} startCamera={startCamera} />
         ) : isCameraActive ? (
           <AcCamCaptureScreen
             stopCamera={stopCamera}
@@ -276,6 +338,7 @@ const DynamicAva: React.FC<DynamicAvaProps> = ({
 
             <LastSec
               currentLocation={currentLocation}
+              isCheckingOut={isCheckingOut}
               startCamera={startCamera}
               submitCheckIn={submitCheckIn}
             />

@@ -8,6 +8,7 @@ import { auth, db } from "@/firebase";
 import { useRouter } from "next/navigation";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { updateUserAvatar } from "@/firebase/db";
+import ProfileStats from "@/components/admin/profile-stats";
 
 const AdminProfile = () => {
   const [user, loading] = useAuthState(auth);
@@ -404,32 +405,7 @@ const AdminProfile = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          <div className="p-4 rounded-2xl bg-white/60 dark:bg-white/5 border border-slate-200/60 dark:border-white/5 flex flex-col items-center justify-center text-center backdrop-blur-md shadow-md">
-            <span className="text-2xl md:text-3xl font-extrabold text-amber-500 tracking-tight">
-              156
-            </span>
-            <span className="text-[11px] md:text-xs font-semibold text-slate-600 dark:text-slate-400 mt-1 uppercase">
-              Сотрудники
-            </span>
-          </div>
-          <div className="p-4 rounded-2xl bg-white/60 dark:bg-white/5 border border-slate-200/60 dark:border-white/5 flex flex-col items-center justify-center text-center backdrop-blur-md shadow-md">
-            <span className="text-2xl md:text-3xl font-extrabold text-rose-600 tracking-tight">
-              12
-            </span>
-            <span className="text-[11px] md:text-xs font-semibold text-slate-600 dark:text-slate-400 mt-1 uppercase">
-              Активные смены
-            </span>
-          </div>
-          <div className="p-4 rounded-2xl bg-white/60 dark:bg-white/5 border border-slate-200/60 dark:border-white/5 flex flex-col items-center justify-center text-center backdrop-blur-md shadow-md">
-            <span className="text-2xl md:text-3xl font-extrabold text-teal-600 tracking-tight">
-              Online
-            </span>
-            <span className="text-[11px] md:text-xs font-semibold text-slate-600 dark:text-slate-400 mt-1 uppercase">
-              Система
-            </span>
-          </div>
-        </div>
+        <ProfileStats />
 
         <div className="w-full rounded-3xl bg-white/60 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 backdrop-blur-xl shadow-xl p-6 md:p-8">
           <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 pb-3 border-b border-slate-200 dark:border-white/10 flex items-center gap-2">

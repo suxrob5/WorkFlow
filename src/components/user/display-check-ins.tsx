@@ -65,16 +65,42 @@ const DisplayCheckIns: React.FC<Props> = ({
                 </svg>
               </button>
 
-              {/* Camera Snapshot base64 preview */}
-              <div className="w-24 h-24 rounded-2xl overflow-hidden border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-slate-900 shrink-0 relative">
-                {item.imageUrl ? (
-                  <Image
-                    src={item.imageUrl}
-                    alt="Snapped Check-in shot"
-                    fill
-                    className="object-cover"
-                  />
-                ) : null}
+              {/* Shift snapshots */}
+              <div className="w-28 shrink-0 space-y-2">
+                <div className="space-y-1">
+                  <span className="block text-[9px] font-bold uppercase text-sky-700 dark:text-sky-300">
+                    Приход
+                  </span>
+                  <div className="h-20 rounded-2xl overflow-hidden border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-slate-900 relative">
+                    {item.imageUrl ? (
+                      <Image
+                        src={item.imageUrl}
+                        alt="Фото прихода"
+                        fill
+                        className="object-cover"
+                      />
+                    ) : null}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <span className="block text-[9px] font-bold uppercase text-emerald-700 dark:text-emerald-300">
+                    Уход
+                  </span>
+                  <div className="h-20 rounded-2xl overflow-hidden border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-slate-900 relative">
+                    {item.checkOutImageUrl ? (
+                      <Image
+                        src={item.checkOutImageUrl}
+                        alt="Фото ухода"
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center px-2 text-center text-[10px] font-bold text-slate-400">
+                        Открыта
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {/* Metadata display */}
@@ -102,8 +128,16 @@ const DisplayCheckIns: React.FC<Props> = ({
                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
-                    {item.date} {item.checkIn}
+                    {item.date}
                   </p>
+                  <div className="space-y-1.5 text-[10px] font-bold">
+                    <div className="rounded-lg bg-sky-500/10 px-2 py-1 text-sky-700 dark:text-sky-300">
+                      Приход: {item.checkIn || "--:--"}
+                    </div>
+                    <div className="rounded-lg bg-emerald-500/10 px-2 py-1 text-emerald-700 dark:text-emerald-300">
+                      Уход: {item.checkOut || "Открыта"}
+                    </div>
+                  </div>
                 </div>
 
                 <div className="space-y-1.5">

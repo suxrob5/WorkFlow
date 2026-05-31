@@ -15,6 +15,14 @@ export interface AttendanceType {
   date: string;
   checkIn: string;
   checkOut?: string;
+  checkOutImageUrl?: string;
+  checkOutLocation?: {
+    latitude: number;
+    longitude: number;
+  };
+  earlyLeaveMinutes?: number;
+  overtimeMinutes?: number;
+  workedMinutes?: number;
   status: "present" | "late";
   lateMinutes: number;
   imageUrl: string;
@@ -24,3 +32,8 @@ export interface AttendanceType {
   };
   createdAt: any;
 }
+
+export type TotalUsersType = {
+  users: {id:string}[];
+  size: string;
+};

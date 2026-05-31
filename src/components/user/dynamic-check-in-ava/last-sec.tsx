@@ -1,11 +1,13 @@
 interface Props {
   currentLocation: { latitude: number; longitude: number } | null;
+  isCheckingOut: boolean;
   startCamera: () => void;
   submitCheckIn: () => void;
 }
 
 const LastSec: React.FC<Props> = ({
   currentLocation,
+  isCheckingOut,
   startCamera,
   submitCheckIn,
 }) => {
@@ -33,9 +35,11 @@ const LastSec: React.FC<Props> = ({
         </button>
         <button
           onClick={submitCheckIn}
-          className="bg-linear-to-r from-emerald-500 to-teal-600 hover:opacity-95 text-white font-bold px-8 py-3 rounded-2xl shadow-lg shadow-emerald-500/25 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer text-xs"
+          className="bg-linear-to-r from-emerald-500 to-teal-600 hover:opacity-95 text-white font-bold px-8 py-3 rounded-2xl shadow-lg shadow-emerald-500/25 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer text-[0]"
         >
-          Завершить и отправить
+          <span className="text-xs">
+            {isCheckingOut ? "Закончить работу" : "Начать работу"}
+          </span>
         </button>
       </div>
     </div>

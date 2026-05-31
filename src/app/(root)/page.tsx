@@ -4,14 +4,12 @@ import { useState, useEffect } from "react";
 import Header from "@/components/user/header";
 import { auth, db } from "@/firebase";
 import {
-  addDoc,
   collection,
   deleteDoc,
   doc,
   getDoc,
   getDocs,
   query,
-  serverTimestamp,
   where,
 } from "firebase/firestore";
 import WelcomeSec from "@/components/user/welcome-sec";
@@ -126,6 +124,11 @@ export default function Home() {
         date: data.date || data.timestamp || "",
         checkIn: data.checkIn || "",
         checkOut: data.checkOut,
+        checkOutImageUrl: data.checkOutImageUrl,
+        checkOutLocation: data.checkOutLocation,
+        earlyLeaveMinutes: data.earlyLeaveMinutes || 0,
+        overtimeMinutes: data.overtimeMinutes || 0,
+        workedMinutes: data.workedMinutes || 0,
         status: data.status || "present",
         lateMinutes: data.lateMinutes || 0,
         imageUrl: data.imageUrl || data.image || "",
@@ -136,6 +139,12 @@ export default function Home() {
 
     return firestoreCheckIns;
   }
+
+  const today = new Date().toISOString().split("T")[0];
+  const activeCheckIn =
+    displayCheckIns.find((item) => item.date === today && !item.checkOut) ??
+    null;
+
   if (loading || checkingRole || !user) {
     return null;
   }
@@ -195,6 +204,9 @@ export default function Home() {
           setCurrentLocation={setCurrentLocation}
           cameraStream={cameraStream}
           setLocationLoading={setLocationLoading}
+          activeCheckInId={activeCheckIn?.id ?? null}
+          activeCheckIn={activeCheckIn}
+          isCheckingOut={Boolean(activeCheckIn)}
         />
         {/* Historical Checkin Array Grid Display */}
         <div className="space-y-4">

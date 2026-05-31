@@ -432,3 +432,21 @@ export const getTodayAbsentUsers = async () => {
     size: absentUsers.length,
   };
 };
+
+
+// active userlar
+export const getActiveShifts = async () => {
+  const attendanceSnap = await getDocs(collection(db, "attendance"));
+
+  const activeUsers = attendanceSnap.docs
+    .filter((doc) => !doc.data().checkOut)
+    .map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+  return {
+    users: activeUsers,
+    size: activeUsers.length,
+  };
+};

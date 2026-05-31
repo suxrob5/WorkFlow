@@ -90,27 +90,18 @@ const Register = () => {
 
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
-
         name: fullName,
         fullName,
-
         email: user.email,
         phone,
-
         role: "user",
-
         position: positionUz,
         positionRu: selectedPosition.ru,
-
         avatarUrl: "/user-logo.png",
-
         birthDate,
         address,
-
         passport: `${passportSeries}${passportNumber}`,
-
         isActive: true,
-
         createdAt: serverTimestamp(),
       });
 
@@ -204,11 +195,10 @@ const Register = () => {
                     setIsPassportSeriesOpen(false);
                     setIsPositionOpen((open) => !open);
                   }}
-                  className={`w-full rounded-xl border px-4 py-3 text-left outline-none transition-all duration-200 ${
-                    isPositionOpen
-                      ? "border-sky-400 bg-white ring-4 ring-sky-500/10 shadow-[0_12px_30px_rgba(14,165,233,0.14)]"
-                      : "border-slate-300 bg-slate-50 hover:border-sky-300 hover:bg-white"
-                  }`}
+                  className={`w-full rounded-xl border px-4 py-3 text-left outline-none transition-all duration-200 ${isPositionOpen
+                    ? "border-sky-400 bg-white ring-4 ring-sky-500/10 shadow-[0_12px_30px_rgba(14,165,233,0.14)]"
+                    : "border-slate-300 bg-slate-50 hover:border-sky-300 hover:bg-white"
+                    }`}
                 >
                   <span className="flex items-center justify-between gap-3">
                     <span className="min-w-0">
@@ -220,9 +210,8 @@ const Register = () => {
                       </span>
                     </span>
                     <svg
-                      className={`h-5 w-5 shrink-0 text-slate-500 transition-transform duration-200 ${
-                        isPositionOpen ? "rotate-180" : ""
-                      }`}
+                      className={`h-5 w-5 shrink-0 text-slate-500 transition-transform duration-200 ${isPositionOpen ? "rotate-180" : ""
+                        }`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -251,19 +240,17 @@ const Register = () => {
                               setPositionUz(position.uz);
                               setIsPositionOpen(false);
                             }}
-                            className={`w-full rounded-xl px-3 py-2.5 text-left transition duration-150 ${
-                              isSelected
-                                ? "bg-sky-500 text-white shadow-md shadow-sky-500/20"
-                                : "text-slate-700 hover:bg-slate-100"
-                            }`}
+                            className={`w-full rounded-xl px-3 py-2.5 text-left transition duration-150 ${isSelected
+                              ? "bg-sky-500 text-white shadow-md shadow-sky-500/20"
+                              : "text-slate-700 hover:bg-slate-100"
+                              }`}
                           >
                             <span className="block text-sm font-bold">
                               {position.ru}
                             </span>
                             <span
-                              className={`block text-xs mt-0.5 ${
-                                isSelected ? "text-white/80" : "text-slate-500"
-                              }`}
+                              className={`block text-xs mt-0.5 ${isSelected ? "text-white/80" : "text-slate-500"
+                                }`}
                             >
                               {position.uz}
                             </span>
@@ -288,17 +275,15 @@ const Register = () => {
                       setIsPositionOpen(false);
                       setIsPassportSeriesOpen((open) => !open);
                     }}
-                    className={`flex h-full w-full items-center justify-between rounded-xl border px-4 py-3 font-bold text-slate-900 outline-none transition-all duration-200 ${
-                      isPassportSeriesOpen
-                        ? "border-sky-400 bg-white ring-4 ring-sky-500/10 shadow-[0_12px_30px_rgba(14,165,233,0.14)]"
-                        : "border-slate-300 bg-slate-50 hover:border-sky-300 hover:bg-white"
-                    }`}
+                    className={`flex h-full w-full items-center justify-between rounded-xl border px-4 py-3 font-bold text-slate-900 outline-none transition-all duration-200 ${isPassportSeriesOpen
+                      ? "border-sky-400 bg-white ring-4 ring-sky-500/10 shadow-[0_12px_30px_rgba(14,165,233,0.14)]"
+                      : "border-slate-300 bg-slate-50 hover:border-sky-300 hover:bg-white"
+                      }`}
                   >
                     {passportSeries}
                     <svg
-                      className={`h-4 w-4 text-slate-500 transition-transform duration-200 ${
-                        isPassportSeriesOpen ? "rotate-180" : ""
-                      }`}
+                      className={`h-4 w-4 text-slate-500 transition-transform duration-200 ${isPassportSeriesOpen ? "rotate-180" : ""
+                        }`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -325,11 +310,10 @@ const Register = () => {
                               setPassportSeries(series);
                               setIsPassportSeriesOpen(false);
                             }}
-                            className={`w-full rounded-xl px-3 py-2 text-center text-sm font-bold transition duration-150 ${
-                              isSelected
-                                ? "bg-sky-500 text-white shadow-md shadow-sky-500/20"
-                                : "text-slate-700 hover:bg-slate-100"
-                            }`}
+                            className={`w-full rounded-xl px-3 py-2 text-center text-sm font-bold transition duration-150 ${isSelected
+                              ? "bg-sky-500 text-white shadow-md shadow-sky-500/20"
+                              : "text-slate-700 hover:bg-slate-100"
+                              }`}
                           >
                             {series}
                           </button>
