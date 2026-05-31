@@ -2,88 +2,98 @@
 
 import { useEffect, useState } from "react";
 import { BAR_CHART_DATA, PIE_CHART_DATA, LINE_CHART_DATA } from "@/data/admin";
-import { DASHBOARD_STATS } from "@/data";
+import { STAT_ICONS } from "@/assets/logos/images";
+import { StatCard } from "@/types";
+import {
+  getTodayAbsentUsers,
+  getTodayLateUsers,
+  getTodayPresentUsers,
+  getUsers,
+} from "@/firebase/db";
+import Modal from "./modal";
 const Stats = ({ setCharts }: any) => {
-  const [stats, setStats] = useState<any[]>([]);
+  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-
-  const [attendanceFeed, setAttendanceFeed] = useState<any[]>([]);
-
+  const [totalUsers, setTotalUsers] = useState<any>("");
+  const [todayPresent, setTodayPresent] = useState<any>("");
+  const [todayLate, setTodayLate] = useState<any>("");
+  const [todayAbsent, setTodayAbsent] = useState<any>("");
+  const [modalData, setModalData] = useState<any>("");
   useEffect(() => {
-    setStats(DASHBOARD_STATS);
+    const loadStats = async () => {
+      const totalUsers = await getUsers();
+      const todayPresent = await getTodayPresentUsers();
+      const todayLate = await getTodayLateUsers();
+      const todayAbsent = await getTodayAbsentUsers();
+      setTotalUsers(totalUsers);
+      setTodayPresent(todayPresent);
+      setTodayLate(todayLate);
+      setTodayAbsent(todayAbsent);
+      setLoading(false);
+    };
+
+    loadStats();
 
     setCharts({
       bar: BAR_CHART_DATA,
       pie: PIE_CHART_DATA,
       line: LINE_CHART_DATA,
     });
-
     setLoading(false);
   }, []);
-  // SVG icons for each stat card
-  const STAT_ICONS = [
-    <svg
-      key="users"
-      className="w-6 h-6"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
-      />
-    </svg>,
-    <svg
-      key="check"
-      className="w-6 h-6"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-      />
-    </svg>,
-    <svg
-      key="absent"
-      className="w-6 h-6"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
-      />
-    </svg>,
-    <svg
-      key="trend"
-      className="w-6 h-6"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-      />
-    </svg>,
+
+  const DASHBOARD_STATS: StatCard[] = [
+    {
+      label: "Всего сотрудников",
+      value: `${totalUsers.size}`,
+      delta: "",
+      modalInfo: totalUsers.users,
+      deltaLabel: "активные сотрудники",
+      color: "from-sky-500 to-blue-600",
+      glow: "shadow-sky-500/25",
+    },
+    {
+      label: "Сегодня пришли",
+      value: `${todayPresent.size}`,
+      delta: "",
+      modalInfo: todayPresent.users,
+      deltaLabel: "отметились сегодня",
+      color: "from-emerald-500 to-teal-600",
+      glow: "shadow-emerald-500/25",
+    },
+    {
+      label: "Отсутствовали",
+      value: `${todayLate.size}`,
+      delta: "",
+      modalInfo: todayLate.users,
+      deltaLabel: "не пришли сегодня",
+      color: "from-amber-500 to-orange-600",
+      glow: "shadow-amber-500/25",
+    },
+    {
+      label: "Опоздавшие",
+      value: `${todayAbsent.size}`,
+      delta: "",
+      modalInfo: todayAbsent.users,
+      deltaLabel: "опоздали сегодня",
+      color: "from-rose-500 to-red-600",
+      glow: "shadow-rose-500/25",
+    },
   ];
+  const handleOpen = (modalInfo: any, name: string, value: string) => {
+    setOpen(true);
+    console.log(modalInfo);
+    setModalData({ modalInfo, name, value });
+  };
+  console.log(modalData);
+
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      {stats.map((stat, i) => (
+      <Modal open={open} modalData={modalData} onClose={() => setOpen(false)} />
+      {DASHBOARD_STATS.map((stat, i) => (
         <div
           key={i}
+          onClick={() => handleOpen(stat.modalInfo, stat.label, stat.value)}
           className={`rounded-3xl bg-white/60 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 backdrop-blur-xl p-5 flex flex-col gap-4 hover:border-slate-300 dark:hover:border-white/20 transition-all duration-300 hover:-translate-y-0.5 shadow-md dark:shadow-lg ${stat.glow || ""}`}
         >
           <div className="flex items-center justify-between">

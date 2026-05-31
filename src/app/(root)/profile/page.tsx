@@ -56,8 +56,15 @@ const Profile = () => {
   // Sync local edit state when profile data is loaded/updated from Firestore
   useEffect(() => {
     if (profileData && profileData !== "nothing") {
-      setEditName(profileData.name || profileData.fullName?.split(" ")[0] || "");
-      setEditSurname(profileData.surname || profileData.lastName || profileData.fullName?.split(" ")[1] || "");
+      setEditName(
+        profileData.name || profileData.fullName?.split(" ")[0] || "",
+      );
+      setEditSurname(
+        profileData.surname ||
+          profileData.lastName ||
+          profileData.fullName?.split(" ")[1] ||
+          "",
+      );
       setEditEmail(profileData.email || "");
       setEditPhone(profileData.phone || "");
       setEditBio(profileData.bio || "");
@@ -102,8 +109,15 @@ const Profile = () => {
   const cancelEdit = () => {
     // Reset edit state to the current saved data
     if (profileData && profileData !== "nothing") {
-      setEditName(profileData.name || profileData.fullName?.split(" ")[0] || "");
-      setEditSurname(profileData.surname || profileData.lastName || profileData.fullName?.split(" ")[1] || "");
+      setEditName(
+        profileData.name || profileData.fullName?.split(" ")[0] || "",
+      );
+      setEditSurname(
+        profileData.surname ||
+          profileData.lastName ||
+          profileData.fullName?.split(" ")[1] ||
+          "",
+      );
       setEditEmail(profileData.email || "");
       setEditPhone(profileData.phone || "");
       setEditBio(profileData.bio || "");
@@ -168,8 +182,6 @@ const Profile = () => {
   if (loading || (user && profileData?.role === "admin")) {
     return <ProfileLoading />;
   }
-
-
 
   return (
     <div className="min-h-screen text-slate-800 dark:text-slate-100 font-nunito relative overflow-hidden pb-12 transition-colors duration-300">

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Changing, Save, Saving } from "@/assets/logos/images";
 import { useProfile } from "@/firebase/db";
@@ -23,9 +23,8 @@ const ProfileHero = ({
   cancelEdit,
   isSaving,
   user,
-  handleSave
+  handleSave,
 }: ProfileHeroProps) => {
-
   const { profileData, loading } = useProfile();
 
   if (loading || !profileData || profileData === "nothing") {
@@ -102,7 +101,6 @@ const ProfileHero = ({
               <span className="px-3 py-1 text-xs font-bold tracking-wider text-sky-600 dark:text-sky-300 bg-sky-500/10 border border-sky-450/20 dark:border-sky-400/30 rounded-full flex items-center gap-1.5 uppercase shadow-inner">
                 <span className="w-1.5 h-1.5 rounded-full bg-sky-550 dark:bg-sky-400 animate-pulse" />
                 {profileData.role}
-
               </span>
             </div>
             <p className="text-slate-600 dark:text-slate-400 text-sm mt-1 max-w-md font-medium">
@@ -110,7 +108,6 @@ const ProfileHero = ({
             </p>
           </div>
         </div>
-
 
         {/* Top Action buttons */}
         <div className="flex justify-center mb-2">

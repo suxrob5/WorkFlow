@@ -5,6 +5,7 @@ export interface StatCard {
   deltaLabel: string;
   color: string;
   glow: string;
+  modalInfo: any;
 }
 
 export interface AttendanceType {

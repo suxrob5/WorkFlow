@@ -21,7 +21,7 @@ import {
   type Shift,
   SEEDED_USERS,
 } from "@/data/admin";
-import { DASHBOARD_STATS } from "@/data";
+// import { DASHBOARD_STATS } from "@/data";
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 
@@ -55,7 +55,7 @@ export const seedDatabaseIfEmpty = async () => {
     const statsDocRef = doc(db, "dashboard_data", "stats");
     const statsSnap = await getDoc(statsDocRef);
     if (!statsSnap.exists()) {
-      await setDoc(statsDocRef, { items: DASHBOARD_STATS });
+      await setDoc(statsDocRef, { items: "" });
       console.log("Seeded dashboard_stats");
     }
 
@@ -185,7 +185,7 @@ export const getDashboardStats = async () => {
   if (snap.exists()) {
     return snap.data().items;
   }
-  return DASHBOARD_STATS;
+  return "DASHBOARD_STATS";
 };
 
 export const getScheduleSummary = async () => {
@@ -361,4 +361,74 @@ export const updateUserAvatar = async (uid: string, base64String: string) => {
 export const updateUserProfile = async (uid: string, data: any) => {
   const userRef = doc(db, "users", uid);
   return await updateDoc(userRef, data);
+};
+
+// Dashboard Stats
+
+// Barcha userlar + soni
+export const getUsers = async () => {
+  const usersSnap = await getDocs(collection(db, "users"));
+
+  const users = usersSnap.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  return {
+    users,
+    size: users.length,
+  };
+};
+
+// Bugun kelganlar + soni
+export const getTodayPresentUsers = async () => {
+  const today = new Date().toISOString().split("T")[0];
+
+  const attendanceSnap = await getDocs(collection(db, "attendance"));
+
+  const users = attendanceSnap.docs
+    .filter((doc) => doc.data().date === today)
+    .map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+  return {
+    users,
+    size: users.length,
+  };
+};
+
+// Bugun kech qolganlar + soni
+export const getTodayLateUsers = async () => {
+  const today = new Date().toISOString().split("T")[0];
+
+  const attendanceSnap = await getDocs(collection(db, "attendance"));
+
+  const users = attendanceSnap.docs
+    .filter((doc) => doc.data().date === today && doc.data().status === "late")
+    .map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+  return {
+    users,
+    size: users.length,
+  };
+};
+
+// Bugun kelmaganlar + soni
+export const getTodayAbsentUsers = async () => {
+  const { users } = await getUsers();
+  const { users: presentUsers } = await getTodayPresentUsers();
+
+  const presentIds = new Set(presentUsers.map((user: any) => user.userId));
+
+  const absentUsers = users.filter((user: any) => !presentIds.has(user.uid));
+
+  return {
+    users: absentUsers,
+    size: absentUsers.length,
+  };
 };
