@@ -15,7 +15,7 @@ const AdHeader = () => {
   const isActive = (path: string) =>
     pathname === path || pathname.startsWith(path + "/");
   const router = useRouter();
-  const { theme, toggleTheme } = useTheme();
+  const { toggleTheme } = useTheme();
   const [user] = useAuthState(auth);
   const [signOut] = useSignOut(auth);
   const [avatarUrl, setAvatarUrl] = useState("/user-logo.png");
