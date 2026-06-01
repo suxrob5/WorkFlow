@@ -1,6 +1,7 @@
 "use client";
 
 import { useProfile } from "@/firebase/db";
+import { getPositionLabel } from "@/lib/positions";
 
 const ProfileInformation = () => {
   const { profileData, loading } = useProfile();
@@ -71,7 +72,11 @@ const ProfileInformation = () => {
             Должность
           </span>
           <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">
-            {profileData.position}
+            {getPositionLabel({
+              positionKey: profileData.positionKey,
+              position: profileData.position,
+              positionRu: profileData.positionRu,
+            })}
           </p>
         </div>
         <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">

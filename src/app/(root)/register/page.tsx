@@ -6,37 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
-
-const POSITIONS = [
-  {
-    uz: "Ombor raxbari",
-    ru: "Руководитель склада",
-  },
-  {
-    uz: "Ombor raxbari yordamchisi",
-    ru: "Заместитель руководителя склада",
-  },
-  {
-    uz: "Ombor mudiri",
-    ru: "Супервайзер",
-  },
-  {
-    uz: "Buyurtmalarni jo'natish nazoratchisi",
-    ru: "Контролёр отправки товаров",
-  },
-  {
-    uz: "Buyurtmalarni qabul qilish nazoratchisi",
-    ru: "Контролёр приёмки товаров",
-  },
-  {
-    uz: "Tovar yig'uvchi",
-    ru: "Комплектовщик",
-  },
-  {
-    uz: "Yuk tashuvchi",
-    ru: "Грузчик",
-  },
-];
+import { POSITIONS, type PositionKey } from "@/lib/positions";
 
 const PASSPORT_SERIES = ["AB", "AC", "AD", "AE", "AF", "BA", "BB", "BC"];
 
@@ -54,12 +24,19 @@ const formatUzPhone = (value: string) => {
   return parts.length ? `+998 ${parts.join(" ")}` : "+998 ";
 };
 
+const formatBirthDate = (value: string) => {
+  const [year = "", month = "", day = ""] = value.replace(/^\+/, "").split("-");
+  const normalizedYear = year.replace(/\D/g, "").slice(0, 4);
+
+  return [normalizedYear, month, day].filter(Boolean).join("-");
+};
+
 const Register = () => {
   const router = useRouter();
   const [fullName, setFullName] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [address, setAddress] = useState("");
-  const [positionUz, setPositionUz] = useState(POSITIONS[0].uz);
+  const [positionKey, setPositionKey] = useState<PositionKey>(POSITIONS[0].key);
   const [passportSeries, setPassportSeries] = useState(PASSPORT_SERIES[0]);
   const [passportNumber, setPassportNumber] = useState("");
   const [phone, setPhone] = useState("+998 ");
@@ -73,7 +50,7 @@ const Register = () => {
     useCreateUserWithEmailAndPassword(auth);
 
   const selectedPosition =
-    POSITIONS.find((position) => position.uz === positionUz) ?? POSITIONS[0];
+    POSITIONS.find((position) => position.key === positionKey) ?? POSITIONS[0];
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -95,7 +72,8 @@ const Register = () => {
         email: user.email,
         phone,
         role: "user",
-        position: positionUz,
+        positionKey: selectedPosition.key,
+        position: selectedPosition.uz,
         positionRu: selectedPosition.ru,
         avatarUrl: "/user-logo.png",
         birthDate,
@@ -148,8 +126,10 @@ const Register = () => {
               <input
                 type="date"
                 required
+                min="1900-01-01"
+                max="9999-12-31"
                 value={birthDate}
-                onChange={(e) => setBirthDate(e.target.value)}
+                onChange={(e) => setBirthDate(formatBirthDate(e.target.value))}
                 className="w-full rounded-xl bg-slate-50 border border-slate-300 px-4 py-3 text-slate-900 outline-none focus:ring-2 focus:ring-sky-500/50 transition-all duration-200"
               />
             </div>
@@ -195,10 +175,11 @@ const Register = () => {
                     setIsPassportSeriesOpen(false);
                     setIsPositionOpen((open) => !open);
                   }}
-                  className={`w-full rounded-xl border px-4 py-3 text-left outline-none transition-all duration-200 ${isPositionOpen
-                    ? "border-sky-400 bg-white ring-4 ring-sky-500/10 shadow-[0_12px_30px_rgba(14,165,233,0.14)]"
-                    : "border-slate-300 bg-slate-50 hover:border-sky-300 hover:bg-white"
-                    }`}
+                  className={`w-full rounded-xl border px-4 py-3 text-left outline-none transition-all duration-200 ${
+                    isPositionOpen
+                      ? "border-sky-400 bg-white ring-4 ring-sky-500/10 shadow-[0_12px_30px_rgba(14,165,233,0.14)]"
+                      : "border-slate-300 bg-slate-50 hover:border-sky-300 hover:bg-white"
+                  }`}
                 >
                   <span className="flex items-center justify-between gap-3">
                     <span className="min-w-0">
@@ -210,8 +191,9 @@ const Register = () => {
                       </span>
                     </span>
                     <svg
-                      className={`h-5 w-5 shrink-0 text-slate-500 transition-transform duration-200 ${isPositionOpen ? "rotate-180" : ""
-                        }`}
+                      className={`h-5 w-5 shrink-0 text-slate-500 transition-transform duration-200 ${
+                        isPositionOpen ? "rotate-180" : ""
+                      }`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -230,27 +212,29 @@ const Register = () => {
                   <div className="absolute left-0 right-0 top-full z-40 mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_20px_45px_rgba(15,23,42,0.14)]">
                     <div className="max-h-72 overflow-y-auto p-1.5">
                       {POSITIONS.map((position) => {
-                        const isSelected = position.uz === positionUz;
+                        const isSelected = position.key === positionKey;
 
                         return (
                           <button
-                            key={position.uz}
+                            key={position.key}
                             type="button"
                             onClick={() => {
-                              setPositionUz(position.uz);
+                              setPositionKey(position.key);
                               setIsPositionOpen(false);
                             }}
-                            className={`w-full rounded-xl px-3 py-2.5 text-left transition duration-150 ${isSelected
-                              ? "bg-sky-500 text-white shadow-md shadow-sky-500/20"
-                              : "text-slate-700 hover:bg-slate-100"
-                              }`}
+                            className={`w-full rounded-xl px-3 py-2.5 text-left transition duration-150 ${
+                              isSelected
+                                ? "bg-sky-500 text-white shadow-md shadow-sky-500/20"
+                                : "text-slate-700 hover:bg-slate-100"
+                            }`}
                           >
                             <span className="block text-sm font-bold">
                               {position.ru}
                             </span>
                             <span
-                              className={`block text-xs mt-0.5 ${isSelected ? "text-white/80" : "text-slate-500"
-                                }`}
+                              className={`block text-xs mt-0.5 ${
+                                isSelected ? "text-white/80" : "text-slate-500"
+                              }`}
                             >
                               {position.uz}
                             </span>
@@ -275,15 +259,17 @@ const Register = () => {
                       setIsPositionOpen(false);
                       setIsPassportSeriesOpen((open) => !open);
                     }}
-                    className={`flex h-full w-full items-center justify-between rounded-xl border px-4 py-3 font-bold text-slate-900 outline-none transition-all duration-200 ${isPassportSeriesOpen
-                      ? "border-sky-400 bg-white ring-4 ring-sky-500/10 shadow-[0_12px_30px_rgba(14,165,233,0.14)]"
-                      : "border-slate-300 bg-slate-50 hover:border-sky-300 hover:bg-white"
-                      }`}
+                    className={`flex h-full w-full items-center justify-between rounded-xl border px-4 py-3 font-bold text-slate-900 outline-none transition-all duration-200 ${
+                      isPassportSeriesOpen
+                        ? "border-sky-400 bg-white ring-4 ring-sky-500/10 shadow-[0_12px_30px_rgba(14,165,233,0.14)]"
+                        : "border-slate-300 bg-slate-50 hover:border-sky-300 hover:bg-white"
+                    }`}
                   >
                     {passportSeries}
                     <svg
-                      className={`h-4 w-4 text-slate-500 transition-transform duration-200 ${isPassportSeriesOpen ? "rotate-180" : ""
-                        }`}
+                      className={`h-4 w-4 text-slate-500 transition-transform duration-200 ${
+                        isPassportSeriesOpen ? "rotate-180" : ""
+                      }`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -310,10 +296,11 @@ const Register = () => {
                               setPassportSeries(series);
                               setIsPassportSeriesOpen(false);
                             }}
-                            className={`w-full rounded-xl px-3 py-2 text-center text-sm font-bold transition duration-150 ${isSelected
-                              ? "bg-sky-500 text-white shadow-md shadow-sky-500/20"
-                              : "text-slate-700 hover:bg-slate-100"
-                              }`}
+                            className={`w-full rounded-xl px-3 py-2 text-center text-sm font-bold transition duration-150 ${
+                              isSelected
+                                ? "bg-sky-500 text-white shadow-md shadow-sky-500/20"
+                                : "text-slate-700 hover:bg-slate-100"
+                            }`}
                           >
                             {series}
                           </button>

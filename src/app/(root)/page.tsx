@@ -3,6 +3,12 @@
 import { useState, useEffect } from "react";
 import Header from "@/components/user/header";
 import { auth, db } from "@/firebase";
+import WelcomeSec from "@/components/user/welcome-sec";
+import DynamicAva from "@/components/user/dynamic-check-in-ava/dynamic-ava";
+import DisplayCheckIns from "@/components/user/display-check-ins";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { useRouter } from "next/navigation";
+import { AttendanceType } from "@/types";
 import {
   collection,
   deleteDoc,
@@ -12,13 +18,6 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import WelcomeSec from "@/components/user/welcome-sec";
-import DynamicAva from "@/components/user/dynamic-check-in-ava/dynamic-ava";
-import DisplayCheckIns from "@/components/user/display-check-ins";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { useRouter } from "next/navigation";
-import { AttendanceType } from "@/types";
-// import { createUserWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 
 export default function Home() {
   const [user, loading] = useAuthState(auth);

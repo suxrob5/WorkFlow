@@ -25,6 +25,7 @@ import {
 // import { DASHBOARD_STATS } from "@/data";
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { getPositionLabel } from "@/lib/positions";
 
 export interface Employee {
   id: string | number;
@@ -32,6 +33,7 @@ export interface Employee {
   lastName: string;
   email: string;
   phone: string;
+  positionKey?: string;
   position: string;
   avatar: string;
   role: string;
@@ -42,6 +44,8 @@ export interface AttendanceFeedItem {
   userId: string;
   image: string;
   location: { latitude: number; longitude: number } | null;
+  checkOutImage: string;
+  checkOutLocation: { latitude: number; longitude: number } | null;
   timestamp: string;
   checkIn: string;
   checkOut?: string;
@@ -241,10 +245,15 @@ export const getEmployeesFromFirestore = async () => {
         lastName: data.lastName || data.surname || "",
         email: data.email || "",
         phone: data.phone || data.number || "",
+        positionKey: data.positionKey,
         position:
-          data.positionRu ||
-          data.position ||
-          (data.role === "admin" ? "Администратор" : "Сотрудник"),
+          data.role === "admin"
+            ? "Администратор"
+            : getPositionLabel({
+                positionKey: data.positionKey,
+                position: data.position,
+                positionRu: data.positionRu,
+              }),
         avatar: data.avatarUrl || data.avatar || "/main-logo.png",
         role: data.role || "user",
       });
@@ -258,7 +267,10 @@ export const getEmployeesFromFirestore = async () => {
     lastName: u.lastName || "",
     email: u.email || "",
     phone: u.phone || "",
-    position: u.positionRu || u.position || "Сотрудник",
+    position: getPositionLabel({
+      position: u.position,
+      positionRu: u.positionRu,
+    }),
     avatar: u.avatarUrl || "/main-logo.png",
     role: "user",
   }));
@@ -315,6 +327,8 @@ export const getAttendanceFeed = async () => {
           userId: data.userId,
           image: mediaExpired ? "" : data.imageUrl || data.image || "",
           location: mediaExpired ? null : data.location || null,
+          checkOutImage: mediaExpired ? "" : data.checkOutImageUrl || "",
+          checkOutLocation: mediaExpired ? null : data.checkOutLocation || null,
           timestamp:
             data.timestamp ||
             [data.date, data.checkIn].filter(Boolean).join(" ") ||
@@ -607,7 +621,13 @@ export const getActivitiesDataFromFirestore = async () => {
   usersSnap.forEach((userDoc) => {
     const data = userDoc.data();
     const department =
-      data.positionRu || data.position || data.role || "Без должности";
+      data.role === "admin"
+        ? "Администратор"
+        : getPositionLabel({
+            positionKey: data.positionKey,
+            position: data.position,
+            positionRu: data.positionRu,
+          });
     departmentCounts.set(department, (departmentCounts.get(department) ?? 0) + 1);
   });
 

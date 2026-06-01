@@ -10,7 +10,6 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { useAuthState, useSignOut } from "react-firebase-hooks/auth";
 
 const AdHeader = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname() || "/";
   const isActive = (path: string) =>
     pathname === path || pathname.startsWith(path + "/");

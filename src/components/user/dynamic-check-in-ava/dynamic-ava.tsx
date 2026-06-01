@@ -315,7 +315,10 @@ const DynamicAva: React.FC<DynamicAvaProps> = ({
         )}
 
         {!isCameraActive && !capturedPhoto ? (
-          <StableState isCheckingOut={isCheckingOut} startCamera={startCamera} />
+          <StableState
+            isCheckingOut={isCheckingOut}
+            startCamera={startCamera}
+          />
         ) : isCameraActive ? (
           <AcCamCaptureScreen
             stopCamera={stopCamera}

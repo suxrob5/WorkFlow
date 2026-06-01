@@ -26,7 +26,9 @@ const Login = () => {
       if (userCredential?.user) {
         router.push("/");
       } else {
-        throw new Error("Не удалось получить данные пользователя.");
+        alert(
+          "Не удалось войти. Пожалуйста, проверьте свои данные и попробуйте снова.",
+        );
       }
     } catch (error) {
       console.error("Детали ошибки:", error);
