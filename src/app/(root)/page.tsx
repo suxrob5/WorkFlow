@@ -136,7 +136,11 @@ export default function Home() {
       });
     });
 
-    return firestoreCheckIns;
+    return firestoreCheckIns.sort((a, b) => {
+      const aTime = a.createdAt?.toMillis?.() ?? new Date(a.date).getTime();
+      const bTime = b.createdAt?.toMillis?.() ?? new Date(b.date).getTime();
+      return bTime - aTime;
+    });
   }
 
   const today = new Date().toISOString().split("T")[0];

@@ -49,7 +49,7 @@ const LocationMap = ({
       : "text-emerald-700 dark:text-emerald-300 bg-emerald-500/10";
 
   return (
-    <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white/45 dark:bg-white/[0.03] p-2">
+    <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white/45 dark:bg-white/3 p-2">
       <div className="mb-1.5 flex items-center justify-between gap-2">
         <div
           className={`rounded-md px-2 py-0.5 text-[10px] font-bold ${toneClasses}`}
