@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { getAttendanceFeed, type AttendanceFeedItem } from "@/firebase/db";
 
 type LocationPoint = {
@@ -142,9 +143,11 @@ const AttendanceFeed = () => {
             >
               <div className="group relative aspect-video w-full overflow-hidden bg-slate-100 dark:bg-[#021236]/30">
                 {feed.image ? (
-                  <img
+                  <Image
                     src={feed.image}
                     alt={`${feed.employeeName} selfie`}
+                    fill
+                    sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                 ) : (
@@ -178,9 +181,11 @@ const AttendanceFeed = () => {
 
               <div className="flex flex-1 flex-col justify-between gap-4 p-4">
                 <div className="flex items-center gap-3">
-                  <img
+                  <Image
                     src={feed.employeeAvatar}
                     alt={feed.employeeName}
+                    width={40}
+                    height={40}
                     className="h-10 w-10 shrink-0 rounded-full border-2 border-slate-200 object-cover dark:border-white/10"
                   />
                   <div className="min-w-0">

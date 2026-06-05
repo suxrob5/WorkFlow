@@ -17,7 +17,7 @@ const Header = () => {
   const [avatarUrl, setAvatarUrl] = useState("/user-logo.png");
   const [displayName, setDisplayName] = useState("Profile");
 
-  const { theme, toggleTheme } = useTheme();
+  const { toggleTheme } = useTheme();
   const [user] = useAuthState(auth);
   const [signOut] = useSignOut(auth);
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { getEmployeesFromFirestore, seedDatabaseIfEmpty } from "@/firebase/db";
 
 type User = {
@@ -173,9 +174,11 @@ const Users = () => {
               className="flex items-center justify-between gap-4 rounded-lg bg-white/40 dark:bg-white/3 border border-slate-100 dark:border-transparent p-3 shadow-sm transition hover:shadow-md hover:bg-white/60 dark:hover:bg-white/5"
             >
               <div className="flex items-center gap-4">
-                <img
+                <Image
                   src={user.avatar || `/main-logo.png`}
                   alt={user.name}
+                  width={48}
+                  height={48}
                   className="w-12 h-12 rounded-full border-2 border-slate-200 dark:border-white/10 object-cover"
                 />
                 <div>

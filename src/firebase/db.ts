@@ -305,20 +305,14 @@ export const getAttendanceFeed = async () => {
                 ? new Date(String(data.timestamp).replace(/,/g, "")).getTime()
                 : 0;
         const mediaExpired = sortTime > 0 && sortTime < oneDayAgo;
-        const hasMedia =
-          data.image ||
-          data.imageUrl ||
-          data.checkOutImageUrl ||
-          data.location ||
-          data.checkOutLocation;
+        const hasExpiredImage =
+          data.image || data.imageUrl || data.checkOutImageUrl;
 
-        if (mediaExpired && hasMedia) {
+        if (mediaExpired && hasExpiredImage) {
           await updateDoc(doc(db, "attendance", d.id), {
             image: deleteField(),
             imageUrl: deleteField(),
             checkOutImageUrl: deleteField(),
-            location: deleteField(),
-            checkOutLocation: deleteField(),
           });
         }
 
@@ -326,9 +320,9 @@ export const getAttendanceFeed = async () => {
           id: d.id,
           userId: data.userId,
           image: mediaExpired ? "" : data.imageUrl || data.image || "",
-          location: mediaExpired ? null : data.location || null,
+          location: data.location || null,
           checkOutImage: mediaExpired ? "" : data.checkOutImageUrl || "",
-          checkOutLocation: mediaExpired ? null : data.checkOutLocation || null,
+          checkOutLocation: data.checkOutLocation || null,
           timestamp:
             data.timestamp ||
             [data.date, data.checkIn].filter(Boolean).join(" ") ||

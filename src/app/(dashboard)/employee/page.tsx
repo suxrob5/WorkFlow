@@ -160,7 +160,6 @@ const Users = () => {
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    console.log("Importing file:", file.name);
     setImportSuccess(true);
     setTimeout(() => setImportSuccess(false), 3000);
     if (fileInputRef.current) fileInputRef.current.value = "";

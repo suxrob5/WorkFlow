@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import AdHeader from "@/components/admin/header";
 import Image from "next/image";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -46,8 +46,6 @@ const AdminProfile = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [showAvatarSelector, setShowAvatarSelector] = useState(false);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form inputs for editing state
   const [editName, setEditName] = useState(name);
