@@ -1,4 +1,4 @@
-﻿import { auth, db } from "./index";
+import { auth, db } from "./index";
 import {
   collection,
   doc,
@@ -10,7 +10,6 @@ import {
   updateDoc,
   limit,
   onSnapshot,
-  deleteField,
 } from "firebase/firestore";
 import {
   SCHEDULE_SUMMARY,
@@ -280,62 +279,48 @@ export const getAttendanceFeed = async () => {
   const colRef = collection(db, "attendance");
   const snap = await getDocs(colRef);
   const list: AttendanceFeedItem[] = [];
-  const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
 
   if (!snap.empty) {
     const usersList = await getEmployeesFromFirestore();
     const usersMap = new Map(usersList.map((u) => [String(u.id), u]));
 
-    await Promise.all(
-      snap.docs.map(async (d) => {
-        const data = d.data();
-        const user = usersMap.get(String(data.userId)) || {
-          name: data.userName || "Сотрудник",
-          lastName: "",
-          position: "Отдел",
-          avatar: "/main-logo.png",
-        };
-        const sortTime = data.createdAt?.toDate
-          ? data.createdAt.toDate().getTime()
-          : data.checkInTime?.toDate
-            ? data.checkInTime.toDate().getTime()
-            : data.date && data.checkIn
-              ? new Date(`${data.date}T${data.checkIn}:00`).getTime()
-              : data.timestamp
-                ? new Date(String(data.timestamp).replace(/,/g, "")).getTime()
-                : 0;
-        const mediaExpired = sortTime > 0 && sortTime < oneDayAgo;
-        const hasExpiredImage =
-          data.image || data.imageUrl || data.checkOutImageUrl;
+    snap.docs.forEach((d) => {
+      const data = d.data();
+      const user = usersMap.get(String(data.userId)) || {
+        name: data.userName || "Сотрудник",
+        lastName: "",
+        position: "Отдел",
+        avatar: "/main-logo.png",
+      };
+      const sortTime = data.createdAt?.toDate
+        ? data.createdAt.toDate().getTime()
+        : data.checkInTime?.toDate
+          ? data.checkInTime.toDate().getTime()
+          : data.date && data.checkIn
+            ? new Date(`${data.date}T${data.checkIn}:00`).getTime()
+            : data.timestamp
+              ? new Date(String(data.timestamp).replace(/,/g, "")).getTime()
+              : 0;
 
-        if (mediaExpired && hasExpiredImage) {
-          await updateDoc(doc(db, "attendance", d.id), {
-            image: deleteField(),
-            imageUrl: deleteField(),
-            checkOutImageUrl: deleteField(),
-          });
-        }
-
-        list.push({
-          id: d.id,
-          userId: data.userId,
-          image: mediaExpired ? "" : data.imageUrl || data.image || "",
-          location: data.location || null,
-          checkOutImage: mediaExpired ? "" : data.checkOutImageUrl || "",
-          checkOutLocation: data.checkOutLocation || null,
-          timestamp:
-            data.timestamp ||
-            [data.date, data.checkIn].filter(Boolean).join(" ") ||
-            "",
-          checkIn: data.checkIn || "",
-          checkOut: data.checkOut,
-          employeeName: `${user.name} ${user.lastName || ""}`.trim(),
-          employeePosition: user.position,
-          employeeAvatar: user.avatar,
-          sortTime,
-        });
-      }),
-    );
+      list.push({
+        id: d.id,
+        userId: data.userId,
+        image: data.imageUrl || data.image || "",
+        location: data.location || null,
+        checkOutImage: data.checkOutImageUrl || "",
+        checkOutLocation: data.checkOutLocation || null,
+        timestamp:
+          data.timestamp ||
+          [data.date, data.checkIn].filter(Boolean).join(" ") ||
+          "",
+        checkIn: data.checkIn || "",
+        checkOut: data.checkOut,
+        employeeName: `${user.name} ${user.lastName || ""}`.trim(),
+        employeePosition: user.position,
+        employeeAvatar: user.avatar,
+        sortTime,
+      });
+    });
 
     return list.sort((a, b) => b.sortTime - a.sortTime);
   }
