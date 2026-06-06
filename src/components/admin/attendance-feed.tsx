@@ -135,88 +135,90 @@ const AttendanceFeed = () => {
   return (
     <>
       {attendanceFeed.length > 0 ? (
-        <div className="grid grid-cols-1 gap-6 animate-fadeIn md:grid-cols-2 lg:grid-cols-3">
-          {attendanceFeed.map((feed) => (
-            <div
-              key={feed.id}
-              className="flex flex-col overflow-hidden rounded-2xl border border-slate-200/50 bg-white/40 shadow-sm transition-all duration-300 hover:border-slate-300 dark:border-white/5 dark:bg-white/3 dark:hover:border-white/15"
-            >
-              <div className="group relative aspect-video w-full overflow-hidden bg-slate-100 dark:bg-[#021236]/30">
-                {feed.image ? (
-                  <Image
-                    src={feed.image}
-                    alt={`${feed.employeeName} selfie`}
-                    fill
-                    sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-slate-400">
-                    <svg
-                      className="h-8 w-8"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1.5}
-                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1.5}
-                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
-                    <span className="text-xs">Фото отсутствует</span>
-                  </div>
-                )}
-                <span className="absolute right-3 top-3 rounded-full border border-white/10 bg-slate-900/80 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-md dark:bg-slate-950/80">
-                  {feed.timestamp}
-                </span>
-              </div>
-
-              <div className="flex flex-1 flex-col justify-between gap-4 p-4">
-                <div className="flex items-center gap-3">
-                  <Image
-                    src={feed.employeeAvatar}
-                    alt={feed.employeeName}
-                    width={40}
-                    height={40}
-                    className="h-10 w-10 shrink-0 rounded-full border-2 border-slate-200 object-cover dark:border-white/10"
-                  />
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
-                      {feed.employeeName}
-                    </p>
-                    <p className="truncate text-xs text-slate-500 dark:text-slate-400">
-                      {feed.employeePosition}
-                    </p>
-                  </div>
+        <div className="max-h-[600px] overflow-y-auto pr-2.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-300/60 [&::-webkit-scrollbar-thumb]:rounded-full dark:[&::-webkit-scrollbar-thumb]:bg-white/10 hover:[&::-webkit-scrollbar-thumb]:bg-slate-400/80 dark:hover:[&::-webkit-scrollbar-thumb]:bg-white/20">
+          <div className="grid grid-cols-1 gap-6 animate-fadeIn md:grid-cols-2 lg:grid-cols-3 pr-1">
+            {attendanceFeed.map((feed) => (
+              <div
+                key={feed.id}
+                className="flex flex-col overflow-hidden rounded-2xl border border-slate-200/50 bg-white/40 shadow-sm transition-all duration-300 hover:border-slate-300 dark:border-white/5 dark:bg-white/3 dark:hover:border-white/15"
+              >
+                <div className="group relative aspect-video w-full overflow-hidden bg-slate-100 dark:bg-[#021236]/30">
+                  {feed.image ? (
+                    <Image
+                      src={feed.image}
+                      alt={`${feed.employeeName} selfie`}
+                      fill
+                      sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-slate-400">
+                      <svg
+                        className="h-8 w-8"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                      <span className="text-xs">Фото отсутствует</span>
+                    </div>
+                  )}
+                  <span className="absolute right-3 top-3 rounded-full border border-white/10 bg-slate-900/80 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-md dark:bg-slate-950/80">
+                    {feed.timestamp}
+                  </span>
                 </div>
 
-                <div className="grid gap-2">
-                  <LocationStatus
-                    label="Приход"
-                    time={feed.checkIn}
-                    location={feed.location}
-                    tone="sky"
-                    emptyText="координаты отсутствуют"
-                  />
-                  <LocationStatus
-                    label="Уход"
-                    time={feed.checkOut}
-                    location={feed.checkOutLocation}
-                    tone="emerald"
-                    emptyText="смена открыта"
-                  />
+                <div className="flex flex-1 flex-col justify-between gap-4 p-4">
+                  <div className="flex items-center gap-3">
+                    <Image
+                      src={feed.employeeAvatar}
+                      alt={feed.employeeName}
+                      width={40}
+                      height={40}
+                      className="h-10 w-10 shrink-0 rounded-full border-2 border-slate-200 object-cover dark:border-white/10"
+                    />
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
+                        {feed.employeeName}
+                      </p>
+                      <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                        {feed.employeePosition}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-2">
+                    <LocationStatus
+                      label="Приход"
+                      time={feed.checkIn}
+                      location={feed.location}
+                      tone="sky"
+                      emptyText="координаты отсутствуют"
+                    />
+                    <LocationStatus
+                      label="Уход"
+                      time={feed.checkOut}
+                      location={feed.checkOutLocation}
+                      tone="emerald"
+                      emptyText="смена открыта"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       ) : (
         <div className="rounded-2xl border border-dashed border-slate-200 p-8 text-center text-slate-500 dark:border-white/10 dark:text-slate-400">

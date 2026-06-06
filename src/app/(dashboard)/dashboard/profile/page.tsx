@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import AdHeader from "@/components/admin/header";
 import Image from "next/image";
-import { useAuthState } from "react-firebase-hooks/auth";
+import { useAuthState, useSignOut } from "react-firebase-hooks/auth";
 import { auth, db } from "@/firebase";
 import { useRouter } from "next/navigation";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
@@ -12,6 +12,7 @@ import ProfileStats from "@/components/admin/profile-stats";
 
 const AdminProfile = () => {
   const [user, loading] = useAuthState(auth);
+  const [signOut] = useSignOut(auth);
   const router = useRouter();
 
   // Core Profile States
@@ -250,9 +251,9 @@ const AdminProfile = () => {
             </div>
           </div>
 
-          <div className="px-6 pb-6 pt-0 relative flex flex-col md:flex-row md:items-end justify-between gap-6 -mt-16 md:-mt-20">
-            <div className="flex flex-col md:flex-row items-center md:items-end gap-5 text-center md:text-left">
-              <div className="relative group w-32 h-32 md:w-36 md:h-36 rounded-full p-1.5 bg-linear-to-tr from-rose-400 via-pink-500 to-indigo-600 shadow-xl transition duration-300 hover:scale-[1.03]">
+          <div className="px-6 pb-6 pt-0 relative flex flex-col md:flex-row md:flex-wrap md:items-end justify-between gap-6 -mt-16 md:-mt-20">
+            <div className="flex flex-col md:flex-row items-center md:items-end gap-5 text-center md:text-left flex-1 min-w-0">
+              <div className="relative group w-32 h-32 md:w-36 md:h-36 rounded-full p-1.5 bg-linear-to-tr from-rose-400 via-pink-500 to-indigo-600 shadow-xl transition duration-300 hover:scale-[1.03] shrink-0">
                 <div className="w-full h-full rounded-full overflow-hidden border-4 border-slate-50 dark:border-[#021236] relative">
                   <Image
                     src={avatarUrl}
@@ -288,12 +289,12 @@ const AdminProfile = () => {
                   </svg>
                 </button>
               </div>
-              <div className="mb-2">
-                <div className="flex flex-col md:flex-row items-center gap-3">
+              <div className="mb-2 min-w-0 flex-1">
+                <div className="flex flex-col md:flex-row md:flex-wrap items-center gap-3">
                   <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
                     {name} {surname}
                   </h2>
-                  <span className="px-3 py-1 text-xs font-bold text-rose-600 dark:text-rose-300 bg-rose-500/10 border border-rose-400/30 rounded-full flex items-center gap-1.5 uppercase tracking-tighter">
+                  <span className="px-3 py-1 text-xs font-bold text-rose-600 dark:text-rose-300 bg-rose-500/10 border border-rose-400/30 rounded-full flex items-center gap-1.5 uppercase tracking-tighter shrink-0">
                     <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
                     Administrator
                   </span>
@@ -303,27 +304,52 @@ const AdminProfile = () => {
                 </p>
               </div>
             </div>
-            <div className="flex justify-center mb-2">
+            <div className="flex items-center gap-3 justify-center mb-2 shrink-0">
               {!isEditing ? (
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/15 text-slate-800 dark:text-white font-semibold px-6 py-2.5 rounded-2xl shadow-md transition-all flex items-center gap-2 cursor-pointer"
-                >
-                  <svg
-                    className="w-4 h-4 text-rose-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                <>
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/15 text-slate-800 dark:text-white font-semibold px-6 py-2.5 rounded-2xl shadow-md transition-all flex items-center gap-2 cursor-pointer"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
-                  Редактировать админ-профиль
-                </button>
+                    <svg
+                      className="w-4 h-4 text-rose-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                    Редактировать профиль
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirm("Вы действительно хотите выйти?")) {
+                        signOut();
+                      }
+                    }}
+                    className="bg-red-500/10 dark:bg-red-500/5 border border-red-500/20 hover:border-red-500/40 hover:bg-red-500/15 text-red-600 dark:text-red-400 font-bold px-6 py-2.5 rounded-2xl shadow-md transition-all flex items-center gap-2 cursor-pointer"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2.5}
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                      />
+                    </svg>
+                    Выйти
+                  </button>
+                </>
               ) : (
                 <div className="flex items-center gap-2">
                   <button

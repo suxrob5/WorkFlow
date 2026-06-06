@@ -156,8 +156,10 @@ const AdHeader = () => {
               <button
                 className="bg-white cursor-pointer text-red-500 font-bold text-xs px-4 py-2 rounded-xl shadow-xl border border-slate-200 flex items-center gap-2 hover:bg-red-50 transition-colors whitespace-nowrap"
                 onClick={async () => {
-                  await signOut();
-                  router.push("/login");
+                  if (confirm("Вы действительно хотите выйти?")) {
+                    await signOut();
+                    router.push("/login");
+                  }
                 }}
               >
                 <svg

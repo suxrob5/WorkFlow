@@ -121,7 +121,11 @@ const Header = () => {
             <div className="absolute top-full right-0 pt-2 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 z-50">
               <button
                 className="bg-white cursor-pointer text-red-500 font-bold text-xs px-4 py-2 rounded-xl shadow-xl border border-slate-200 flex items-center gap-2 hover:bg-red-50 transition-colors whitespace-nowrap"
-                onClick={() => signOut()}
+                onClick={() => {
+                  if (confirm("Вы действительно хотите выйти?")) {
+                    signOut();
+                  }
+                }}
               >
                 <svg
                   className="w-3.5 h-3.5"
