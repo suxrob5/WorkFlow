@@ -13,10 +13,12 @@ import {
 import { auth, db } from "@/firebase";
 import { AttendanceType } from "@/types";
 
-const WORK_START_HOUR = 9;
-const WORK_START_MINUTE = 0;
-const WORK_END_HOUR = 18;
-const WORK_END_MINUTE = 0;
+import {
+  WORK_START_HOUR,
+  WORK_START_MINUTE,
+  WORK_END_HOUR,
+  WORK_END_MINUTE,
+} from "@/lib/config";
 
 interface DynamicAvaProps {
   isCameraActive: boolean;

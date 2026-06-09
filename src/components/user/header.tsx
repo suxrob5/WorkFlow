@@ -8,6 +8,7 @@ import { useTheme } from "@/components/theme-provider";
 import { auth, db } from "@/firebase";
 import { useAuthState, useSignOut } from "react-firebase-hooks/auth";
 import { doc, onSnapshot } from "firebase/firestore";
+import { MoonIcon, SunIcon } from "@/assets/logos/images";
 
 const Header = () => {
   const pathname = usePathname() || "/";
@@ -69,34 +70,9 @@ const Header = () => {
             aria-label="Toggle theme"
           >
             {/* Sun Icon */}
-            <svg
-              className="w-5 h-5 transition-all duration-500 transform rotate-0 scale-100 dark:rotate-90 dark:scale-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2.5}
-                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"
-              />
-            </svg>
-
+            <SunIcon />
             {/* Moon Icon */}
-            <svg
-              className="w-5 h-5 absolute top-2.5 left-2.5 transition-all duration-500 transform -rotate-90 scale-0 dark:rotate-0 dark:scale-100 text-sky-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2.5}
-                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-              />
-            </svg>
+            <MoonIcon />
           </button>
 
           <div className="relative group">

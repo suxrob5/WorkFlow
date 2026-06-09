@@ -91,6 +91,14 @@ const AdHeader = () => {
                 Рабочие графики
               </Link>
             </li>
+            <li className="shrink-0">
+              <Link
+                href="/report"
+                className={`block whitespace-nowrap rounded-xl px-3 py-2 text-center transition duration-200 sm:px-4 lg:rounded-full ${isActive("/report") ? "bg-white/15 text-white shadow-sm shadow-black/10" : "text-white/75 hover:bg-white/10 hover:text-white"}`}
+              >
+                Отчеты
+              </Link>
+            </li>
           </ul>
         </nav>
 

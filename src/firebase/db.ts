@@ -788,3 +788,42 @@ export const getEmployeeRowsFromFirestore = async () => {
     };
   });
 };
+
+// Raw attendance records for report tables (preserves `date`, `checkIn`, `checkOut`, `lateMinutes`, etc.)
+export interface AttendanceRaw {
+  id: string;
+  userId: string;
+  userName?: string;
+  date: string;
+  checkIn: string;
+  checkOut?: string;
+  status?: string;
+  lateMinutes?: number;
+  earlyLeaveMinutes?: number;
+  workedMinutes?: number;
+  overtimeMinutes?: number;
+}
+
+export const getAttendanceRaw = async (): Promise<AttendanceRaw[]> => {
+  const snap = await getDocs(collection(db, "attendance"));
+  const list: AttendanceRaw[] = [];
+  snap.forEach((d) => {
+    const data = d.data();
+    // Only include docs that have a proper date field
+    if (!data.date) return;
+    list.push({
+      id: d.id,
+      userId: data.userId || "",
+      userName: data.userName || "",
+      date: data.date,
+      checkIn: data.checkIn || "",
+      checkOut: data.checkOut,
+      status: data.status,
+      lateMinutes: Number(data.lateMinutes || 0),
+      earlyLeaveMinutes: Number(data.earlyLeaveMinutes || 0),
+      workedMinutes: Number(data.workedMinutes || 0),
+      overtimeMinutes: Number(data.overtimeMinutes || 0),
+    });
+  });
+  return list;
+};
