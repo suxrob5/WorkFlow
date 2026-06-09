@@ -1,5 +1,6 @@
 "use client";
 
+import Loading from "@/components/loading";
 import { auth, db } from "@/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
@@ -46,7 +47,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     checkAdminRole();
   }, [loading, router, user]);
 
-  if (loading || checkingRole || !isAdmin) {
+    if (loading || checkingRole) {
+    return <Loading pageName="панели управления..." />;
+  }
+  if (!user) {
     return null;
   }
 

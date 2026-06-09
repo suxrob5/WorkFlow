@@ -28,7 +28,7 @@ const ProfileInformation = () => {
         </p>
       </div>
       {/* 2ND STAGE */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
           <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
             Доступ
@@ -47,7 +47,7 @@ const ProfileInformation = () => {
         </div>
       </div>
       {/* 3RD STAGE */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
           <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
             Телефон номер
@@ -66,7 +66,7 @@ const ProfileInformation = () => {
         </div>
       </div>
       {/* 4TH STAGE */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="space-y-1 bg-white/30 dark:bg-white/2 border border-slate-200/60 dark:border-white/5 p-4 rounded-2xl">
           <span className="text-[11px] font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
             Должность

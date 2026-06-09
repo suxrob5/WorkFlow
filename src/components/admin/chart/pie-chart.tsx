@@ -58,7 +58,7 @@ export default function PieChart({ data }: { data?: any }) {
   const chartData = data || PIE_CHART_DATA;
 
   return (
-    <div style={{ width: "100%", height: "260px", position: "relative" }}>
+    <div style={{ width: "100%", height: "260px", position: "relative", cursor: "pointer" }}>
       <Pie data={chartData} options={options} />
     </div>
   );

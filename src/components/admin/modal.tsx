@@ -16,8 +16,8 @@ const Modal = ({ open, onClose, modalData }: ModalProps) => {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-md dark:bg-black/60">
-      <div className="w-full max-w-4xl overflow-hidden rounded-3xl border border-slate-200/60 bg-white/80 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-[#021236]/90 dark:backdrop-blur-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center h-full overflow-hidden bg-slate-950/60 p-4 backdrop-blur-md dark:bg-black/60">
+      <div className="w-full max-w-4xl rounded-3xl border mt-14  border-slate-200/60 overflow-hidden bg-white/80 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-[#021236]/90 dark:backdrop-blur-2xl">
         <div className="flex items-center justify-between border-b border-slate-200/60 p-6 py-5 dark:border-white/10">
           <div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">
@@ -31,7 +31,7 @@ const Modal = ({ open, onClose, modalData }: ModalProps) => {
 
           <button
             onClick={onClose}
-            className="h-10 w-10 rounded-2xl bg-slate-100 text-slate-600 transition-all duration-200 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
+            className="h-10 w-10 rounded-2xl cursor-pointer bg-slate-100 text-slate-600 transition-all duration-200 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
           >
             x
           </button>

@@ -80,7 +80,7 @@ export default function BarChart({ data }: { data?: any }) {
   const chartData = data || BAR_CHART_DATA;
 
   return (
-    <div style={{ width: "100%", height: "280px", position: "relative" }}>
+    <div style={{ width: "100%", height: "280px", position: "relative",}}>
       <Bar data={chartData} options={options} />
     </div>
   );

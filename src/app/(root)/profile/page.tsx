@@ -10,26 +10,9 @@ import ProfileInformation from "@/components/user/profile-inform";
 import InteractiveEditForm from "@/components/user/interactive-edit-form-mode";
 import { useRouter } from "next/navigation";
 import { useProfile, updateUserAvatar, updateUserProfile } from "@/firebase/db";
+import Loading from "@/components/loading";
 
-const ProfileLoading = () => (
-  <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-[#021236]">
-    <div className="relative">
-      {/* Outer spinning ring */}
-      <div className="w-20 h-20 rounded-full border-4 border-sky-500/20 border-t-sky-500 animate-spin" />
-      {/* Inner pulsing logo or icon */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-10 h-10 bg-sky-500 rounded-xl animate-pulse" />
-      </div>
-    </div>
-    <h2 className="mt-6 text-lg font-bold text-slate-900 dark:text-white animate-pulse font-nunito">
-      Загрузка профиля...
-    </h2>
-    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 font-nunito">
-      Пожалуйста, подождите
-    </p>
-  </div>
-);
-
+// профиля
 const Profile = () => {
   const router = useRouter();
   const { profileData, user, loading } = useProfile();
@@ -50,7 +33,6 @@ const Profile = () => {
   const [editBirthDate, setEditBirthDate] = useState("");
   const [editAddress, setEditAddress] = useState("");
   const [editPosition, setEditPosition] = useState("");
-  const [editPositionRu, setEditPositionRu] = useState("");
   const [editPassport, setEditPassport] = useState("");
 
   // Sync local edit state when profile data is loaded/updated from Firestore
@@ -71,7 +53,6 @@ const Profile = () => {
       setEditBirthDate(profileData.birthDate || "");
       setEditAddress(profileData.address || "");
       setEditPosition(profileData.position || "");
-      setEditPositionRu(profileData.positionRu || "");
       setEditPassport(profileData.passport || "");
     }
   }, [profileData]);
@@ -124,7 +105,6 @@ const Profile = () => {
       setEditBirthDate(profileData.birthDate || "");
       setEditAddress(profileData.address || "");
       setEditPosition(profileData.position || "");
-      setEditPositionRu(profileData.positionRu || "");
       setEditPassport(profileData.passport || "");
     }
     setIsEditing(false);
@@ -180,7 +160,7 @@ const Profile = () => {
   }, [user, loading, profileData?.role, router]);
 
   if (loading || (user && profileData?.role === "admin")) {
-    return <ProfileLoading />;
+    return <Loading pageName="профиль" />;
   }
 
   return (
@@ -271,7 +251,6 @@ const Profile = () => {
                 setEditBirthDate={setEditBirthDate}
                 editPassport={editPassport}
                 editPosition={editPosition}
-                editPositionRu={editPositionRu}
                 editAddress={editAddress}
                 setEditAddress={setEditAddress}
                 editBio={editBio}

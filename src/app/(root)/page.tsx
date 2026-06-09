@@ -18,6 +18,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
+import Loading from "@/components/loading";
 
 export default function Home() {
   const [user, loading] = useAuthState(auth);
@@ -89,19 +90,6 @@ export default function Home() {
     };
   }, [cameraStream]);
 
-  const deleteCheckIn = async (docId: string) => {
-    await deleteDoc(doc(db, "attendance", docId));
-
-    // Fetch fresh data from Firebase
-    const updatedData = await getCheckInsFromFirebase();
-    setDisplayCheckIns(updatedData);
-
-    setToastMessage("Запись удалена!");
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 2000);
-  };
-
-  // firebase
 
   async function getCheckInsFromFirebase(): Promise<AttendanceType[]> {
     if (!auth.currentUser) return [];
@@ -148,7 +136,10 @@ export default function Home() {
     displayCheckIns.find((item) => item.date === today && !item.checkOut) ??
     null;
 
-  if (loading || checkingRole || !user) {
+  if (loading || checkingRole) {
+    return <Loading pageName="главная страница" />;
+  }
+  if (!user) {
     return null;
   }
 
@@ -239,7 +230,6 @@ export default function Home() {
           {/* DisplayCheckIns */}
           <DisplayCheckIns
             displayCheckIns={displayCheckIns}
-            deleteCheckIn={deleteCheckIn}
           />
         </div>
       </main>

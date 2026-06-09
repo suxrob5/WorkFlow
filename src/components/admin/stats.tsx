@@ -122,7 +122,7 @@ const Stats = ({ setCharts }: any) => {
   };
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 cursor-pointer">
       <Modal open={open} modalData={modalData} onClose={() => setOpen(false)} />
       {DASHBOARD_STATS.map((stat, i) => (
         <div

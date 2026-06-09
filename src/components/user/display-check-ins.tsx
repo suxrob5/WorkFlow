@@ -5,14 +5,13 @@ import Image from "next/image";
 
 interface Props {
   displayCheckIns: AttendanceType[];
-  deleteCheckIn: (id: string) => void;
 }
 
 type LocationPoint =
   | {
-      latitude: number;
-      longitude: number;
-    }
+    latitude: number;
+    longitude: number;
+  }
   | null
   | undefined;
 
@@ -107,7 +106,6 @@ const LocationMap = ({
 
 const DisplayCheckIns: React.FC<Props> = ({
   displayCheckIns,
-  deleteCheckIn,
 }) => {
   return (
     <>
@@ -141,26 +139,6 @@ const DisplayCheckIns: React.FC<Props> = ({
               key={item.id}
               className="bg-white/60 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 p-4 rounded-3xl backdrop-blur-md flex gap-4 transition duration-300 hover:scale-[1.01] hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)] relative group"
             >
-              <button
-                onClick={() => deleteCheckIn(item.id)}
-                className="absolute top-2 right-2 w-7 h-7 rounded-full bg-slate-200/80 dark:bg-black/40 hover:bg-red-500/20 text-slate-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-200 cursor-pointer"
-                title="Удалить отметку"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
-                </svg>
-              </button>
-
               <div className="w-28 shrink-0 space-y-2">
                 <div className="space-y-1">
                   <span className="block text-[9px] font-bold uppercase text-sky-700 dark:text-sky-300">

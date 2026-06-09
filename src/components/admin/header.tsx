@@ -8,6 +8,7 @@ import { useTheme } from "@/components/theme-provider";
 import { auth, db } from "@/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 import { useAuthState, useSignOut } from "react-firebase-hooks/auth";
+import { MoonIcon, SunIcon } from "@/assets/logos/images";
 
 const AdHeader = () => {
   const pathname = usePathname() || "/";
@@ -53,7 +54,7 @@ const AdHeader = () => {
             alt="Logo"
             width={42}
             height={42}
-            className="h-9 w-9 shrink-0 rounded-xl border border-white/10 bg-white/5 p-1 transition duration-300 hover:scale-[1.03] sm:h-[42px] sm:w-[42px] sm:rounded-2xl"
+            className="rounded-2xl border border-white/10 bg-white/5 p-1 transition duration-300 hover:scale-[1.03]"
           />
           <div className="min-w-0">
             <h1 className="truncate text-lg font-bold tracking-tight text-white sm:text-2xl">
@@ -64,12 +65,12 @@ const AdHeader = () => {
             </p>
           </div>
         </Link>
-        <nav className="order-3 w-full min-w-0 overflow-x-auto rounded-2xl border border-white/10 bg-white/5 p-1 shadow-inner shadow-black/10 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:order-none lg:ml-5 lg:w-auto lg:flex-1 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none">
+        <nav className="order-3 w-full min-w-0 overflow-x-auto rounded-2xl border border-white/10 bg-white/5 p-1 shadow-inner shadow-black/10 scrollbar-none [&::-webkit-scrollbar]:hidden lg:order-0 lg:ml-5 lg:w-auto lg:flex-1 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none">
           <ul className="flex w-max min-w-full items-center gap-1.5 text-xs font-semibold sm:text-sm lg:mx-auto lg:min-w-0 lg:gap-3">
             <li className="shrink-0">
               <Link
                 href="/dashboard"
-                className={`block whitespace-nowrap rounded-xl px-3 py-2 text-center transition duration-200 sm:px-4 lg:rounded-full ${isActive("/dashboard") ? "bg-white/15 text-white shadow-sm shadow-black/10" : "text-white/75 hover:bg-white/10 hover:text-white"}`}
+                className={`block whitespace-nowrap rounded-xl px-3 py-2 text-center transition duration-200 sm:px-4 lg:rounded-full ${pathname === "/dashboard" ? "bg-white/15 text-white shadow-sm shadow-black/10" : "text-white/75 hover:bg-white/10 hover:text-white"}`}
               >
                 Главная
               </Link>
@@ -101,34 +102,9 @@ const AdHeader = () => {
             aria-label="Toggle theme"
           >
             {/* Sun Icon */}
-            <svg
-              className="h-4 w-4 transform rotate-0 scale-100 transition-all duration-500 dark:rotate-90 dark:scale-0 sm:h-5 sm:w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2.5}
-                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"
-              />
-            </svg>
-
+            <SunIcon />
             {/* Moon Icon */}
-            <svg
-              className="absolute left-2 top-2 h-4 w-4 -rotate-90 scale-0 transform text-sky-400 transition-all duration-500 dark:rotate-0 dark:scale-100 sm:left-2.5 sm:top-2.5 sm:h-5 sm:w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2.5}
-                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-              />
-            </svg>
+            <MoonIcon />
           </button>
 
           <div className="relative group">
@@ -151,33 +127,6 @@ const AdHeader = () => {
                 {displayName}
               </span>
             </Link>
-
-            <div className="absolute top-full right-0 pt-2 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 z-50">
-              <button
-                className="bg-white cursor-pointer text-red-500 font-bold text-xs px-4 py-2 rounded-xl shadow-xl border border-slate-200 flex items-center gap-2 hover:bg-red-50 transition-colors whitespace-nowrap"
-                onClick={async () => {
-                  if (confirm("Вы действительно хотите выйти?")) {
-                    await signOut();
-                    router.push("/login");
-                  }
-                }}
-              >
-                <svg
-                  className="w-3.5 h-3.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2.5}
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                  />
-                </svg>
-                Выйти
-              </button>
-            </div>
           </div>
         </div>
       </div>

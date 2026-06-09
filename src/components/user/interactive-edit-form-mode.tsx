@@ -11,7 +11,6 @@ interface InteractiveEditFormProps {
   setEditBirthDate: (value: string) => void;
   editPassport: string;
   editPosition: string;
-  editPositionRu: string;
   editAddress: string;
   setEditAddress: (value: string) => void;
   editBio: string;
@@ -35,7 +34,6 @@ const InteractiveEditForm: React.FC<InteractiveEditFormProps> = ({
   setEditBirthDate,
   editPassport,
   editPosition,
-  editPositionRu,
   editAddress,
   setEditAddress,
   editBio,
@@ -122,14 +120,6 @@ const InteractiveEditForm: React.FC<InteractiveEditFormProps> = ({
           </label>
           <div className="w-full rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/5 px-4 py-3.5 text-slate-600 dark:text-slate-400 select-none font-medium">
             {editPassport || "—"}
-          </div>
-        </div>
-        <div className="space-y-2">
-          <label className="text-xs font-semibold tracking-wider text-slate-600 dark:text-slate-300 ml-1">
-            ДОЛЖНОСТЬ (ФИКСИРОВАННАЯ)
-          </label>
-          <div className="w-full rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/5 px-4 py-3.5 text-slate-600 dark:text-slate-400 select-none font-medium">
-            {editPositionRu || "—"}
           </div>
         </div>
         <div className="space-y-2">
