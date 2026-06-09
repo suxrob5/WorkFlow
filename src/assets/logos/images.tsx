@@ -173,7 +173,6 @@ export const STAT_ICONS = [
   </svg>,
 ];
 
-
 export const SunIcon = () => {
   return (
     <svg
@@ -189,22 +188,22 @@ export const SunIcon = () => {
         d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"
       />
     </svg>
-  )
-}
+  );
+};
 export const MoonIcon = () => {
   return (
-   <svg
-              className="absolute left-2 top-2 h-4 w-4 -rotate-90 scale-0 transform text-sky-400 transition-all duration-500 dark:rotate-0 dark:scale-100 sm:left-2.5 sm:top-2.5 sm:h-5 sm:w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2.5}
-                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-              />
-            </svg>
-  )
-}
+    <svg
+      className="absolute left-2 top-2 h-4 w-4 -rotate-90 scale-0 transform text-sky-400 transition-all duration-500 dark:rotate-0 dark:scale-100 sm:left-2.5 sm:top-2.5 sm:h-5 sm:w-5"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2.5}
+        d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+      />
+    </svg>
+  );
+};

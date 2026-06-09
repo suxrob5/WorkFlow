@@ -10,7 +10,8 @@ const nunito = Nunito({
 
 export const metadata: Metadata = {
   title: "Mission Foods",
-  description: "Mission Foods is a leading provider of high-quality food products, dedicated to delivering delicious and nutritious options to customers worldwide.",
+  description:
+    "Mission Foods is a leading provider of high-quality food products, dedicated to delivering delicious and nutritious options to customers worldwide.",
 };
 
 export default function RootLayout({

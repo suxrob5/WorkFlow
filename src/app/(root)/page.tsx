@@ -90,7 +90,6 @@ export default function Home() {
     };
   }, [cameraStream]);
 
-
   async function getCheckInsFromFirebase(): Promise<AttendanceType[]> {
     if (!auth.currentUser) return [];
 
@@ -228,9 +227,7 @@ export default function Home() {
             )}
           </div>
           {/* DisplayCheckIns */}
-          <DisplayCheckIns
-            displayCheckIns={displayCheckIns}
-          />
+          <DisplayCheckIns displayCheckIns={displayCheckIns} />
         </div>
       </main>
     </div>

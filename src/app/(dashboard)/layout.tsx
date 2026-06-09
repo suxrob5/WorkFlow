@@ -47,7 +47,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     checkAdminRole();
   }, [loading, router, user]);
 
-    if (loading || checkingRole) {
+  if (loading || checkingRole) {
     return <Loading pageName="панели управления..." />;
   }
   if (!user) {

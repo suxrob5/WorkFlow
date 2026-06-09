@@ -9,9 +9,9 @@ interface Props {
 
 type LocationPoint =
   | {
-    latitude: number;
-    longitude: number;
-  }
+      latitude: number;
+      longitude: number;
+    }
   | null
   | undefined;
 
@@ -104,9 +104,7 @@ const LocationMap = ({
   );
 };
 
-const DisplayCheckIns: React.FC<Props> = ({
-  displayCheckIns,
-}) => {
+const DisplayCheckIns: React.FC<Props> = ({ displayCheckIns }) => {
   return (
     <>
       {displayCheckIns.length === 0 ? (
