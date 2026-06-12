@@ -92,8 +92,8 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-6">
-      <div className="w-full max-w-xl p-6 rounded-3xl bg-white border border-slate-200 shadow-[0_20px_50px_rgba(0,0,0,0.05)]">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-3 py-6 sm:px-4">
+      <div className="w-full max-w-xl min-w-0 rounded-3xl bg-white border border-slate-200 p-4 shadow-[0_20px_50px_rgba(0,0,0,0.05)] sm:p-6">
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight font-nunito">
             Регистрация сотрудника
@@ -118,8 +118,8 @@ const Register = () => {
             />
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
+          <div className="grid min-w-0 gap-4 md:grid-cols-2">
+            <div className="min-w-0 space-y-2">
               <label className="text-sm font-medium text-slate-700 ml-1">
                 Дата рождения
               </label>
@@ -134,7 +134,7 @@ const Register = () => {
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <label className="text-sm font-medium text-slate-700 ml-1">
                 Телефон
               </label>
@@ -163,8 +163,8 @@ const Register = () => {
             />
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
+          <div className="grid min-w-0 gap-4 md:grid-cols-2">
+            <div className="min-w-0 space-y-2">
               <label className="text-sm font-medium text-slate-700 ml-1">
                 Должность
               </label>
@@ -247,7 +247,7 @@ const Register = () => {
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <label className="text-sm font-medium text-slate-700 ml-1">
                 Серия паспорта
               </label>
@@ -328,8 +328,8 @@ const Register = () => {
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
+          <div className="grid min-w-0 gap-4 md:grid-cols-2">
+            <div className="min-w-0 space-y-2">
               <label className="text-sm font-medium text-slate-700 ml-1">
                 Email
               </label>
@@ -343,7 +343,7 @@ const Register = () => {
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <label className="text-sm font-medium text-slate-700 ml-1">
                 Пароль
               </label>
