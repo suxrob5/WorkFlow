@@ -2,8 +2,11 @@
 
 import Header from "@/components/admin/header";
 import { STATUS_CONFIG, WEEKDAYS, type ShiftStatus } from "@/data/admin";
-import { getEmployeeRowsFromFirestore } from "@/firebase/db";
+import { getEmployeeRowsFromFirestore, getAttendanceRaw } from "@/firebase/db";
 import { useEffect, useRef, useState } from "react";
+import WeekNavigator from "@/components/admin/employee/week-navigator";
+import Pagination from "@/components/admin/employee/pagination";
+import WeeklyAttendanceCalendar from "@/components/admin/employee/weekly-attendance-calendar";
 
 // ── Custom dropdown component ──────────────────────────────────────────────
 function FilterDropdown({
@@ -112,12 +115,29 @@ const Users = () => {
   const [importSuccess, setImportSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Added States
+  const [attendanceLogs, setAttendanceLogs] = useState<any[]>([]);
+  const [selectedWeekStart, setSelectedWeekStart] = useState<Date>(() => {
+    const d = new Date();
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    const monday = new Date(d.setDate(diff));
+    monday.setHours(0, 0, 0, 0);
+    return monday;
+  });
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const pageSize = 5;
+
   useEffect(() => {
     const loadEmployeesData = async () => {
       try {
         setLoading(true);
-        const liveShifts = await getEmployeeRowsFromFirestore();
+        const [liveShifts, rawAttendance] = await Promise.all([
+          getEmployeeRowsFromFirestore(),
+          getAttendanceRaw(),
+        ]);
         setShifts(liveShifts);
+        setAttendanceLogs(rawAttendance);
       } catch (error) {
         console.error("Error loading employees data:", error);
       } finally {
@@ -126,6 +146,10 @@ const Users = () => {
     };
     loadEmployeesData();
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter, deptFilter, dayFilter]);
 
   const departments = Array.from(
     new Set(shifts.map((s) => s.dept).filter(Boolean)),
@@ -143,6 +167,12 @@ const Users = () => {
       dayFilter === "all" || (s.days && s.days.includes(dayFilter));
     return matchesSearch && matchesStatus && matchesDept && matchesDay;
   });
+
+  const totalPages = Math.ceil(filtered.length / pageSize);
+  const paginatedShifts = filtered.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   const activeFiltersCount = [
     statusFilter !== "all",
@@ -389,6 +419,14 @@ const Users = () => {
             </span>
           </div>
 
+          {/* Week Navigator */}
+          <div className="mb-5">
+            <WeekNavigator
+              selectedWeekStart={selectedWeekStart}
+              onChange={setSelectedWeekStart}
+            />
+          </div>
+
           {/* Employee rows */}
           <div className="space-y-3">
             {loading &&
@@ -405,10 +443,10 @@ const Users = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    {[0, 1, 2, 3, 4].map((day) => (
+                    {[0, 1, 2, 3, 4, 5, 6].map((day) => (
                       <div
                         key={day}
-                        className="h-6 w-8 rounded-lg bg-slate-200 dark:bg-white/10"
+                        className="h-12 w-10 rounded-xl bg-slate-200 dark:bg-white/10"
                       />
                     ))}
                   </div>
@@ -416,7 +454,7 @@ const Users = () => {
               ))}
 
             {!loading &&
-              filtered.map((shift) => (
+              paginatedShifts.map((shift) => (
                 <div
                   key={shift.id}
                   className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/40 dark:bg-white/3 border border-slate-100 dark:border-white/5 hover:border-slate-200 dark:hover:border-white/15 p-4 rounded-2xl transition duration-200 hover:bg-white/60 dark:hover:bg-white/5 shadow-sm"
@@ -436,21 +474,15 @@ const Users = () => {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {WEEKDAYS.map((day) => (
-                      <span
-                        key={day}
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-lg border ${
-                          shift.days && shift.days.includes(day)
-                            ? "bg-sky-500/15 text-sky-600 dark:text-sky-300 border-sky-400/20"
-                            : "bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-500 border-slate-200 dark:border-white/5"
-                        }`}
-                      >
-                        {day}
-                      </span>
-                    ))}
+                  <div className="flex items-center gap-4 flex-wrap sm:flex-nowrap">
+                    <WeeklyAttendanceCalendar
+                      employeeId={shift.id}
+                      shiftDays={shift.days}
+                      selectedWeekStart={selectedWeekStart}
+                      attendanceLogs={attendanceLogs}
+                    />
                     <span
-                      className={`ml-2 text-[10px] font-bold px-2.5 py-1 rounded-full border ${
+                      className={`text-[10px] font-bold px-2.5 py-1 rounded-full border shrink-0 ${
                         STATUS_CONFIG[shift.status as ShiftStatus]?.color || ""
                       }`}
                     >
@@ -465,6 +497,15 @@ const Users = () => {
               <div className="rounded-2xl border border-dashed border-slate-200 dark:border-white/10 bg-white/30 dark:bg-white/3 p-8 text-center text-sm font-semibold text-slate-500 dark:text-slate-400">
                 Сотрудники не найдены
               </div>
+            )}
+
+            {/* Pagination */}
+            {!loading && filtered.length > 0 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
             )}
           </div>
         </div>
