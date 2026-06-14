@@ -1,6 +1,7 @@
 "use client";
 
-import { auth, db } from "@/firebase";
+import { EMAIL_VERIFICATION_ENABLED, auth, db } from "@/firebase";
+import { sendEmailVerification } from "firebase/auth";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -43,6 +44,7 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState("");
   const [isPositionOpen, setIsPositionOpen] = useState(false);
   const [isPassportSeriesOpen, setIsPassportSeriesOpen] = useState(false);
 
@@ -79,9 +81,19 @@ const Register = () => {
         birthDate,
         address,
         passport: `${passportSeries}${passportNumber}`,
-        isActive: true,
+        active: !EMAIL_VERIFICATION_ENABLED,
+        isActive: !EMAIL_VERIFICATION_ENABLED,
+        userActive: !EMAIL_VERIFICATION_ENABLED,
+        emailVerified: !EMAIL_VERIFICATION_ENABLED,
+        status: EMAIL_VERIFICATION_ENABLED ? "waiting" : "active",
         createdAt: serverTimestamp(),
       });
+
+      if (EMAIL_VERIFICATION_ENABLED) {
+        await sendEmailVerification(user);
+        setVerificationEmail(user.email ?? email);
+        return;
+      }
 
       router.push("/");
     } catch (error) {
@@ -90,6 +102,107 @@ const Register = () => {
       setIsSubmitting(false);
     }
   };
+
+  const activateVerifiedUser = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    setIsSubmitting(true);
+
+    try {
+      await user.reload();
+
+      if (!user.emailVerified) {
+        alert("Email еще не подтвержден. Проверьте почту и перейдите по ссылке.");
+        return;
+      }
+
+      await setDoc(
+        doc(db, "users", user.uid),
+        {
+          isActive: true,
+          userActive: true,
+          active: true,
+          emailVerified: true,
+          status: "active",
+          verifiedAt: serverTimestamp(),
+        },
+        { merge: true },
+      );
+
+      router.push("/");
+    } catch (error) {
+      console.error("Verify email error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const resendVerificationEmail = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+      await sendEmailVerification(user);
+      alert("Письмо для подтверждения отправлено повторно.");
+    } catch (error) {
+      console.error("Resend verification error:", error);
+    }
+  };
+
+  if (verificationEmail) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-6">
+        <div className="w-full max-w-md rounded-3xl bg-white border border-slate-200 p-6 text-center shadow-[0_20px_50px_rgba(0,0,0,0.05)]">
+          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+            <svg
+              className="h-7 w-7"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2.5}
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m-18 8h18a2 2 0 002-2V8a2 2 0 00-2-2H3a2 2 0 00-2 2v6a2 2 0 002 2z"
+              />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-slate-900">
+            Ожидание подтверждения email
+          </h1>
+          <p className="mt-3 text-sm leading-6 text-slate-600">
+            Ссылка для подтверждения отправлена на {verificationEmail}.
+            Перейдите по ссылке, затем нажмите кнопку ниже.
+          </p>
+          <div className="mt-6 space-y-3">
+            <button
+              type="button"
+              disabled={isSubmitting}
+              onClick={activateVerifiedUser}
+              className="w-full rounded-xl bg-linear-to-br from-sky-500 to-blue-600 py-3.5 font-bold text-white shadow-lg shadow-sky-500/20 transition-all duration-200 hover:opacity-90 disabled:opacity-60 active:scale-[0.98]"
+            >
+              {isSubmitting ? "Проверяем..." : "Я подтвердил email"}
+            </button>
+            <button
+              type="button"
+              onClick={resendVerificationEmail}
+              className="w-full rounded-xl border border-slate-300 bg-slate-50 py-3 font-bold text-slate-700 transition-all duration-200 hover:bg-white"
+            >
+              Отправить ссылку повторно
+            </button>
+          </div>
+          <Link
+            href="/login"
+            className="mt-5 inline-block text-sm font-medium text-sky-500 hover:text-sky-400"
+          >
+            Перейти на страницу входа
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-3 py-6 sm:px-4">

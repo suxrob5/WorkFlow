@@ -2,20 +2,21 @@
 
 import { useState, useEffect } from "react";
 import Header from "@/components/user/header";
-import { auth, db } from "@/firebase";
+import { EMAIL_VERIFICATION_ENABLED, auth, db } from "@/firebase";
 import WelcomeSec from "@/components/user/welcome-sec";
 import DynamicAva from "@/components/user/dynamic-check-in-ava/dynamic-ava";
 import DisplayCheckIns from "@/components/user/display-check-ins";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useRouter } from "next/navigation";
 import { AttendanceType } from "@/types";
+import { signOut } from "firebase/auth";
 import {
   collection,
-  deleteDoc,
   doc,
   getDoc,
   getDocs,
   query,
+  setDoc,
   where,
 } from "firebase/firestore";
 import Loading from "@/components/loading";
@@ -50,6 +51,27 @@ export default function Home() {
       }
 
       try {
+        if (EMAIL_VERIFICATION_ENABLED) {
+          await user.reload();
+        }
+
+        if (EMAIL_VERIFICATION_ENABLED && !user.emailVerified) {
+          await setDoc(
+            doc(db, "users", user.uid),
+            {
+              active: false,
+              isActive: false,
+              userActive: false,
+              emailVerified: false,
+              status: "waiting",
+            },
+            { merge: true },
+          );
+          await signOut(auth);
+          router.push("/login");
+          return;
+        }
+
         const userDoc = await getDoc(doc(db, "users", user.uid));
         const role = userDoc.exists() ? userDoc.data().role : null;
 
