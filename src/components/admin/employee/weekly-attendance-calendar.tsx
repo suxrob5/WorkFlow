@@ -36,7 +36,7 @@ export default function WeeklyAttendanceCalendar({
         const isFuture = dateStr > todayStr;
 
         const log = attendanceLogs.find(
-          (l) => String(l.userId) === String(employeeId) && l.date === dateStr
+          (l) => String(l.userId) === String(employeeId) && l.date === dateStr,
         );
 
         let dayColorClass = "";

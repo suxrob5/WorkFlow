@@ -113,7 +113,9 @@ const Register = () => {
       await user.reload();
 
       if (!user.emailVerified) {
-        alert("Email еще не подтвержден. Проверьте почту и перейдите по ссылке.");
+        alert(
+          "Email еще не подтвержден. Проверьте почту и перейдите по ссылке.",
+        );
         return;
       }
 

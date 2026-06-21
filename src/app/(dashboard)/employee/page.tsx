@@ -171,7 +171,7 @@ const Users = () => {
   const totalPages = Math.ceil(filtered.length / pageSize);
   const paginatedShifts = filtered.slice(
     (currentPage - 1) * pageSize,
-    currentPage * pageSize
+    currentPage * pageSize,
   );
 
   const activeFiltersCount = [
