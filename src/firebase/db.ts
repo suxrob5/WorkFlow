@@ -717,6 +717,51 @@ export const getActivitiesDataFromFirestore = async () => {
 
   const workedThisMonthMinutes = monthlyWorked[month];
 
+  const rawAttendance = attendanceSnap.docs
+    .filter((doc) => {
+      const data = doc.data();
+      return data.userId && employeeIds.has(String(data.userId));
+    })
+    .map((doc) => {
+      const data = doc.data();
+      let checkInTimeVal = "";
+      if (data.checkInTime) {
+        if (typeof data.checkInTime.toDate === "function") {
+          checkInTimeVal = data.checkInTime.toDate().toISOString();
+        } else {
+          checkInTimeVal = String(data.checkInTime);
+        }
+      }
+      return {
+        id: doc.id,
+        userId: data.userId || "",
+        userName: data.userName || "",
+        date: data.date || "",
+        checkIn: data.checkIn || "",
+        checkOut: data.checkOut || "",
+        status: data.status || "",
+        workedMinutes: Number(data.workedMinutes || 0),
+        overtimeMinutes: Number(data.overtimeMinutes || 0),
+        checkInTime: checkInTimeVal,
+      };
+    });
+
+  const rawUsers = usersSnap.docs
+    .filter((doc) => isEmployeeUser(doc.data()))
+    .map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        uid: data.uid || doc.id,
+        name: data.name || "",
+        lastName: data.lastName || "",
+        positionKey: data.positionKey || "",
+        position: data.position || "",
+        positionRu: data.positionRu || "",
+        role: data.role || "",
+      };
+    });
+
   return {
     summary: [
       {
@@ -749,6 +794,8 @@ export const getActivitiesDataFromFirestore = async () => {
       },
     ],
     shifts,
+    rawAttendance,
+    rawUsers,
     charts: {
       bar: (await getDashboardChartsFromFirestore()).bar,
       line: {
