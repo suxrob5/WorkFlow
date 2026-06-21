@@ -54,6 +54,29 @@ export interface AttendanceFeedItem {
   sortTime: number;
 }
 
+const isEmployeeUser = (data: Record<string, unknown>) =>
+  String(data.role || "user")
+    .trim()
+    .toLowerCase() !== "admin";
+
+const getEmployeeIdentitySet = async () => {
+  const snapshot = await getDocs(collection(db, "users"));
+  const identities = new Set<string>();
+
+  snapshot.docs.forEach((userDoc) => {
+    const data = userDoc.data();
+    if (!isEmployeeUser(data)) return;
+
+    [userDoc.id, data.id, data.uid].forEach((value) => {
+      if (value !== undefined && value !== null && value !== "") {
+        identities.add(String(value));
+      }
+    });
+  });
+
+  return identities;
+};
+
 // Seed function to initialize Firestore with mock data if collections are empty
 export const seedDatabaseIfEmpty = async () => {
   try {
@@ -238,6 +261,8 @@ export const getEmployeesFromFirestore = async () => {
     const list: Employee[] = [];
     snap.forEach((d) => {
       const data = d.data();
+      if (!isEmployeeUser(data)) return;
+
       list.push({
         id: data.id || d.id,
         name: data.name || data.fullName || "",
@@ -245,14 +270,11 @@ export const getEmployeesFromFirestore = async () => {
         email: data.email || "",
         phone: data.phone || data.number || "",
         positionKey: data.positionKey,
-        position:
-          data.role === "admin"
-            ? "Администратор"
-            : getPositionLabel({
-                positionKey: data.positionKey,
-                position: data.position,
-                positionRu: data.positionRu,
-              }),
+        position: getPositionLabel({
+          positionKey: data.positionKey,
+          position: data.position,
+          positionRu: data.positionRu,
+        }),
         avatar: data.avatarUrl || data.avatar || "/main-logo.png",
         role: data.role || "user",
       });
@@ -281,11 +303,16 @@ export const getAttendanceFeed = async () => {
   const list: AttendanceFeedItem[] = [];
 
   if (!snap.empty) {
-    const usersList = await getEmployeesFromFirestore();
+    const [usersList, employeeIds] = await Promise.all([
+      getEmployeesFromFirestore(),
+      getEmployeeIdentitySet(),
+    ]);
     const usersMap = new Map(usersList.map((u) => [String(u.id), u]));
 
     snap.docs.forEach((d) => {
       const data = d.data();
+      if (!employeeIds.has(String(data.userId || ""))) return;
+
       const user = usersMap.get(String(data.userId)) || {
         name: data.userName || "Сотрудник",
         lastName: "",
@@ -328,8 +355,9 @@ export const getAttendanceFeed = async () => {
 };
 
 export const getUsersCount = async () => {
-  const snap = await getDocs(collection(db, "users"));
-  return snap.size;
+  const snapshot = await getDocs(collection(db, "users"));
+  return snapshot.docs.filter((userDoc) => isEmployeeUser(userDoc.data()))
+    .length;
 };
 
 // get user data
@@ -394,10 +422,12 @@ export const updateUserProfile = async (uid: string, data: any) => {
 export const getUsers = async () => {
   const usersSnap = await getDocs(collection(db, "users"));
 
-  const users = usersSnap.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
+  const users = usersSnap.docs
+    .filter((userDoc) => isEmployeeUser(userDoc.data()))
+    .map((userDoc) => ({
+      id: userDoc.id,
+      ...userDoc.data(),
+    }));
 
   return {
     users,
@@ -409,10 +439,17 @@ export const getUsers = async () => {
 export const getTodayPresentUsers = async () => {
   const today = new Date().toISOString().split("T")[0];
 
-  const attendanceSnap = await getDocs(collection(db, "attendance"));
+  const [attendanceSnap, employeeIds] = await Promise.all([
+    getDocs(collection(db, "attendance")),
+    getEmployeeIdentitySet(),
+  ]);
 
   const users = attendanceSnap.docs
-    .filter((doc) => doc.data().date === today)
+    .filter(
+      (attendanceDoc) =>
+        attendanceDoc.data().date === today &&
+        employeeIds.has(String(attendanceDoc.data().userId || "")),
+    )
     .map((doc) => ({
       id: doc.id,
       ...doc.data(),
@@ -428,10 +465,18 @@ export const getTodayPresentUsers = async () => {
 export const getTodayLateUsers = async () => {
   const today = new Date().toISOString().split("T")[0];
 
-  const attendanceSnap = await getDocs(collection(db, "attendance"));
+  const [attendanceSnap, employeeIds] = await Promise.all([
+    getDocs(collection(db, "attendance")),
+    getEmployeeIdentitySet(),
+  ]);
 
   const users = attendanceSnap.docs
-    .filter((doc) => doc.data().date === today && doc.data().status === "late")
+    .filter(
+      (attendanceDoc) =>
+        attendanceDoc.data().date === today &&
+        attendanceDoc.data().status === "late" &&
+        employeeIds.has(String(attendanceDoc.data().userId || "")),
+    )
     .map((doc) => ({
       id: doc.id,
       ...doc.data(),
@@ -460,13 +505,19 @@ export const getTodayAbsentUsers = async () => {
   };
 };
 
-
 // active userlar
 export const getActiveShifts = async () => {
-  const attendanceSnap = await getDocs(collection(db, "attendance"));
+  const [attendanceSnap, employeeIds] = await Promise.all([
+    getDocs(collection(db, "attendance")),
+    getEmployeeIdentitySet(),
+  ]);
 
   const activeUsers = attendanceSnap.docs
-    .filter((doc) => !doc.data().checkOut)
+    .filter(
+      (attendanceDoc) =>
+        !attendanceDoc.data().checkOut &&
+        employeeIds.has(String(attendanceDoc.data().userId || "")),
+    )
     .map((doc) => ({
       id: doc.id,
       ...doc.data(),
@@ -481,9 +532,24 @@ export const getActiveShifts = async () => {
 const toDateKey = (date: Date) => date.toISOString().split("T")[0];
 
 export const getDashboardChartsFromFirestore = async () => {
-  const usersSnap = await getDocs(collection(db, "users"));
-  const attendanceSnap = await getDocs(collection(db, "attendance"));
-  const totalUsers = usersSnap.size;
+  const [usersSnap, attendanceSnap] = await Promise.all([
+    getDocs(collection(db, "users")),
+    getDocs(collection(db, "attendance")),
+  ]);
+  const employeeDocs = usersSnap.docs.filter((userDoc) =>
+    isEmployeeUser(userDoc.data()),
+  );
+  const employeeIds = new Set(
+    employeeDocs.flatMap((userDoc) => {
+      const data = userDoc.data();
+      return [userDoc.id, data.id, data.uid]
+        .filter(
+          (value) => value !== undefined && value !== null && value !== "",
+        )
+        .map(String);
+    }),
+  );
+  const totalUsers = employeeDocs.length;
   const now = new Date();
   const today = toDateKey(now);
 
@@ -508,7 +574,7 @@ export const getDashboardChartsFromFirestore = async () => {
     const attendanceDate = data.date;
     const userId = data.userId;
 
-    if (!attendanceDate || !userId) return;
+    if (!attendanceDate || !userId || !employeeIds.has(String(userId))) return;
 
     if (!presentByDate.has(attendanceDate)) {
       presentByDate.set(attendanceDate, new Set());
@@ -596,18 +662,26 @@ export const getActivitiesDataFromFirestore = async () => {
   const activeShiftUsers = new Set<string>();
   const todayUsers = new Set<string>();
   const lateTodayUsers = new Set<string>();
+  const employeeIds = new Set<string>();
 
   usersSnap.forEach((userDoc) => {
     const data = userDoc.data();
-    const department =
-      data.role === "admin"
-        ? "Администратор"
-        : getPositionLabel({
-            positionKey: data.positionKey,
-            position: data.position,
-            positionRu: data.positionRu,
-          });
-    departmentCounts.set(department, (departmentCounts.get(department) ?? 0) + 1);
+    if (!isEmployeeUser(data)) return;
+
+    [userDoc.id, data.id, data.uid].forEach((value) => {
+      if (value !== undefined && value !== null && value !== "") {
+        employeeIds.add(String(value));
+      }
+    });
+    const department = getPositionLabel({
+      positionKey: data.positionKey,
+      position: data.position,
+      positionRu: data.positionRu,
+    });
+    departmentCounts.set(
+      department,
+      (departmentCounts.get(department) ?? 0) + 1,
+    );
   });
 
   attendanceSnap.forEach((attendanceDoc) => {
@@ -615,7 +689,7 @@ export const getActivitiesDataFromFirestore = async () => {
     const attendanceDate = data.date;
     const userId = data.userId;
 
-    if (!attendanceDate || !userId) return;
+    if (!attendanceDate || !userId || !employeeIds.has(String(userId))) return;
 
     if (!data.checkOut) {
       activeShiftUsers.add(userId);
@@ -805,12 +879,15 @@ export interface AttendanceRaw {
 }
 
 export const getAttendanceRaw = async (): Promise<AttendanceRaw[]> => {
-  const snap = await getDocs(collection(db, "attendance"));
+  const [snap, employeeIds] = await Promise.all([
+    getDocs(collection(db, "attendance")),
+    getEmployeeIdentitySet(),
+  ]);
   const list: AttendanceRaw[] = [];
   snap.forEach((d) => {
     const data = d.data();
     // Only include docs that have a proper date field
-    if (!data.date) return;
+    if (!data.date || !employeeIds.has(String(data.userId || ""))) return;
     list.push({
       id: d.id,
       userId: data.userId || "",
