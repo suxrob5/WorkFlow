@@ -36,6 +36,9 @@ export interface Employee {
   position: string;
   avatar: string;
   role: string;
+  birthDate?: string;
+  address?: string;
+  passport?: string;
 }
 
 export interface AttendanceFeedItem {
@@ -275,8 +278,11 @@ export const getEmployeesFromFirestore = async () => {
           position: data.position,
           positionRu: data.positionRu,
         }),
-        avatar: data.avatarUrl || data.avatar || "/main-logo.png",
+        avatar: data.avatarUrl || data.avatar || "/user-logo.png",
         role: data.role || "user",
+        birthDate: data.birthDate || "",
+        address: data.address || "",
+        passport: data.passport || "",
       });
     });
     return list;
@@ -294,6 +300,9 @@ export const getEmployeesFromFirestore = async () => {
     }),
     avatar: u.avatarUrl || "/main-logo.png",
     role: "user",
+    birthDate: "",
+    address: "",
+    passport: "",
   }));
 };
 
@@ -906,6 +915,9 @@ export const getEmployeeRowsFromFirestore = async () => {
       avatar: employee.avatar,
       email: employee.email,
       phone: employee.phone,
+      birthDate: employee.birthDate,
+      address: employee.address,
+      passport: employee.passport,
     };
   });
 };

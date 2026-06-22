@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import WeekNavigator from "@/components/admin/employee/week-navigator";
 import Pagination from "@/components/admin/employee/pagination";
 import WeeklyAttendanceCalendar from "@/components/admin/employee/weekly-attendance-calendar";
+import EmployeeDetailModal from "@/components/admin/employee/employee-detail-modal";
 
 // ── Custom dropdown component ──────────────────────────────────────────────
 function FilterDropdown({
@@ -113,6 +114,7 @@ const Users = () => {
   const [deptFilter, setDeptFilter] = useState<string>("all");
   const [dayFilter, setDayFilter] = useState<string>("all");
   const [importSuccess, setImportSuccess] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Added States
@@ -214,6 +216,7 @@ const Users = () => {
   ];
 
   return (
+    <>
     <div>
       <Header />
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-5">
@@ -457,7 +460,8 @@ const Users = () => {
               paginatedShifts.map((shift) => (
                 <div
                   key={shift.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/40 dark:bg-white/3 border border-slate-100 dark:border-white/5 hover:border-slate-200 dark:hover:border-white/15 p-4 rounded-2xl transition duration-200 hover:bg-white/60 dark:hover:bg-white/5 shadow-sm"
+                  onClick={() => setSelectedEmployee(shift)}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/40 dark:bg-white/3 border border-slate-100 dark:border-white/5 hover:border-slate-200 dark:hover:border-white/15 p-4 rounded-2xl transition duration-200 hover:bg-white/60 dark:hover:bg-white/5 shadow-sm cursor-pointer select-none"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-2xl bg-linear-to-r from-sky-500/20 to-blue-600/20 border border-sky-400/20 flex items-center justify-center shrink-0">
@@ -511,6 +515,14 @@ const Users = () => {
         </div>
       </main>
     </div>
+
+      {/* Employee Detail Modal */}
+      <EmployeeDetailModal
+        isOpen={!!selectedEmployee}
+        employee={selectedEmployee}
+        onClose={() => setSelectedEmployee(null)}
+      />
+    </>
   );
 };
 
