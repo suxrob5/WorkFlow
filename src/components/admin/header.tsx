@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/components/theme-provider";
 import { auth, db } from "@/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
-import { useAuthState, useSignOut } from "react-firebase-hooks/auth";
+import { useAuthState  } from "react-firebase-hooks/auth";
 import { MoonIcon, SunIcon } from "@/assets/logos/images";
 
 const AdHeader = () => {
@@ -17,7 +17,6 @@ const AdHeader = () => {
   const router = useRouter();
   const { toggleTheme } = useTheme();
   const [user] = useAuthState(auth);
-  const [signOut] = useSignOut(auth);
   const [avatarUrl, setAvatarUrl] = useState("/user-logo.png");
   const [displayName, setDisplayName] = useState("Admin");
 

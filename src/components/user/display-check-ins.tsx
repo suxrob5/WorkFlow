@@ -5,6 +5,7 @@ import Image from "next/image";
 
 interface Props {
   displayCheckIns: AttendanceType[];
+  loading?: boolean;
 }
 
 type LocationPoint =
@@ -104,7 +105,41 @@ const LocationMap = ({
   );
 };
 
-const DisplayCheckIns: React.FC<Props> = ({ displayCheckIns }) => {
+const DisplayCheckIns: React.FC<Props> = ({ displayCheckIns, loading }) => {
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-pulse">
+        {[0, 1].map((item) => (
+          <div
+            key={item}
+            className="bg-white/40 dark:bg-white/3 border border-slate-100 dark:border-white/5 p-4 rounded-3xl flex gap-4 h-64"
+          >
+            <div className="w-28 shrink-0 space-y-2">
+              <div className="space-y-1">
+                <div className="h-3 w-10 bg-slate-200 dark:bg-white/10 rounded" />
+                <div className="h-20 rounded-2xl bg-slate-200 dark:bg-white/10" />
+              </div>
+              <div className="space-y-1">
+                <div className="h-3 w-10 bg-slate-200 dark:bg-white/10 rounded" />
+                <div className="h-20 rounded-2xl bg-slate-200 dark:bg-white/10" />
+              </div>
+            </div>
+            <div className="flex-1 flex flex-col py-1 space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="h-4 w-12 bg-slate-200 dark:bg-white/10 rounded" />
+                <div className="h-3 w-16 bg-slate-200 dark:bg-white/10 rounded" />
+              </div>
+              <div className="h-4 w-32 bg-slate-200 dark:bg-white/10 rounded" />
+              <div className="space-y-1.5 mt-2">
+                <div className="h-6 bg-slate-200 dark:bg-white/10 rounded-lg" />
+                <div className="h-6 bg-slate-200 dark:bg-white/10 rounded-lg" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
   return (
     <>
       {displayCheckIns.length === 0 ? (

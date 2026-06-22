@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import Script from "next/script";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -26,7 +27,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <script
+        <Script
+          id="theme-toggle"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               (function() {

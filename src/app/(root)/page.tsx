@@ -36,6 +36,7 @@ export default function Home() {
   const [locationLoading, setLocationLoading] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [displayCheckIns, setDisplayCheckIns] = useState<AttendanceType[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
 
   // Feedback notifications
   const [showToast, setShowToast] = useState(false);
@@ -97,8 +98,15 @@ export default function Home() {
     if (!user) return;
 
     const loadData = async () => {
-      const data = await getCheckInsFromFirebase();
-      setDisplayCheckIns(data);
+      try {
+        setHistoryLoading(true);
+        const data = await getCheckInsFromFirebase();
+        setDisplayCheckIns(data);
+      } catch (error) {
+        console.error("Error loading check-ins:", error);
+      } finally {
+        setHistoryLoading(false);
+      }
     };
 
     loadData();
@@ -242,14 +250,14 @@ export default function Home() {
               </svg>
               История отметок присутствия ({displayCheckIns.length})
             </h2>
-            {displayCheckIns.length > 0 && (
+            {!historyLoading && displayCheckIns.length > 0 && (
               <span className="text-[10px] bg-sky-500/10 text-sky-600 dark:text-sky-400 px-2.5 py-1 rounded-full font-bold uppercase border border-sky-400/20 tracking-wider">
                 Массив обновлен
               </span>
             )}
           </div>
           {/* DisplayCheckIns */}
-          <DisplayCheckIns displayCheckIns={displayCheckIns} />
+          <DisplayCheckIns displayCheckIns={displayCheckIns} loading={historyLoading} />
         </div>
       </main>
     </div>
